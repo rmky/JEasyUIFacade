@@ -35,8 +35,8 @@ JS;
 	
 	public function generate_headers(){
 		$includes = parent::generate_headers();
-		$includes[] = '<link href="exface/vendor/exface/JEasyUiTemplate/Template/js/jsoneditor/jsoneditor.min.css" rel="stylesheet">';
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jsoneditor/jsoneditor.min.js"></script>';
+		$includes[] = '<link href="exface/vendor/bower-asset/jsoneditor/dist/jsoneditor.min.css" rel="stylesheet">';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/jsoneditor/dist/jsoneditor.min.js"></script>';
 		return $includes;
 	}
 }

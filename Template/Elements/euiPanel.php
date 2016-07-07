@@ -69,7 +69,7 @@ class euiPanel extends euiContainer {
 	public function generate_headers(){
 		$includes = parent::generate_headers();
 		if ($this->get_widget()->get_column_number() != 1){
-			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/masonry.pkgd.min.js"></script>';
+			$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
 		}
 		return $includes;
 	}

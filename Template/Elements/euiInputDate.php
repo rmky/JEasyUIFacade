@@ -32,7 +32,7 @@ class euiInputDate extends euiInput {
 	
 	public function generate_headers(){
 		$headers = parent::generate_headers();
-		$headers[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/datejs/build/date.js"></script>';
+		$headers[] = '<script type="text/javascript" src="exface/vendor/npm-asset/datejs/build/date.js"></script>';
 		return $headers;
 	}
 	
