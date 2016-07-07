@@ -23,7 +23,7 @@
 		"npm-asset/flot-charts" : "~0.8",
 		"npm-asset/jquery-prettytextdiff" : "~1.0.4",
 		"npm-asset/diff-match-patch" : "~1.0",
-		"npm-asset/Datejs" : "~1.0.0.0-alpha1",
+		"npm-asset/Datejs" : "1.0.0.0-alpha1",
 		"npm-asset/blueimp-load-image": "~2.6"
 	}
 }
