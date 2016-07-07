@@ -17,11 +17,13 @@
 		"bower-asset/jeasyui" : "1.4.3",
 		"bower-asset/masonry" : "~4",
 		"bower-asset/handsontable" : "0.14.*",
-		"bower-asset/blueimp-file-upload": "~9.12",
-		"bower-asset/jsoneditor": "~4.2.1",
-		"bower-asset/paste.js": "~0.0.15",
+		"bower-asset/handsontable-ruleJS" : "~0.0.4",
+		"bower-asset/blueimp-file-upload" : "~9.12",
+		"bower-asset/jsoneditor" : "~4.2",
+		"bower-asset/paste.js" : "~0.0.15",
 		"npm-asset/flot-charts" : "~0.8",
 		"npm-asset/jquery-prettytextdiff" : "~1.0.4",
-		"npm-asset/Datejs": "~1.0.0.0-RC3"
+		"npm-asset/diff-match-patch" : "~1.0",
+		"npm-asset/Datejs" : "~1.0.0.0-RC3"
 	}
 }

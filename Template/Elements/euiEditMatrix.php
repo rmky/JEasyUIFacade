@@ -8,19 +8,19 @@ class euiEditMatrix extends euiDataMatrix {
 	function generate_headers(){
 		// handsontable
 		$includes = array (
-				'<script src="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable/dist/handsontable.full.js"></script>',
-				'<link rel="stylesheet" media="screen" href="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable/dist/handsontable.full.css">'
+				'<script src="exface/vendor/bower-asset/handsontable-rulejs/bower_components/handsontable/dist/handsontable.full.min.js"></script>',
+				'<link rel="stylesheet" media="screen" href="exface/vendor/bower-asset/handsontable-rulejs/bower_components/handsontable/dist/handsontable.full.min.css">'
 				);
 		// formula suppoert
 		if ($this->get_widget()->get_formulas_enabled()){
-			$includes[] = '<link rel="stylesheet" media="screen" href="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable/lib/ruleJS/src/handsontable.formula.css">';
-			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable/lib/ruleJS/bower_components/ruleJS/dist/full/ruleJS.all.full.min.js"></script>';
-			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable/lib/ruleJS/src/handsontable.formula.js"></script>';	
+			$includes[] = '<link rel="stylesheet" media="screen" href="exface/vendor/bower-asset/handsontable-rulejs/src/handsontable.formula.css">';
+			$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/handsontable-rulejs/bower_components/ruleJS/dist/full/ruleJS.all.full.min.js"></script>';
+			$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/handsontable-rulejs/src/handsontable.formula.js"></script>';	
 			
 			$this->get_widget()->set_show_row_numbers(true);
 		}
 		// masonry for filter alignment
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/masonry.pkgd.min.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
 		return $includes;
 	}
 	

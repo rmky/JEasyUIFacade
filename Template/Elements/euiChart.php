@@ -386,25 +386,25 @@ HTML;
 	public function generate_headers(){
 		$includes = parent::generate_headers();
 		// flot 
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/flot/jquery.flot.js"></script>';
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/flot/jquery.flot.resize.min.js"></script>';
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/flot/jquery.flot.categories.min.js"></script>';
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/flot/jquery.flot.time.min.js"></script>';
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/flot/jquery.flot.crosshair.min.js"></script>';
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/flot/plugins/axislabels/jquery.flot.axislabels.js"></script>';
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/AdminLteTemplate/Template/js/flot/plugins/jquery.flot.orderBars.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.resize.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.categories.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.time.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.crosshair.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/flot/plugins/axislabels/jquery.flot.axislabels.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/flot/plugins/jquery.flot.orderBars.js"></script>';
 		
 		
 		if ($this->get_widget()->get_stack_series()){
-			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/flot/jquery.flot.stack.min.js"></script>';
+			$includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.stack.js"></script>';
 		}
 		
 		if ($this->is_pie_chart()){
-			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/flot/jquery.flot.pie.min.js"></script>';
+			$includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.pie.js"></script>';
 		}
 		
 		// masonry for proper filter alignment
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/masonry.pkgd.min.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
 		return $includes;
 	}
 	

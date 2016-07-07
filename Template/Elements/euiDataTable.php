@@ -328,14 +328,14 @@ class euiDataTable extends euiData {
 	public function generate_headers(){
 		$includes = parent::generate_headers();
 		// Masonry is neede to align filters nicely
-		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/masonry.pkgd.min.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
 		// Row details view
 		if ($this->get_widget()->has_row_details()){
-			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-detailview.js"></script>';
+			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/datagridview/datagrid-detailview.js"></script>';
 		} 
 		/* IDEA The row groups get included always by the current template. Perhaps we need some way to allow manual includes in parallel with automatic ones
 		if ($this->get_widget()->has_row_groups()){
-			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-groupview.js"></script>';
+			$includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/datagridview/datagrid-groupview.js"></script>';
 		}*/
 		return $includes;
 	}
