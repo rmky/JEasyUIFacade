@@ -1,0 +1,38 @@
+body {font-family: Helvetica,Arial,sans-serif;}
+ul.nav_menu {list-style: none; font-size: 12px; list-style-position: inside; margin:0; padding: 0;}
+ul.nav_menu li {border-bottom: 1px solid #ccc;}
+ul.nav_menu li ul {list-style: none; list-style-position: inside; padding: 0 0 5px 20px;}
+ul.nav_menu li ul li {border: none;}
+ul.nav_menu a {padding: 6px 0 6px 10px; color: black; text-decoration: none; display: block; width: 100%;}
+ul.nav_menu li.active a.active {color: white; font-weight: bold; text-decoration: none; display: block; width: 100%; background: #6CAEF5}
+ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; display: block; width: 100%; background: #6CAEF5}
+
+/* Inputs */
+.exf_input {box-sizing: border-box; padding:4px; text-align:right;}
+.exf_input label {margin: 0 3px; display: inline-block; max-width: 158px;}
+.exf_input_wrapper {width:calc(100% - 167px); display: inline-block; height: 100%;}
+.exf_input textarea {vertical-align:middle;border: 1px solid #c3d9e0;}
+.numberbox input {text-align: right;}
+
+/* jEasyUI customizing */
+div.panel-body{background-color:#fff;}
+
+/* TextDiff widget */
+.difftext-container {border: 1px solid #c3d9e0;}
+.difftext-diff del {text-decoration: line-through; color: white; background-color: red;}
+.difftext-diff ins {text-decoration: none; color: white; background-color: green;}
+
+/* InputJson widget */
+.jsoneditor {text-align: left;}
+.fitem .jsoneditor div.outer {margin: 0;}
+
+/* jQuery FileUpload */
+.fileupload-files{margin-top: 10px;}
+.fileupload-inner{line-height: 110px; vertical-align: middle;}
+.fileupload-inner > * {line-height: normal; display: inline-block; padding: 5px; }
+.fileupload-preview {vertical-align: top; width: 110px;}
+.fileupload-desc {font-weight: bold}
+.fileupload-filename {color: grey}
+
+/* flot charts */
+.tooltip-inner { max-width: 200px; padding: 3px 8px; color: #fff; text-align: center; background-color: #000; border-radius: 4px;}
