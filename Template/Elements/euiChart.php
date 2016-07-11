@@ -69,7 +69,7 @@ HTML;
 <div class="easyui-layout" id="{$this->get_id()}_wrapper" data-options="fit: true">
 	{$toolbar}
 	<div style="heigth: auto;" data-options="region: 'center' {$chart_panel_options}">
-		<div id="{$this->get_id()}" style="height:calc(100% - 15px)"></div>
+		<div id="{$this->get_id()}" style="height:calc(100% - 15px); min-height: 100px;"></div>
 	</div>
 </div>
 
