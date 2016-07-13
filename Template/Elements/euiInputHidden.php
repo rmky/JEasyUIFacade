@@ -16,7 +16,8 @@ class euiInputHidden extends euiInput {
 	}
 	
 	function generate_js(){
-		return '';
+		$output .= $this->generate_js_live_refrence();
+		return $output;
 	}
 	
 	function get_js_value_setter_method($value){

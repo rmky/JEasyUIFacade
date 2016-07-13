@@ -60,7 +60,7 @@ class euiData extends euiAbstractElement {
 		// add initial filters
 		if ($this->get_widget()->has_filters()){
 			foreach ($this->get_widget()->get_filters() as $fnr => $fltr){
-				$params[] = 'fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ': "' . $fltr->get_comparator() . urlencode($fltr->get_value()) . '"';
+				$params[] = 'fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ': "' . $fltr->get_comparator() . urlencode(strpos($fltr->get_value(), '=') === 0 ? '' : $fltr->get_value()) . '"';
 			}
 		}
 		
