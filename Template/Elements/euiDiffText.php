@@ -40,7 +40,7 @@ HTML;
 	
 	public function generate_headers(){
 		return array (
-			'<script type="text/javascript" src="exface/vendor/npm-asset/jquery-prettytextdiff/jquery.pretty-text-diff/jquery.pretty-text-diff.min.js"></script>',
+			'<script type="text/javascript" src="exface/vendor/npm-asset/jquery-prettytextdiff/jquery.pretty-text-diff.min.js"></script>',
 			'<script type="text/javascript" src="exface/vendor/npm-asset/diff-match-patch/index.js"></script>'
 		);
 	}
