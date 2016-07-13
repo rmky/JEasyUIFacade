@@ -141,7 +141,7 @@ class euiData extends euiAbstractElement {
 		// Now loop through all column groups again and built the header definition
 		foreach ($column_groups as $column_group){
 			if ($column_group->get_caption()){
-				$header_rows[0][] = '{title: "' . $column_group->get_caption() . '", colspan: ' . $column_group->count_columns() . '}';
+				$header_rows[0][] = '{title: "' . $column_group->get_caption() . '", colspan: ' . $column_group->count_columns_visible() . '}';
 				$put_into_header_row = 1;
 			} else {
 				$put_into_header_row = 0;
