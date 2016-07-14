@@ -158,7 +158,7 @@ abstract class euiAbstractElement {
 	 */
 	function get_id($exf_widget_id = null){
 		$widget_id = ($exf_widget_id ? $exf_widget_id : $this->get_widget()->get_id());
-		return  $this->clean_id($widget_id) . ($this->get_template()->exface()->get_request_id() ? '-' . $this->get_template()->exface()->get_request_id() : '');
+		return  $this->clean_id($widget_id) . ($this->get_template()->get_workbench()->get_request_id() ? '-' . $this->get_template()->get_workbench()->get_request_id() : '');
 	}
 	
 	/**
@@ -204,7 +204,7 @@ abstract class euiAbstractElement {
 	}
 
 	public function get_ajax_url() {
-		$request_id = $this->get_template()->exface()->get_request_id();
+		$request_id = $this->get_template()->get_workbench()->get_request_id();
 		return $this->ajax_url . ($request_id ? '&exfrid=' . $request_id : '');
 	}
 	

@@ -53,7 +53,7 @@ class euiDataMatrix extends euiDataTable {
 		$result = array();
 				
 		// create data sheet to fetch data
-		$ds = $this->get_template()->exface()->data()->create_data_sheet($this->get_meta_object());
+		$ds = $this->get_template()->get_workbench()->data()->create_data_sheet($this->get_meta_object());
 		// add columns
 		foreach ($widget->get_columns() as $col){
 			$ds->get_columns()->add_from_expression($col->get_attribute_alias(), $col->get_data_column_name(), $col->is_hidden());

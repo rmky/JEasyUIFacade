@@ -4,7 +4,7 @@ use exface\Core\Widgets\DataColumnGroup;
 
 /**
  * Implementation of a basic grid.
- * @author aka
+ * @author Andrej Kabachnik
  *
  */
 class euiData extends euiAbstractElement {

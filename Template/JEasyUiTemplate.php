@@ -18,9 +18,9 @@ class JEasyUiTemplate extends AbstractAjaxTemplate {
 	public function get_request_filters(){
 		parent::get_request_filters();
 		// id is a special filter for dynamic tree loading in jeasyui
-		if ($this->exface()->get_request_params()['id']){
-			$this->request_filters_array['PARENT'] = urldecode($this->exface()->get_request_params()['id']);
-			$this->exface()->remove_request_param('id');
+		if ($this->get_workbench()->get_request_params()['id']){
+			$this->request_filters_array['PARENT'] = urldecode($this->get_workbench()->get_request_params()['id']);
+			$this->get_workbench()->remove_request_param('id');
 		}
 		return $this->request_filters_array;
 	}

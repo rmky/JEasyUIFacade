@@ -2,7 +2,7 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 /**
  * generates jEasyUI-Buttons for ExFace dialogs
- * @author aka
+ * @author Andrej Kabachnik
  *
  */
 class euiDialogButton extends euiButton {

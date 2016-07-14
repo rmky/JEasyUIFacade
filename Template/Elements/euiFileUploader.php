@@ -40,7 +40,7 @@ HTML;
         //$('<div class="result"></div>').text('text: "' + data.text + '"').insertAfter(this);
       });
     $('#{$this->get_id()}').fileupload({
-        url: 'exface/vendor/exface/JEasyUiTemplate/Template/upload.php?sid={$this->get_template()->exface()->context()->get_scope_window()->get_scope_id()}',
+        url: 'exface/vendor/exface/JEasyUiTemplate/Template/upload.php?sid={$this->get_template()->get_workbench()->context()->get_scope_window()->get_scope_id()}',
         dataType: 'json',
         autoUpload: true,
         {$this->generate_file_filter()}
