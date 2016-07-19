@@ -127,7 +127,20 @@ class euiButton extends euiAbstractElement {
 		if ($action->implements_interface('iRunTemplateScript')){
 			$output = $action->print_script($input_element->get_id());
 		} elseif ($action->implements_interface('iShowDialog')) {
-			// FIXME the request should be sent via POST to avoid length limitations of GET, however it does not seem to work with jEasyUI 1.3.6 (bug???)
+			
+			// TODO the following if() makes sure ShowDialog-actions can be called from another dialog while
+			// receiving data just like SaveData-actions would do. The trouble is, that ShowDialog is a totally
+			// different logic compared to submitting a form with SaveData. Once stop using native forms and
+			// move to filling data into request variables via JS, this should become unneccessary.
+			if ($action->implements_interface('iModifyData') && $input_element->get_widget()->is_of_type('Dialog')){
+				$js_requestData .= 'requestData.rows[0] = {};' . "\n";
+				foreach ($input_element->get_widget()->get_children_recursive() as $child){
+					if ($child->implements_interface('iTakeInput')){
+						$js_requestData .= 'requestData.rows[0]["' . $child->get_attribute_alias() . '"] = ' . $this->get_template()->get_element($child)->get_js_value_getter() . ";\n";
+					}
+				}
+			}
+			
 			$output = $js_requestData . "
 					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog({
 							href: '" . $this->get_ajax_url() . "',
@@ -140,6 +153,7 @@ class euiButton extends euiAbstractElement {
 							}
 							" . ($this->generate_js_input_refresh($widget, $input_element) ? ", onBeforeClose: function(){" . $this->generate_js_input_refresh($widget, $input_element) . ";}" : "") . "
 						});
+					" . $this->generate_js_close_dialog($widget, $input_element) . "
 					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog('open').dialog('setTitle','" . $widget->get_caption() . "');";
 		} elseif ($action->implements_interface('iShowWidget')) {
 			/* @var $action \exface\Core\Interfaces\Actions\iShowWidget */
