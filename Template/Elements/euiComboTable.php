@@ -10,7 +10,7 @@ class euiComboTable extends euiInput {
 	function generate_html(){
 		$widget = $this->get_widget();
 		$output = '	<input style="height: 100%;width:100%;" id="' . $this->get_id() . '" 
-							name="' . $widget->get_attribute_alias() . '" 
+							name="' . $widget->get_attribute_alias() . ($widget->get_multi_select() ? '[]' : '') . '" 
 							value="' . $this->get_value_with_defaults() . '" />
 					';
 		
