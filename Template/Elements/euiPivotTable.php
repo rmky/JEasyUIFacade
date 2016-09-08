@@ -56,13 +56,14 @@ class euiPivotTable extends euiDataTable {
 				$data_sheet->set_column_values($name, $formatter->evaluate($data_sheet, $name));
 			}
 		}
+		$data = array();
 		foreach ($data_sheet->get_rows() as $row_nr => $row){
 			foreach ($row as $fld => $val){
-				if ($col = $this->get_widget()->get_column($fld)){
+				if ($col = $this->get_widget()->get_column_by_data_column_name($fld)){
 					$data[$row_nr][$col->get_caption()] = $val;
 				}
 			}
-		}
+		} 
 		return $data;
 	}
 }
