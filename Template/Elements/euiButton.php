@@ -116,11 +116,15 @@ class euiButton extends euiAbstractElement {
 		
 		// Create and populate the requestData JS-object
 		// TODO make this a common JS-funktion for all buttons instead of including it to every buttons code
-		$js_requestData = "
+		/*$js_requestData = "
 					var requestData = {};
 					requestData.oId = '" . $widget->get_meta_object_id() . "';
 					requestData.rows = " . $input_element->build_js_data_getter() . ";
-					" . $js_check_input_rows; 
+					" . $js_check_input_rows; */
+		
+		$js_requestData = "
+					var requestData = (" . $input_element->build_js_action_data_getter($action) . ")();
+					" . $js_check_input_rows;
 		
 		// Generate the button specific JS code
 		// IDEA there are many similarities here. Perhaps it is possible to make less elseifs...
@@ -205,13 +209,13 @@ class euiButton extends euiAbstractElement {
 			                url: '" . $this->get_ajax_url() . "&resource=".$widget->get_page_id()."&element=".$widget->get_id()."&action=".$widget->get_action_alias() . "&object=" . $widget->get_meta_object_id() . "'
 			            });";
 		} else {
-			$output = $js_requestData;
+			/*$output = $js_requestData;
 			if ($input_element->get_widget()->get_widget_type() == 'DataTable'){
 				if ($input_element->is_editable() && $action instanceof SaveData){
 					$output .= "
 							requestData.rows = " . $input_element->build_js_changes_getter() . ";";
 				}
-			}
+			}*/
 			$output .= "
 						" . $this->build_js_busy_icon_show() . "
 						$.post('" . $this->get_ajax_url() ."',

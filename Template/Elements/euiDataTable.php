@@ -1,6 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\DataTable;
+use exface\Core\Interfaces\Actions\ActionInterface;
 
 class euiDataTable extends euiData {
 	protected $element_type = 'datagrid';
@@ -319,6 +320,15 @@ class euiDataTable extends euiData {
 			$output = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections')";	
 		}
 		return $output;
+	}
+	
+	public function build_js_action_data_getter(ActionInterface $action, $custom_body_js = null){
+		if ($this->is_editable() && $action->implements_interface('iModifyData')){
+			$rows = $this->get_function_prefix() . "getChanges()";
+		} else {
+			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections')";
+		}
+		return parent::build_js_action_data_getter($action, "data.rows = " . $rows . ";");
 	}
 	
 	public function build_js_refresh(){

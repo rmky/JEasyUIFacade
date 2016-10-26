@@ -1,5 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+use exface\Core\Interfaces\Actions\ActionInterface;
+
 abstract class euiAbstractElement {
 	protected $element_id_forbidden_chars = array('/', '(', ')', '.');
 	protected $function_prefix_forbidden_chars = array('-', '.');
@@ -127,6 +129,8 @@ abstract class euiAbstractElement {
 	}
 	
 	/**
+	 * @deprecated use build_js_action_data_getter() instead
+	 * 
 	 * In contrast to value_getters data_getters return an assotiative array similar to a DataSheet: e.g. the value_getter 
 	 * of a Combo widget will return the selected value, while the data_getter will return the object {attribute_alias: alias, value: value}.
 	 * This is a big difference for multi-dimensional widgets like a DataTables, where the data_getter 
@@ -392,5 +396,35 @@ abstract class euiAbstractElement {
 		$this->on_resize_script .= $js;
 		return $this;
 	}
+	
+	/**
+	 * Returns an embeddable JS snippet, that returns a JS-object ready to be encoded and sent to the server to
+	 * perform the given action. Each element can decide itself, which data it should return for which type of
+	 * action.
+	 * 
+	 * @param ActionInterface $action
+	 * @return string
+	 */
+	public function build_js_action_data_getter(ActionInterface $action, $custom_body_js = null){
+		if (is_null($custom_body_js)){
+			if (method_exists($this->get_widget(), 'get_attribute_alias')){
+				$alias = $this->get_widget()->get_attribute_alias();
+			} else {
+				$alias = $this->get_widget()->get_meta_object()->get_alias_with_namespace();
+			}
+			$custom_body_js = "data.rows = [{" . $alias . ": " . $this->build_js_value_getter() . "}]";
+		}
+		
+		$js = <<<JS
+		function(){
+			var data = {};
+			data.oId = '{$this->get_widget()->get_meta_object_id()}';
+			{$custom_body_js}
+			return data;
+		}
+JS;
+		return $js;
+	}
+
 }
 ?>
