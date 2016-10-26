@@ -16,15 +16,15 @@ class euiInputHidden extends euiInput {
 	}
 	
 	function generate_js(){
-		$output .= $this->generate_js_live_refrence();
+		$output .= $this->build_js_live_refrence();
 		return $output;
 	}
 	
-	function get_js_value_setter_method($value){
+	function build_js_value_setter_method($value){
 		return  'val(' . $value . ')';
 	}
 	
-	function get_js_value_getter_method(){
+	function build_js_value_getter_method(){
 		return  'val()';
 	}
 }

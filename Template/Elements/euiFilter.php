@@ -10,24 +10,24 @@ class euiFilter extends euiInput {
 		return $this->get_template()->get_element($this->get_widget()->get_widget())->generate_js();
 	}
 	
-	function get_js_value_getter(){
-		return $this->get_template()->get_element($this->get_widget()->get_widget())->get_js_value_getter();
+	function build_js_value_getter(){
+		return $this->get_template()->get_element($this->get_widget()->get_widget())->build_js_value_getter();
 	}
 	
-	function get_js_value_getter_method(){
-		return $this->get_template()->get_element($this->get_widget()->get_widget())->get_js_value_getter_method();
+	function build_js_value_getter_method(){
+		return $this->get_template()->get_element($this->get_widget()->get_widget())->build_js_value_getter_method();
 	}
 	
-	function get_js_value_setter($value){
-		return $this->get_template()->get_element($this->get_widget()->get_widget())->get_js_value_setter($value);
+	function build_js_value_setter($value){
+		return $this->get_template()->get_element($this->get_widget()->get_widget())->build_js_value_setter($value);
 	}
 	
-	function get_js_value_setter_method($value){
-		return $this->get_template()->get_element($this->get_widget()->get_widget())->get_js_value_setter_method($value);
+	function build_js_value_setter_method($value){
+		return $this->get_template()->get_element($this->get_widget()->get_widget())->build_js_value_setter_method($value);
 	}
 	
-	function get_js_init_options(){
-		return $this->get_template()->get_element($this->get_widget()->get_widget())->get_js_init_options();
+	function build_js_init_options(){
+		return $this->get_template()->get_element($this->get_widget()->get_widget())->build_js_init_options();
 	}
 	
 	/**

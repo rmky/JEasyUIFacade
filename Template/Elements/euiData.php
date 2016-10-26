@@ -205,7 +205,7 @@ class euiData extends euiAbstractElement {
 							. ($colspan ? ', colspan: ' . intval($colspan) : '')
 							. ($rowspan ? ', rowspan: ' . intval($rowspan) : '')
 							. ($col->is_hidden() ? ', hidden: true' :  '')
-							. ($editor ? ', editor: {type: "' . $editor->get_element_type() . '"' . ($editor->get_js_init_options() ? ', options: {' . $editor->get_js_init_options() . '}' : '') . '}' : '')
+							. ($editor ? ', editor: {type: "' . $editor->get_element_type() . '"' . ($editor->build_js_init_options() ? ', options: {' . $editor->build_js_init_options() . '}' : '') . '}' : '')
 							. ($col->get_cell_styler_script() ? ', styler: function(value,row,index){' . $col->get_cell_styler_script() . '}' :  '')
 							. ', align: "' . $col->get_align() . '"'
 							. ', sortable: ' . ($col->get_sortable() ? 'true' : 'false') 

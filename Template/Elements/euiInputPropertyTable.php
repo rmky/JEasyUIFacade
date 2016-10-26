@@ -16,8 +16,8 @@ class euiInputPropertyTable extends euiInput {
 		}
 		$output = '	<div class="fitem exf_input" title="' . trim($this->get_hint()) . '" style="width: ' . $this->get_width() . '">
 						<textarea name="' . $widget->get_attribute_alias() . '" id="' . $this->get_id() . '" style="display:none;" >' . $value . '</textarea>
-						<table id="' . $this->get_js_grid_id() . '" width="100%"></table>
-					'  . $this->generate_html_toolbar() . '</div>';
+						<table id="' . $this->build_js_grid_id() . '" width="100%"></table>
+					'  . $this->build_html_toolbar() . '</div>';
 		return $output;
 	}
 	
@@ -27,7 +27,7 @@ class euiInputPropertyTable extends euiInput {
 		
 		$output = <<<JS
 
-$('#{$this->get_js_grid_id()}').{$this->get_element_type()}({
+$('#{$this->build_js_grid_id()}').{$this->get_element_type()}({
 	data: JSON.parse($('#{$this->get_id()}').val()),
 	showGroup: false,
 	showHeader: false,
@@ -46,28 +46,28 @@ $('#{$this->get_js_grid_id()}').{$this->get_element_type()}({
 	onLoadSuccess: {$this->get_function_prefix()}Sync
 });
 function {$this->get_function_prefix()}Sync(){
-	var data = $('#{$this->get_js_grid_id()}').propertygrid('getData');
+	var data = $('#{$this->build_js_grid_id()}').propertygrid('getData');
 	var result = {};
 	for (var i=0; i<data.rows.length; i++){
-		$('#{$this->get_js_grid_id()}').propertygrid('endEdit', i);
+		$('#{$this->build_js_grid_id()}').propertygrid('endEdit', i);
 		result[data.rows[i].name] = data.rows[i].value;
-		$('#{$this->get_js_grid_id()}').propertygrid('beginEdit', i);
+		$('#{$this->build_js_grid_id()}').propertygrid('beginEdit', i);
 	}
 	$('#{$this->get_id()}').val(JSON.stringify(result));
 }
-$('#{$this->get_js_grid_id()}').parents('form').form({onSubmit: {$this->get_function_prefix()}Sync});
-{$this->generate_js_property_adder()}
-{$this->generate_js_property_remover()}
+$('#{$this->build_js_grid_id()}').parents('form').form({onSubmit: {$this->get_function_prefix()}Sync});
+{$this->build_js_property_adder()}
+{$this->build_js_property_remover()}
 JS;
 
 		return $output;
 	}
 	
-	function get_js_init_options(){
+	function build_js_init_options(){
 		return '';
 	}
 	
-	private function get_js_grid_id(){
+	private function build_js_grid_id(){
 		return $this->get_id() . '_grid';
 	}
 	
@@ -75,7 +75,7 @@ JS;
 		
 	}
 	
-	private function generate_html_toolbar(){
+	private function build_html_toolbar(){
 		$output = '';
 		/* @var $widget \exface\Core\Widgets\InputPropertyTable */
 		$widget = $this->get_widget();
@@ -91,7 +91,7 @@ JS;
 		return $output;
 	}
 	
-	private function generate_js_property_adder(){
+	private function build_js_property_adder(){
 		$output = '';
 		if ($this->get_widget()->get_allow_add_properties()){
 			$output .= <<<JS
@@ -100,10 +100,10 @@ function {$this->get_function_prefix()}AddProperties(){
 		if (r){
 			var props = r.split(',');
 			for (var i=0; i<props.length; i++){
-				$('#{$this->get_js_grid_id()}').propertygrid('appendRow',{name: props[i].trim(), value: '', editor: 'text'});
+				$('#{$this->build_js_grid_id()}').propertygrid('appendRow',{name: props[i].trim(), value: '', editor: 'text'});
 			}
 			{$this->get_function_prefix()}Sync();
-			$('#{$this->get_js_grid_id()}').parents('.panel-body').trigger('resize');
+			$('#{$this->build_js_grid_id()}').parents('.panel-body').trigger('resize');
 		}
 	});
 }
@@ -112,17 +112,17 @@ JS;
 		return $output;
 	}
 	
-	private function generate_js_property_remover(){
+	private function build_js_property_remover(){
 		$output = '';
 		if ($this->get_widget()->get_allow_remove_properties()){
 			$output .= <<<JS
 function {$this->get_function_prefix()}RemoveProperties(){
-	var rows = $('#{$this->get_js_grid_id()}').propertygrid('getSelections');
+	var rows = $('#{$this->build_js_grid_id()}').propertygrid('getSelections');
 	for (var i=0; i<rows.length; i++){
-		$('#{$this->get_js_grid_id()}').propertygrid('deleteRow', $('#{$this->get_js_grid_id()}').propertygrid('getRowIndex', rows[i]));
+		$('#{$this->build_js_grid_id()}').propertygrid('deleteRow', $('#{$this->build_js_grid_id()}').propertygrid('getRowIndex', rows[i]));
 	}
 	{$this->get_function_prefix()}Sync();
-	$('#{$this->get_js_grid_id()}').parents('.panel-body').trigger('resize');
+	$('#{$this->build_js_grid_id()}').parents('.panel-body').trigger('resize');
 }
 JS;
 		}

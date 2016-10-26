@@ -36,8 +36,8 @@ class euiPanel extends euiContainer {
 		/* @var $widget \exface\Core\Widgets\Panel */
 		$widget = $this->get_widget();
 		if ($widget->get_column_number() != 1){
-			$this->add_on_load_script($this->generate_js_layouter());
-			$this->add_on_resize_script($this->generate_js_layouter());
+			$this->add_on_load_script($this->build_js_layouter());
+			$this->add_on_resize_script($this->build_js_layouter());
 		}
 		
 		$output = "collapsible: " . ($widget->get_collapsible() ? 'true' : 'false') .
@@ -92,7 +92,7 @@ class euiPanel extends euiContainer {
 		return $this;
 	}  
 	
-	public function generate_js_layouter(){
+	public function build_js_layouter(){
 		$script .= <<<JS
 	if (!$('#{$this->get_id()} .grid').data('masonry')){
 		if ($('#{$this->get_id()} .grid').find('.fitem').length > 0){

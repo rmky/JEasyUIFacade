@@ -7,8 +7,8 @@ class euiInputNumber extends euiInput {
 		$this->set_element_type('numberbox');
 	}
 	
-	protected function generate_js_data_options(){
-		$output = parent::generate_js_data_options();
+	protected function build_js_data_options(){
+		$output = parent::build_js_data_options();
 		if ($output){
 			$output .= ', ';
 		}

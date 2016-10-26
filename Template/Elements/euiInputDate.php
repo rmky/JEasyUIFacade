@@ -17,17 +17,17 @@ class euiInputDate extends euiInput {
 						id="' . $this->get_id() . '"
 						' . ($widget->is_required() ? 'required="true" ' : '') . '
 						' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . '
-						data-options="' . $this->generate_js_data_options() . '" />
+						data-options="' . $this->build_js_data_options() . '" />
 					';
-		return $this->generate_html_wrapper_div($output);
+		return $this->build_html_wrapper_div($output);
 	}
 	
 	function generate_js(){
 		return '';
 	}
 	
-	protected function generate_js_data_options(){
-		return 'formatter:function(date){return date.toString(\'' . $this->get_js_date_format() . '\');}, parser:function(s){return Date.parse(s);}';
+	protected function build_js_data_options(){
+		return 'formatter:function(date){return date.toString(\'' . $this->build_js_date_format() . '\');}, parser:function(s){return Date.parse(s);}';
 	}
 	
 	public function generate_headers(){
@@ -36,11 +36,11 @@ class euiInputDate extends euiInput {
 		return $headers;
 	}
 	
-	public function get_js_value_getter(){
+	public function build_js_value_getter(){
 		return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getValue')";
 	}
 	
-	protected function get_js_date_format(){
+	protected function build_js_date_format(){
 		return 'yyyy-MM-dd';
 	}
 }

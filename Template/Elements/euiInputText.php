@@ -18,25 +18,25 @@ class euiInputText extends euiInput {
 						. $this->get_widget()->get_value() . 
 					'</textarea>
 					';
-		return $this->generate_html_wrapper_div($output);;
+		return $this->build_html_wrapper_div($output);;
 	}
 	
 	function generate_js(){
 		$output = '';
-		$output .= $this->generate_js_live_refrence();
-		$output .= $this->generate_js_on_change_handler();
+		$output .= $this->build_js_live_refrence();
+		$output .= $this->build_js_on_change_handler();
 		return $output;
 	}
 	
-	public function get_js_value_setter_method($value){
+	public function build_js_value_setter_method($value){
 		return 'val(' . $value . ')';
 	}
 	/*
-	function generate_js_data_options(){
-		return parent::generate_js_data_options() . ', multiline: true';
+	function build_js_data_options(){
+		return parent::build_js_data_options() . ', multiline: true';
 	}
 	
-	function get_js_value_setter_method($value){
+	function build_js_value_setter_method($value){
 		return  $this->get_element_type() . '("setText", ' . $value . ')';
 	}*/
 }

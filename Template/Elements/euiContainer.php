@@ -41,10 +41,10 @@ class euiContainer extends euiAbstractElement {
 	}
 	
 	/**
-	 * TODO The get_js_data_getter() should return an array with data from all widgets in the container. Recursive method needed here!
-	 * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::get_js_data_getter()
+	 * TODO The build_js_data_getter() should return an array with data from all widgets in the container. Recursive method needed here!
+	 * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::build_js_data_getter()
 	 */
-	public function get_js_data_getter($include_inactive_data = false){
+	public function build_js_data_getter($include_inactive_data = false){
 		return '[]';
 	}
 }

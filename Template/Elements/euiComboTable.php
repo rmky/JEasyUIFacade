@@ -14,13 +14,13 @@ class euiComboTable extends euiInput {
 							value="' . $this->get_value_with_defaults() . '" />
 					';
 		
-		return $this->generate_html_wrapper_div($output);
+		return $this->build_html_wrapper_div($output);
 	}
 	
 	function generate_js(){
 		// Need to understand, if it's the first time loading to prevent that loading if a value is set already
 		$output .= '$("#' . $this->get_id() . '").combogrid({';
-		$output .= $this->get_js_init_options();
+		$output .= $this->build_js_init_options();
 		$output .= '});';
 		// Add a clear icon to each combo grid - a small cross to the right, that resets the value
 		// TODO The addClearBtn extension seems to break the setText method, so that it also sets the value. Perhaps we can find a better way some time
@@ -28,7 +28,7 @@ class euiComboTable extends euiInput {
 		return $output;
 	}
 	
-	function get_js_init_options(){
+	function build_js_init_options(){
 		/* @var $widget \exface\Core\Widgets\ComboTable */
 		$widget = $this->get_widget();
 		/* @var $table \exface\JEasyUiTemplate\Template\Elements\DataTable */
@@ -90,7 +90,7 @@ class euiComboTable extends euiInput {
 		return $output;
 	}
 	
-	function get_js_value_getter($column = null, $row = null){
+	function build_js_value_getter($column = null, $row = null){
 		if ($this->get_widget()->get_multi_select()){
 			return '$("#' . $this->get_id() . '").combogrid("getValues").join()';
 		} else {

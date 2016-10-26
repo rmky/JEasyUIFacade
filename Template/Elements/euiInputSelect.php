@@ -20,11 +20,11 @@ class euiInputSelect extends euiInput {
 						id="' . $this->get_id() . '"  
 						' . ($widget->is_required() ? 'required="true" ' : '') . '
 						' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . '
-						' . ($this->generate_js_data_options() ? 'data_options="' . $this->generate_js_data_options() . '" ' : '') . '>
+						' . ($this->build_js_data_options() ? 'data_options="' . $this->build_js_data_options() . '" ' : '') . '>
 						' . $options . '
 					</select>
 					';
-		return $this->generate_html_wrapper_div($output);
+		return $this->build_html_wrapper_div($output);
 	}
 	
 	function generate_js(){

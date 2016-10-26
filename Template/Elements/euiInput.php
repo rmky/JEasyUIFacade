@@ -22,7 +22,7 @@ class euiInput extends euiAbstractElement {
 						' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . '
 						/>
 					';
-		return $this->generate_html_wrapper_div($output);
+		return $this->build_html_wrapper_div($output);
 	}
 	
 	public function get_value_with_defaults(){
@@ -46,7 +46,7 @@ class euiInput extends euiAbstractElement {
 		return $this->escape_string($value);
 	}
 	
-	protected function generate_html_wrapper_div($html){
+	protected function build_html_wrapper_div($html){
 		if ($this->get_widget()->get_caption() && !$this->get_widget()->get_hide_caption()){
 			$input = '
 						<label>' . $this->get_widget()->get_caption() . '</label>
@@ -64,20 +64,20 @@ class euiInput extends euiAbstractElement {
 	function generate_js(){
 		$output = '';
 		$output .= "
-				$('#" . $this->get_id() . "')." . $this->get_element_type() . "(" . ($this->generate_js_data_options() ? '{' . $this->generate_js_data_options() . '}' : '') . ");//.textbox('addClearBtn', 'icon-clear');
+				$('#" . $this->get_id() . "')." . $this->get_element_type() . "(" . ($this->build_js_data_options() ? '{' . $this->build_js_data_options() . '}' : '') . ");//.textbox('addClearBtn', 'icon-clear');
 				";
-		$output .= $this->generate_js_live_refrence();
-		$output .= $this->generate_js_on_change_handler();
+		$output .= $this->build_js_live_refrence();
+		$output .= $this->build_js_on_change_handler();
 		return $output;
 	}
 	
-	protected function generate_js_live_refrence(){
+	protected function build_js_live_refrence(){
 		$output = '';
 		if ($this->get_widget()->get_value_expression() && $this->get_widget()->get_value_expression()->is_reference()){
 			$link = $this->get_widget()->get_value_expression()->get_widget_link();
 			$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 			if ($linked_element){
-				$output = $this->get_js_value_setter($linked_element->get_js_value_getter($link->get_column_id())) . ";";
+				$output = $this->build_js_value_setter($linked_element->build_js_value_getter($link->get_column_id())) . ";";
 			}
 		}
 		return $output;
@@ -89,7 +89,7 @@ class euiInput extends euiAbstractElement {
 	 */
 	protected function register_live_reference_at_linked_element(){
 		if ($linked_element = $this->get_linked_template_element()){
-			$linked_element->add_on_change_script($this->generate_js_live_refrence());
+			$linked_element->add_on_change_script($this->build_js_live_refrence());
 		}
 		return $this;
 	}
@@ -103,19 +103,19 @@ class euiInput extends euiAbstractElement {
 		return $linked_element;
 	}
 	
-	function get_js_init_options(){
-		return $this->generate_js_data_options();
+	function build_js_init_options(){
+		return $this->build_js_data_options();
 	}
 	
-	protected function generate_js_data_options(){
+	protected function build_js_data_options(){
 		return '';
 	}
 	
-	function get_js_value_setter_method($value){
+	function build_js_value_setter_method($value){
 		return  $this->get_element_type() . '("setValue", ' . $value . ')';
 	}
 	
-	protected function generate_js_on_change_handler(){
+	protected function build_js_on_change_handler(){
 		if ($this->get_on_change_script()){
 			return "$('#" . $this->get_id() . "').change(function(event){" . $this->get_on_change_script() . "});";
 		} else {

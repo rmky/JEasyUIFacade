@@ -49,7 +49,7 @@ class euiDataTree extends euiDataTable {
 		return $result;
 	}
 	
-	public function get_js_edit_mode_enabler(){
+	public function build_js_edit_mode_enabler(){
 		return '
 					var rows = $(this).' . $this->get_element_type() . '("getRoots");
 					for (var i=0; i<rows.length; i++){

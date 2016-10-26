@@ -7,7 +7,7 @@ class euiInputDateTime extends euiInputDate {
 		$this->set_element_type('datetimebox');
 	}
 	
-	protected function get_js_date_format(){
+	protected function build_js_date_format(){
 		return 'yyyy-MM-dd HH:mm:ss';
 	}
 }

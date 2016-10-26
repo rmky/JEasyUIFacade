@@ -160,8 +160,8 @@ HTML;
 		$output .= '}';
 		
 		// Create the load function to fetch the data via AJAX or from another widget
-		$output .= $this->get_js_ajax_loader_function();
-		$output .= $this->get_js_tooltip_init();
+		$output .= $this->build_js_ajax_loader_function();
+		$output .= $this->build_js_tooltip_init();
 
 		return $output;
 	}
@@ -221,7 +221,7 @@ HTML;
 	 * if the chart is not bound to another data widget (in that case, the data should be provided by that widget).
 	 * @return string
 	 */
-	protected function get_js_ajax_loader_function(){
+	protected function build_js_ajax_loader_function(){
 		$widget = $this->get_widget();
 		$output = '';
 		if (!$widget->get_data_widget_link()){
@@ -260,11 +260,11 @@ HTML;
 			// Loader function
 			$output .= '
 				function ' . $this->get_function_prefix() . 'load(urlParams){
-					' . $this->get_js_busy_icon_show() . '
+					' . $this->build_js_busy_icon_show() . '
 					if (!urlParams) urlParams = "";
 					$.get("' . $this->get_ajax_url() . $url_params . '"+urlParams, function(data){
 						' . $this->get_function_prefix() . 'plot($.parseJSON(data));
-						' . $this->get_js_busy_icon_hide() . '
+						' . $this->build_js_busy_icon_hide() . '
 					});
 				}';
 				
@@ -274,7 +274,7 @@ HTML;
 				foreach($widget->get_data()->get_filters() as $fnr => $fltr){
 					$fltr_impl = $this->get_template()->get_element($fltr, $this->get_page_id());
 					$output .= $fltr_impl->generate_js();
-					$fltrs[] = "'&fltr" . str_pad($fnr, 2, 0, STR_PAD_LEFT) . "_" . urlencode($fltr->get_attribute_alias()) . "=" . $fltr->get_comparator() . "'+" . $fltr_impl->get_js_value_getter();
+					$fltrs[] = "'&fltr" . str_pad($fnr, 2, 0, STR_PAD_LEFT) . "_" . urlencode($fltr->get_attribute_alias()) . "=" . $fltr->get_comparator() . "'+" . $fltr_impl->build_js_value_getter();
 				}
 				// build JS for the search function
 				$output .= '
@@ -293,7 +293,7 @@ HTML;
 		return $output;
 	}
 	
-	protected function get_js_tooltip_init(){
+	protected function build_js_tooltip_init(){
 		// Create a tooltip generator function
 		// TODO didn't work because I don't know, how to get the axes infomration from an instantiated plot		
 		$output = '
@@ -417,17 +417,17 @@ HTML;
 			/* @var $linked_element \exface\Templates\jEasyUI\Widgets\euiData */
 			$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 			if ($linked_element){
-				$linked_element->add_on_load_success($this->generate_js_live_refrence());
+				$linked_element->add_on_load_success($this->build_js_live_refrence());
 			}
 		}
 		return $this;
 	}
 	
-	protected function generate_js_live_refrence(){
+	protected function build_js_live_refrence(){
 		$output = '';
 		if ($link = $this->get_widget()->get_data_widget_link()){
 			$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
-			$output .= $this->get_function_prefix() . 'plot(' . $linked_element->get_js_data_getter(true) . ");";
+			$output .= $this->get_function_prefix() . 'plot(' . $linked_element->build_js_data_getter(true) . ");";
 		}
 		return $output;
 	}

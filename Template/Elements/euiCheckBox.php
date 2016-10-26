@@ -15,30 +15,30 @@ class euiCheckbox extends euiInput {
 								' . ($this->get_widget()->is_disabled() ? 'disabled="disabled"' : '') . ' />
 						<input type="hidden" name="' . $this->get_widget()->get_attribute_alias() . '" id="' . $this->get_id() . '" value="' . $this->get_widget()->get_value() . '" />
 					</div>';
-		return $this->generate_html_wrapper_div($output);
+		return $this->build_html_wrapper_div($output);
 	}
 	
 	function generate_js(){
 		return '';
 	}
 	
-	function get_js_value_getter(){
-		return '$("#' . $this->get_id() . '_checkbox").' . $this->get_js_value_getter_method();
+	function build_js_value_getter(){
+		return '$("#' . $this->get_id() . '_checkbox").' . $this->build_js_value_getter_method();
 	}
 	
-	function get_js_value_getter_method(){
+	function build_js_value_getter_method(){
 		return 'prop(\'checked\')';
 	}
 	
-	function get_js_value_setter($value){
-		return '($("#' . $this->get_id() . '_checkbox").' . $this->get_js_value_setter_method($value);
+	function build_js_value_setter($value){
+		return '($("#' . $this->get_id() . '_checkbox").' . $this->build_js_value_setter_method($value);
 	}
 	
-	function get_js_value_setter_method($value){
+	function build_js_value_setter_method($value){
 		return 'prop(\'checked\', ' . $value . ')';
 	}
 	
-	function get_js_init_options(){
+	function build_js_init_options(){
 		$options = 'on: "1"'
 				. ', off: "0"'
 				. ($this->get_widget()->is_disabled() ? ', disabled: true' : '');

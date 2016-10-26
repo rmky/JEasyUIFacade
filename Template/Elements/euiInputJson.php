@@ -11,7 +11,7 @@ class euiInputJson extends euiInputText {
 							name="' . $this->get_widget()->get_attribute_alias() . '"
 							id="' . $this->get_id() . '">
 					<div id="' . $this->get_id() . '_editor" style="height: 100%; width: 100%;"></div>';
-		return $this->generate_html_wrapper_div($output);
+		return $this->build_html_wrapper_div($output);
 	}
 	
 	function generate_js(){

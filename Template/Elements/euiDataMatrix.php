@@ -12,7 +12,7 @@ class euiDataMatrix extends euiDataTable {
 		
 		if ($this->is_editable()){
 			foreach ($this->get_editors() as $editor){
-				$output .= $editor->generate_js_inline_editor_init();
+				$output .= $editor->build_js_inline_editor_init();
 			}
 		}
 		
@@ -27,7 +27,7 @@ class euiDataMatrix extends euiDataTable {
 			foreach($widget->get_filters() as $fnr => $fltr){
 				$fltr_impl = $this->get_template()->get_element($fltr, $this->get_page_id());
 				$output .= $fltr_impl->generate_js();
-				$fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . '": ' . $fltr_impl->get_js_value_getter();
+				$fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . '": ' . $fltr_impl->build_js_value_getter();
 			}
 			// build JS for the search function
 			$output .= '

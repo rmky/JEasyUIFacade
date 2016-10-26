@@ -9,7 +9,7 @@ class euiDataTable extends euiData {
 		parent::init();
 		if ($refresh_link = $this->get_widget()->get_refresh_with_widget()){
 			if ($refresh_link_element = $this->get_template()->get_element($refresh_link->get_widget())){
-				$refresh_link_element->add_on_change_script($this->get_js_refresh());
+				$refresh_link_element->add_on_change_script($this->build_js_refresh());
 			}
 		}
 	}
@@ -41,7 +41,7 @@ class euiDataTable extends euiData {
 		if ($widget->has_buttons()){
 			foreach ($widget->get_buttons() as $button){
 				$button_html .= $this->get_template()->generate_html($button);
-				$context_menu_html .= $this->get_template()->get_element($button)->generate_html_button();
+				$context_menu_html .= $this->get_template()->get_element($button)->build_html_button();
 			}
 		}
 
@@ -77,7 +77,7 @@ class euiDataTable extends euiData {
 		
 		if ($this->is_editable()){
 			foreach ($this->get_editors() as $editor){
-				$output .= $editor->generate_js_inline_editor_init();
+				$output .= $editor->build_js_inline_editor_init();
 			}
 		}
 		
@@ -124,7 +124,7 @@ class euiDataTable extends euiData {
 		// Double click actions. Currently only supports one double click action - the first one in the list of buttons
 		if ($dblclick_button = $widget->get_buttons_bound_to_mouse_action(EXF_MOUSE_ACTION_DOUBLE_CLICK)[0]){
 			
-			$grid_head .= ', onDblClickRow: function(index, row) {' . $this->get_template()->get_element($dblclick_button)->generate_js_click_function() .  '}';
+			$grid_head .= ', onDblClickRow: function(index, row) {' . $this->get_template()->get_element($dblclick_button)->build_js_click_function() .  '}';
 		}
 		
 		// Context menu
@@ -143,7 +143,7 @@ class euiDataTable extends euiData {
 		
 		if ($this->is_editable()){
 			$changes_col_array = array();
-			$this->add_on_load_success($this->get_js_edit_mode_enabler());
+			$this->add_on_load_success($this->build_js_edit_mode_enabler());
 			// add data and changes getter if the grid is editable
 			$output .= "
 						function " . $this->get_function_prefix() . "getData(){
@@ -172,7 +172,7 @@ class euiDataTable extends euiData {
 						for (var i=0; i<rows.length; i++){
 							if (rows[i]['" . $col_obj_uid . "'] == thisRowUID){
 								var ed = $('#" . $this->get_id() . "')." . $this->get_element_type() . "('getEditor', {index: i, field: '" . $col->get_data_column_name() . "'});
-								$(ed.target)." . $editor->get_js_value_setter_method("$(this)." . $editor->get_js_value_getter_method()) . ";
+								$(ed.target)." . $editor->build_js_value_setter_method("$(this)." . $editor->build_js_value_getter_method()) . ";
 							}
 						}
 					});");
@@ -228,7 +228,7 @@ class euiDataTable extends euiData {
 			foreach($widget->get_filters() as $fnr => $fltr){
 				$fltr_impl = $this->get_template()->get_element($fltr, $this->get_page_id());
 				$output .= $fltr_impl->generate_js();
-				$fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . '": "' . $fltr->get_comparator() . '"+' . $fltr_impl->get_js_value_getter();
+				$fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . '": "' . $fltr->get_comparator() . '"+' . $fltr_impl->build_js_value_getter();
 			}
 		}
 		// build JS for the search function
@@ -250,7 +250,7 @@ class euiDataTable extends euiData {
 					$bottom_buttons[] = '{
 						iconCls:  "' . $this->get_icon_class($button->get_icon_name()) . '",
 						title: "' . $button->get_caption() . '",
-						handler: ' . $this->get_template()->get_element($button)->generate_js_click_function_name() . '
+						handler: ' . $this->get_template()->get_element($button)->build_js_click_function_name() . '
 					}'
 					;
 				}
@@ -271,7 +271,7 @@ class euiDataTable extends euiData {
 		return $output;
 	}
 	
-	public function get_js_edit_mode_enabler(){
+	public function build_js_edit_mode_enabler(){
 		return '
 					var rows = $(this).' . $this->get_element_type() . '("getRows");
 					for (var i=0; i<rows.length; i++){
@@ -286,9 +286,9 @@ class euiDataTable extends euiData {
 	 * the value of that column in the specified row or (if row is not set) the selected row.
 	 * IDEA perhaps it should return an entire row as an array if the column is not specified. Just have a feeling, it
 	 * might be better...
-	 * @see \exface\JEasyUiTemplate\Template\Elements\jeasyuiAbstractWidget::get_js_value_getter()
+	 * @see \exface\JEasyUiTemplate\Template\Elements\jeasyuiAbstractWidget::build_js_value_getter()
 	 */
-	public function get_js_value_getter($column = null, $row = null){
+	public function build_js_value_getter($column = null, $row = null){
 		$output = "$('#" . $this->get_id() . "')";
 		if (is_null($row)){
 			$output .= "." . $this->get_element_type() . "('getSelected')";
@@ -299,7 +299,7 @@ class euiDataTable extends euiData {
 		return $output . "['" . $column . "']";
 	}
 	
-	public function get_js_changes_getter(){
+	public function build_js_changes_getter(){
 		if ($this->is_editable()){
 			$output = $this->get_function_prefix() . "getChanges()";
 		} else {
@@ -310,9 +310,9 @@ class euiDataTable extends euiData {
 	
 	/**
 	 * Data grids will return the selected rows by default. To fetch all loaded data use $include_inactive_data = true
-	 * @see \exface\JEasyUiTemplate\Template\Elements\jeasyuiAbstractWidget::get_js_data_getter()
+	 * @see \exface\JEasyUiTemplate\Template\Elements\jeasyuiAbstractWidget::build_js_data_getter()
 	 */
-	public function get_js_data_getter($include_inactive_data = false){
+	public function build_js_data_getter($include_inactive_data = false){
 		if ($include_inactive_data){
 			$output = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getData')";
 		} else {
@@ -321,7 +321,7 @@ class euiDataTable extends euiData {
 		return $output;
 	}
 	
-	public function get_js_refresh(){
+	public function build_js_refresh(){
 		return $this->get_function_prefix() . 'doSearch()';
 	}
 	
