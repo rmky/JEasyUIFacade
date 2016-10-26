@@ -209,13 +209,7 @@ class euiButton extends euiAbstractElement {
 			                url: '" . $this->get_ajax_url() . "&resource=".$widget->get_page_id()."&element=".$widget->get_id()."&action=".$widget->get_action_alias() . "&object=" . $widget->get_meta_object_id() . "'
 			            });";
 		} else {
-			/*$output = $js_requestData;
-			if ($input_element->get_widget()->get_widget_type() == 'DataTable'){
-				if ($input_element->is_editable() && $action instanceof SaveData){
-					$output .= "
-							requestData.rows = " . $input_element->build_js_changes_getter() . ";";
-				}
-			}*/
+			$output = $js_requestData;
 			$output .= "
 						" . $this->build_js_busy_icon_show() . "
 						$.post('" . $this->get_ajax_url() ."',
