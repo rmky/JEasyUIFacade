@@ -412,7 +412,7 @@ abstract class euiAbstractElement {
 			} else {
 				$alias = $this->get_widget()->get_meta_object()->get_alias_with_namespace();
 			}
-			$custom_body_js = "data.rows = [{" . $alias . ": " . $this->build_js_value_getter() . "}]";
+			$custom_body_js = "data.rows = [{'" . $alias . "': " . $this->build_js_value_getter() . "}]";
 		}
 		
 		$js = <<<JS

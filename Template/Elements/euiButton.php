@@ -130,21 +130,7 @@ class euiButton extends euiAbstractElement {
 		// IDEA there are many similarities here. Perhaps it is possible to make less elseifs...
 		if ($action->implements_interface('iRunTemplateScript')){
 			$output = $action->print_script($input_element->get_id());
-		} elseif ($action->implements_interface('iShowDialog')) {
-			
-			// TODO the following if() makes sure ShowDialog-actions can be called from another dialog while
-			// receiving data just like SaveData-actions would do. The trouble is, that ShowDialog is a totally
-			// different logic compared to submitting a form with SaveData. Once stop using native forms and
-			// move to filling data into request variables via JS, this should become unneccessary.
-			if ($action->implements_interface('iModifyData') && $input_element->get_widget()->is_of_type('Dialog')){
-				$js_requestData .= 'requestData.rows[0] = {};' . "\n";
-				foreach ($input_element->get_widget()->get_children_recursive() as $child){
-					if ($child->implements_interface('iTakeInput')){
-						$js_requestData .= 'requestData.rows[0]["' . $child->get_attribute_alias() . '"] = ' . $this->get_template()->get_element($child)->build_js_value_getter() . ";\n";
-					}
-				}
-			}
-			
+		} elseif ($action->implements_interface('iShowDialog')) {			
 			$output = $js_requestData . "
 					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog({
 							href: '" . $this->get_ajax_url() . "',
@@ -175,39 +161,6 @@ class euiButton extends euiAbstractElement {
 			} else {
 				$output .= "window.location.href = " . $action->get_alias() . "Url;";
 			}
-		} elseif ($action->implements_interface('iModifyData') && $input_element->get_widget()->get_widget_type() != "DataTable") {
-			$output = " var form = $('#" . $input_element->get_id() . " form');
-						" . $this->build_js_busy_icon_show() . "
-						form.attr('method', 'post');
-						form.form('submit',{
-			                success: function(result){
-								var response = {};
-								try {
-									response = $.parseJSON(result);
-								} catch (e) {
-									response.error = result;
-								}
-			                   	if (response.success){
-									" . $this->build_js_close_dialog($widget, $input_element) . "
-			                       	" . $this->build_js_busy_icon_hide() . "
-									if (response.success || response.undoURL){
-										$.messager.show({
-											title: 'Success',
-							                msg: response.success + (response.undoable ? ' <a href=\"" . $undo_url . "\" style=\"display:block; float:right;\">UNDO</a>' : ''),
-							                timeout:5000,
-							                showType:'slide'
-							            });
-									}
-			                    } else {
-									" . $this->build_js_busy_icon_hide() . "
-			                        $.messager.alert({
-			                            title: 'Error',
-			                            msg: response.error
-			                        });
-			                    }
-			                },
-			                url: '" . $this->get_ajax_url() . "&resource=".$widget->get_page_id()."&element=".$widget->get_id()."&action=".$widget->get_action_alias() . "&object=" . $widget->get_meta_object_id() . "'
-			            });";
 		} else {
 			$output = $js_requestData;
 			$output .= "
@@ -226,6 +179,7 @@ class euiButton extends euiAbstractElement {
 									response.error = result;
 								}
 			                   	if (response.success){
+									" . $this->build_js_close_dialog($widget, $input_element) . "
 									" . $this->build_js_input_refresh($widget, $input_element) . "
 			                       	" . $this->build_js_busy_icon_hide() . "
 									if (response.success || response.undoURL){
