@@ -114,16 +114,9 @@ class euiButton extends euiAbstractElement {
 			$undo_url = $this->get_ajax_url() . "&action=exface.Core.UndoAction&resource=".$widget->get_page_id()."&element=".$widget->get_id();
 		}
 		
-		// Create and populate the requestData JS-object
-		// TODO make this a common JS-funktion for all buttons instead of including it to every buttons code
-		/*$js_requestData = "
-					var requestData = {};
-					requestData.oId = '" . $widget->get_meta_object_id() . "';
-					requestData.rows = " . $input_element->build_js_data_getter() . ";
-					" . $js_check_input_rows; */
-		
+		// Create and populate the requestData JS-object		
 		$js_requestData = "
-					var requestData = (" . $input_element->build_js_action_data_getter($action) . ")();
+					var requestData = " . $input_element->build_js_data_getter($action) . ";
 					" . $js_check_input_rows;
 		
 		// Generate the button specific JS code

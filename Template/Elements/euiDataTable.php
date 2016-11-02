@@ -309,26 +309,15 @@ class euiDataTable extends euiData {
 		return $output;
 	}
 	
-	/**
-	 * Data grids will return the selected rows by default. To fetch all loaded data use $include_inactive_data = true
-	 * @see \exface\JEasyUiTemplate\Template\Elements\jeasyuiAbstractWidget::build_js_data_getter()
-	 */
-	public function build_js_data_getter($include_inactive_data = false){
-		if ($include_inactive_data){
-			$output = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getData')";
-		} else {
-			$output = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections')";	
-		}
-		return $output;
-	}
-	
-	public function build_js_action_data_getter(ActionInterface $action, $custom_body_js = null){
-		if ($this->is_editable() && $action->implements_interface('iModifyData')){
+	public function build_js_data_getter(ActionInterface $action = null, $custom_body_js = null){
+		if (is_null($action)){
+			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getData')";
+		} elseif ($this->is_editable() && $action->implements_interface('iModifyData')){
 			$rows = $this->get_function_prefix() . "getChanges()";
 		} else {
 			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections')";
 		}
-		return parent::build_js_action_data_getter($action, "data.rows = " . $rows . ";");
+		return parent::build_js_data_getter($action, "data.rows = " . $rows . ";");
 	}
 	
 	public function build_js_refresh(){

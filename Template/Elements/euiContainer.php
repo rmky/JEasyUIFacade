@@ -43,19 +43,11 @@ class euiContainer extends euiAbstractElement {
 	}
 	
 	/**
-	 * TODO The build_js_data_getter() should return an array with data from all widgets in the container. Recursive method needed here!
-	 * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::build_js_data_getter()
-	 */
-	public function build_js_data_getter($include_inactive_data = false){
-		return '[]';
-	}
-	
-	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::build_js_action_data_getter()
+	 * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::build_js_data_getter()
 	 */
-	public function build_js_action_data_getter(ActionInterface $action, $custom_body_js = null){
+	public function build_js_data_getter(ActionInterface $action = null, $custom_body_js = null){
 		$output = 'data.rows = []' . "\n";
 		$found_inputs = false;
 		foreach ($this->get_widget()->get_children_recursive() as $child){
@@ -67,7 +59,7 @@ class euiContainer extends euiAbstractElement {
 				$output .= 'data.rows[0]["' . $child->get_attribute_alias() . '"] = ' . $this->get_template()->get_element($child)->build_js_value_getter() . ";\n";
 			}
 		}
-		return parent::build_js_action_data_getter($action, $output . $custom_body_js);		
+		return parent::build_js_data_getter($action, $output . $custom_body_js);		
 	}
 }
 ?>

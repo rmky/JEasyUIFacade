@@ -128,30 +128,6 @@ abstract class euiAbstractElement {
 		return 'val(' . $value . ')';
 	}
 	
-	/**
-	 * @deprecated use build_js_action_data_getter() instead
-	 * 
-	 * In contrast to value_getters data_getters return an assotiative array similar to a DataSheet: e.g. the value_getter 
-	 * of a Combo widget will return the selected value, while the data_getter will return the object {attribute_alias: alias, value: value}.
-	 * This is a big difference for multi-dimensional widgets like a DataTables, where the data_getter 
-	 * will return rows and columns, while the value_getter only a single value.
-	 * 
-	 * @param boolean $include_inactive_data Some elements will load more data, than actually is being used. Set this
-	 * parameter to TRUE to retrieve all data instead of only active data. E.g. a data grid will return the selected
-	 * row by default and the entire loaded data set if this parameter is set to true.
-	 * 
-	 * @return string
-	 */
-	public function build_js_data_getter($include_inactive_data = false){
-		if (method_exists($this->get_widget(), 'get_attribute_alias')){
-			$alias = $this->get_widget()->get_attribute_alias();
-		} else {
-			$alias = $this->get_widget()->get_object_alias();
-		}
-		$output = "[{" . $alias . ": " . $this->build_js_value_getter() . "}]";
-		return $output;
-	}
-	
 	public function build_js_refresh(){
 		return '';
 	}
@@ -398,14 +374,18 @@ abstract class euiAbstractElement {
 	}
 	
 	/**
-	 * Returns an embeddable JS snippet, that returns a JS-object ready to be encoded and sent to the server to
-	 * perform the given action. Each element can decide itself, which data it should return for which type of
-	 * action.
+	 * Returns an inline-embeddable JS snippet, that produces a JS-object ready to be encoded and sent to the server to
+	 * perform the given action: E.g. {"oId": "UID of the meta object", "rows": [ {"col": "value, "col": "value, ...}, {...}, ... ] }.
+	 * Each element can decide itself, which data it should return for which type of action. If no action is given, the entire data
+	 * set used in the element should be returned.
+	 * 
+	 * In contrast to build_js_value_getter(), which returns a value without context, the data getters retunr JS-representations of 
+	 * data sheets - thus, the data is alwas bound to a meta object. 
 	 * 
 	 * @param ActionInterface $action
 	 * @return string
 	 */
-	public function build_js_action_data_getter(ActionInterface $action, $custom_body_js = null){
+	public function build_js_data_getter(ActionInterface $action = null, $custom_body_js = null){
 		if (is_null($custom_body_js)){
 			if (method_exists($this->get_widget(), 'get_attribute_alias')){
 				$alias = $this->get_widget()->get_attribute_alias();
@@ -416,12 +396,12 @@ abstract class euiAbstractElement {
 		}
 		
 		$js = <<<JS
-		function(){
+		(function(){
 			var data = {};
 			data.oId = '{$this->get_widget()->get_meta_object_id()}';
 			{$custom_body_js}
 			return data;
-		}
+		})()
 JS;
 		return $js;
 	}

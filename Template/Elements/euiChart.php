@@ -427,7 +427,7 @@ HTML;
 		$output = '';
 		if ($link = $this->get_widget()->get_data_widget_link()){
 			$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
-			$output .= $this->get_function_prefix() . 'plot(' . $linked_element->build_js_data_getter(true) . ");";
+			$output .= $this->get_function_prefix() . 'plot(' . $linked_element->build_js_data_getter() . ".rows);";
 		}
 		return $output;
 	}
