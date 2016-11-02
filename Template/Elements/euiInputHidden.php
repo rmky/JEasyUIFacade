@@ -2,7 +2,7 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiInputHidden extends euiInput {
 	
-	function init(){
+	protected function init(){
 		parent::init();
 		$this->set_element_type('hidden');
 	}

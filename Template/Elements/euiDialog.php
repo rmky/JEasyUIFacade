@@ -3,7 +3,8 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 class euiDialog extends euiPanel {
 	private $buttons_div_id = '';
 	
-	function init(){
+	protected function init(){
+		parent::init();
 		$this->buttons_div_id = $this->get_id() . '-buttons';
 		$this->set_element_type('dialog');
 	}

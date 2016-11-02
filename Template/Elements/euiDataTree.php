@@ -1,8 +1,12 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiDataTree extends euiDataTable {
-	protected $element_type = 'treegrid';
 	private $on_expand = '';
+	
+	protected function init(){
+		parent::init();
+		$this->set_element_type('treegrid');
+	}
 	
 	public function render_grid_head(){
 		if ($this->is_editable()){

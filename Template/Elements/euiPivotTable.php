@@ -1,8 +1,12 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiPivotTable extends euiDataTable {
-	protected $element_type = 'pivotgrid';
 	private $label_values = array();
+	
+	protected function init(){
+		parent::init();
+		$this->set_element_type('pivotgrid');
+	}
 	
 	function generate_js(){
 		$widget = $this->get_widget();

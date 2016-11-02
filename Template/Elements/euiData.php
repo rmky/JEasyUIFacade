@@ -8,11 +8,10 @@ use exface\Core\Widgets\DataColumnGroup;
  *
  */
 class euiData extends euiAbstractElement {
-	protected $toolbar_id = null;
-	protected $show_footer = false;
-	protected $editable = false;
-	protected $editors = array();
-
+	private $toolbar_id = null;
+	private $show_footer = null;
+	private $editable = false;
+	private $editors = array();
 	private $on_before_load = '';
 	private $on_load_success = '';
 	private $load_filter_script = '';
@@ -226,6 +225,9 @@ class euiData extends euiAbstractElement {
 	}
 	
 	public function get_show_footer() {
+		if (is_null($this->show_footer)){
+			$this->show_footer = ($this->get_template()->get_config()->get_option('DATAGRID_SHOW_FOOTER_BY_DEFAULT') ? true : false);
+		}
 		return $this->show_footer;
 	}
 	

@@ -2,7 +2,8 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiInput extends euiAbstractElement {
 	
-	function init(){
+	protected function init(){
+		parent::init();
 		$this->set_element_type('textbox');
 		// If the input's value is bound to another element via an expression, we need to make sure, that other element will
 		// change the input's value every time it changes itself. This needs to be done on init() to make sure, the other element

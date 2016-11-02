@@ -4,10 +4,10 @@ use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
 
 class euiDataTable extends euiData {
-	protected $element_type = 'datagrid';
 	
 	public function init(){
 		parent::init();
+		$this->set_element_type('datagrid');
 		if ($refresh_link = $this->get_widget()->get_refresh_with_widget()){
 			if ($refresh_link_element = $this->get_template()->get_element($refresh_link->get_widget())){
 				$refresh_link_element->add_on_change_script($this->build_js_refresh());

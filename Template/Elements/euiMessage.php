@@ -2,10 +2,6 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiMessage extends euiText {
 	
-	function init(){
-		
-	}
-	
 	function generate_html(){
 		if ($this->get_widget()->get_width()->to_string()){
 			$width = $this->get_width();

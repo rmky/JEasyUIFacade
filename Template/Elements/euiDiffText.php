@@ -3,10 +3,6 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\DiffText;
 class euiDiffText extends euiAbstractElement {
 	
-	public function init(){
-		
-	}
-	
 	public function generate_html(){
 		$output = <<<HTML
 				<div id="{$this->get_id()}_diffcontainer" class="difftext-container">

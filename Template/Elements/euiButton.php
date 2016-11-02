@@ -1,10 +1,8 @@
-<?php
-namespace exface\JEasyUiTemplate\Template\Elements;
+<?php namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\Core\Interfaces\Actions\iModifyData;
 use exface\Core\Widgets\DialogButton;
 use exface\Core\Interfaces\Actions\ActionInterface;
-use exface\Core\Actions\SaveData;
+
 /**
  * generates jEasyUI-Buttons for ExFace
  * @author Andrej Kabachnik

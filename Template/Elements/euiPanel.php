@@ -1,10 +1,14 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiPanel extends euiContainer {
-	protected $element_type = 'panel';
 	
 	private $on_load_script = '';
 	private $on_resize_script = '';
+	
+	protected function init(){
+		parent::init();
+		$this->set_element_type('panel');
+	}
 	
 	function generate_html(){
 		$children_html = $this->children_generate_html();

@@ -1,0 +1,11 @@
+{
+	"WIDTH_RELATIVE_UNIT": 400,
+	"WIDTH_DEFAULT": 1,
+	"HEIGHT_RELATIVE_UNIT": 32,
+	"HEIGHT_DEFAULT": 1,
+	"HINT_MAX_CHARS_IN_LINE": 60,
+	"FORBIDDEN_CHARS_IN_ELEMENT_ID": ["/", "(", ")", "."],
+	"FORBIDDEN_CHARS_IN_FUNCTION_PREFIX": ["-", "."],
+	"DEFAULT_AJAX_URL": "exface/exface.php?exftpl=exface.JEasyUiTemplate",
+	"DATAGRID_SHOW_FOOTER_BY_DEFAULT": false
+}

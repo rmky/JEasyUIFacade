@@ -1,7 +1,9 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiInputJson extends euiInputText {
-	function init(){
+	
+	protected function init(){
+		parent::init();
 		$this->set_element_type('div');
 		$this->set_height_default(5);
 	}

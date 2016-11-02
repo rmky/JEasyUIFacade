@@ -3,8 +3,12 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\CommonLogic\DataSheets\DataColumn;
 
 class euiDataMatrix extends euiDataTable {
-	protected $element_type = 'datagrid';
 	private $label_values = array();
+	
+	protected function init(){
+		parent::init();
+		$this->set_element_type('datagrid');
+	}
 	
 	function generate_js(){
 		$widget = $this->get_widget();

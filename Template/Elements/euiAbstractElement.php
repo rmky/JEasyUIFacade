@@ -4,11 +4,8 @@ use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
 
 abstract class euiAbstractElement extends AbstractJqueryElement {
-	protected $element_id_forbidden_chars = array('/', '(', ')', '.');
-	protected $function_prefix_forbidden_chars = array('-', '.');
 	
-	protected $ajax_url = 'exface/exface.php?exftpl=exface.JEasyUiTemplate';
-	protected $element_type;
+	private $element_type;
 	
 	private $icon_classes = array(
 			'edit' => 'icon-edit',
@@ -26,28 +23,6 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 		return '';
 	}
 	
-	function get_function_prefix(){
-		return str_replace($this->function_prefix_forbidden_chars, '_', $this->get_id()) . '_';
-	}
-	
-	/**
-	 * Returns the id of the HTML-element representing the widget
-	 * @return string
-	 */
-	function get_id($exf_widget_id = null){
-		$widget_id = ($exf_widget_id ? $exf_widget_id : $this->get_widget()->get_id());
-		return  $this->clean_id($widget_id) . ($this->get_template()->get_workbench()->get_request_id() ? '-' . $this->get_template()->get_workbench()->get_request_id() : '');
-	}
-	
-	/**
-	 * Replaces all characters, which are not supported in the ids of DOM-elements (i.e. "/" etc.)
-	 * TODO If widgets are used for input, cleaning the id of usupported characters will probably not be enough.
-	 * Bidirectional masking needs to be implemented
-	 */
-	function clean_id($id){
-		return str_replace($this->element_id_forbidden_chars, '_', $id);
-	}
-	
 	/**
 	 * 
 	 * @return JEasyUiTemplate
@@ -59,15 +34,6 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 	function escape_string($string){
 		return str_replace('"', "'", $string);
 	}
-
-	public function get_ajax_url() {
-		$request_id = $this->get_template()->get_workbench()->get_request_id();
-		return $this->ajax_url . ($request_id ? '&exfrid=' . $request_id : '');
-	}
-	
-	public function set_ajax_url($value) {
-		$this->ajax_url = $value;
-	}
 	
 	public function get_element_type() {
 		return $this->element_type;
@@ -75,6 +41,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 	
 	public function set_element_type($value) {
 		$this->element_type = $value;
+		return $this;
 	}
 	
 	public function prepare_data(\exface\Core\Interfaces\DataSheets\DataSheetInterface $data_sheet){

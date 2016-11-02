@@ -2,7 +2,11 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Exceptions\TemplateError;
 class euiSplitVertical extends euiContainer {
-	protected $element_type = 'layout';
+	
+	protected function init(){
+		parent::init();
+		$this->set_element_type('layout');
+	}
 	
 	function generate_html(){	
 		$output = '	<div class="easyui-layout" id="' . $this->get_id() . '" data-options="fit:true">

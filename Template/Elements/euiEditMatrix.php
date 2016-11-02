@@ -2,8 +2,12 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\DataTypes\AbstractDataType;
 class euiEditMatrix extends euiDataMatrix {
-	protected $element_type = 'datagrid';
 	private $label_values = array();
+	
+	protected function init(){
+		parent::init();
+		$this->set_element_type('datagrid');
+	}
 	
 	function generate_headers(){
 		// handsontable

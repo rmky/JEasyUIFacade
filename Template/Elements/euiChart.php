@@ -7,7 +7,7 @@ use exface\Core\Exceptions\UiWidgetConfigException;
 class euiChart extends euiAbstractElement {
 	private $on_change_script = '';
 	
-	public function init(){
+	protected function init(){
 		parent::init();
 		// Connect to an external data widget if a data link is specified for this chart
 		$this->register_live_reference_at_linked_element();

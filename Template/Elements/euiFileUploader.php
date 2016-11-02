@@ -4,7 +4,7 @@ use exface\Core\Widgets\FileUploader;
 
 class euiFileUploader extends euiAbstractElement {
 	
-	function init(){
+	protected function init(){
 		parent::init();
 		$this->set_height_default(8);
 	}
