@@ -5,8 +5,6 @@ use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
 
 abstract class euiAbstractElement extends AbstractJqueryElement {
 	
-	private $element_type;
-	
 	private $icon_classes = array(
 			'edit' => 'icon-edit',
 			'remove' => 'icon-remove',
@@ -15,11 +13,11 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 			'cancel' => 'icon-cancel'
 	);
 	
-	function build_js_init_options(){
+	public function build_js_init_options(){
 		return '';
 	}
 	
-	function build_js_inline_editor_init(){
+	public function build_js_inline_editor_init(){
 		return '';
 	}
 	
@@ -27,21 +25,12 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 	 * 
 	 * @return JEasyUiTemplate
 	 */
-	function get_template(){
+	public function get_template(){
 		return parent::get_template();
 	}
 	
-	function escape_string($string){
+	public function escape_string($string){
 		return str_replace('"', "'", $string);
-	}
-	
-	public function get_element_type() {
-		return $this->element_type;
-	}
-	
-	public function set_element_type($value) {
-		$this->element_type = $value;
-		return $this;
 	}
 	
 	public function prepare_data(\exface\Core\Interfaces\DataSheets\DataSheetInterface $data_sheet){
