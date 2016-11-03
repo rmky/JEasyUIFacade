@@ -78,5 +78,23 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 	public function build_js_busy_icon_hide(){
 		return "$.messager.progress('close');";
 	}
+	
+	public function build_js_show_error_message($message_body_js, $title = null){
+		$title = !is_null($title) ? $title : 'Error';
+		return "$.messager.alert({
+					title: '" . $title . "',
+					msg: " . $message_body_js . "
+				});";
+	}
+	
+	public function build_js_show_success_message($message_body_js, $title = null){
+		$title = !is_null($title) ? $title : 'Error';
+		return "$.messager.show({
+					title: '" . $title . "',
+	                msg: " . $message_body_js . ",
+	                timeout:5000,
+	                showType:'slide'
+	            });";
+	}
 }
 ?>

@@ -2,6 +2,8 @@
 
 use exface\Core\Widgets\DialogButton;
 use exface\Core\Interfaces\Actions\ActionInterface;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
+use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 
 /**
  * generates jEasyUI-Buttons for ExFace
@@ -10,9 +12,7 @@ use exface\Core\Interfaces\Actions\ActionInterface;
  */
 class euiButton extends euiAbstractElement {
 	
-	public function build_js_click_function_name(){
-		return $this->get_function_prefix() . "click";
-	}
+	use JqueryButtonTrait;
 	
 	function generate_js(){
 		$output = '';
@@ -66,7 +66,7 @@ class euiButton extends euiAbstractElement {
 		return $output;
 	}
 	
-	function build_html_button(){
+	public function build_html_button(){
 		$output = '
 				<a id="' . $this->get_id() . '" href="javascript:;" plain="true" class="easyui-linkbutton" iconCls="' . $this->get_icon_class($this->get_widget()->get_icon_name()) . '" onclick="' . $this->get_function_prefix() . 'click();">
 						' . $this->get_widget()->get_caption() . '
@@ -74,55 +74,9 @@ class euiButton extends euiAbstractElement {
 		return $output;
 	}
 	
-	function build_js_click_function(){
-		$output = '';
-		/* @var $widget \exface\Core\Widgets\Button */
+	protected function build_js_click_show_dialog(ActionInterface $action, AbstractJqueryElement $input_element){
 		$widget = $this->get_widget();
-		$input_element = $this->get_template()->get_element($widget->get_input_widget(), $this->get_page_id());
-		
-		$action = $widget->get_action();
-		
-		// if the button does not have a action attached, just see if the attributes of the button
-		// will cause some click-behaviour and return the JS for that
-		if (!$action) {
-			$output .= $this->build_js_close_dialog($widget, $input_element)
-					. $this->build_js_input_refresh($widget, $input_element);
-			return $output;	
-		}
-		
-		// Determine, how many input rows the action expects and generate a js checker for the action
-		// Where the rows come from is not important at this point. We check the number of rows in the
-		// resulting requestData, that will be populted based on the input widget type. Thus, this checker
-		// does not depend on the widget, that deliveres the input data for the button
-		if ($action->get_input_rows_min() || !is_null($action->get_input_rows_max())){
-			if ($action->get_input_rows_min() === $action->get_input_rows_max()){
-				$js_check_input_rows = "if (requestData.rows.length < " . $action->get_input_rows_min() . " || requestData.rows.length > " . $action->get_input_rows_max() . ") {alert('Please select exactly " . $action->get_input_rows_min() . " row(s)!'); return false;}";
-			} elseif (is_null($action->get_input_rows_max())){
-				$js_check_input_rows = "if (requestData.rows.length < " . $action->get_input_rows_min() . ") {alert('Please select at least " . $action->get_input_rows_min() . " row(s)!'); return false;}";
-			} elseif (is_null($action->get_input_rows_min())){
-				$js_check_input_rows = "if (requestData.rows.length > " . $action->get_input_rows_max() . ") {alert('Please select at most " . $action->get_input_rows_max() . " row(s)!'); return false;}";
-			} else {
-				$js_check_input_rows = "if (requestData.rows.length < " . $action->get_input_rows_min() . " || requestData.rows.length > " . $action->get_input_rows_max() . ") {alert('Please select from " . $action->get_input_rows_min() . " to " . $action->get_input_rows_max() . " rows first!'); return false;}";
-			}
-		} else {
-			$js_check_input_rows = '';
-		}
-		
-		if ($action->is_undoable()){
-			$undo_url = $this->get_ajax_url() . "&action=exface.Core.UndoAction&resource=".$widget->get_page_id()."&element=".$widget->get_id();
-		}
-		
-		// Create and populate the requestData JS-object		
-		$js_requestData = "
-					var requestData = " . $input_element->build_js_data_getter($action) . ";
-					" . $js_check_input_rows;
-		
-		// Generate the button specific JS code
-		// IDEA there are many similarities here. Perhaps it is possible to make less elseifs...
-		if ($action->implements_interface('iRunTemplateScript')){
-			$output = $action->print_script($input_element->get_id());
-		} elseif ($action->implements_interface('iShowDialog')) {			
-			$output = $js_requestData . "
+		return $this->build_js_request_data_collector($action, $input_element) . "
 					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog({
 							href: '" . $this->get_ajax_url() . "',
 							method: 'post',
@@ -130,108 +84,17 @@ class euiButton extends euiAbstractElement {
 								resource: '".$widget->get_page_id()."',
 								element: '".$widget->get_id()."',
 								action: '".$widget->get_action_alias()."',
-								data: requestData		
+								data: requestData
 							}
 							" . ($this->build_js_input_refresh($widget, $input_element) ? ", onBeforeClose: function(){" . $this->build_js_input_refresh($widget, $input_element) . ";}" : "") . "
 						});
 					" . $this->build_js_close_dialog($widget, $input_element) . "
 					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog('open').dialog('setTitle','" . $widget->get_caption() . "');";
-		} elseif ($action->implements_interface('iShowWidget')) {
-			/* @var $action \exface\Core\Interfaces\Actions\iShowWidget */
-			if ($action->get_page_id() != $this->get_page_id()){
-				$output = $js_requestData . "
-				 	window.location.href = '" . $this->get_template()->create_link_internal($action->get_page_id()) . "?prefill={\"meta_object_id\":\"" . $widget->get_meta_object_id() . "\",\"rows\":[{\"" . $widget->get_meta_object()->get_uid_alias() . "\":\"' + requestData.rows[0]." . $widget->get_meta_object()->get_uid_alias() . " + '\"}]}';";
-			}
-		} elseif ($action->implements_interface('iShowUrl')) {
-			/* @var $action \exface\Core\Interfaces\Actions\iShowUrl */
-			$output = $js_requestData . "
-					var " . $action->get_alias() . "Url='" . $action->get_url() . "';
-					" . $this->build_js_placeholder_replacer($action->get_alias() . "Url", "requestData.rows[0]", $action->get_url(), ($action->get_urlencode_placeholders() ? 'encodeURIComponent' : null));
-			if ($action->get_open_in_new_window()){
-				$output .= "window.open(" . $action->get_alias() . "Url);";
-			} else {
-				$output .= "window.location.href = " . $action->get_alias() . "Url;";
-			}
-		} else {
-			$output = $js_requestData;
-			$output .= "
-						" . $this->build_js_busy_icon_show() . "
-						$.post('" . $this->get_ajax_url() ."',
-							{	resource: '" . $widget->get_page_id() . "',
-								element: '" . $widget->get_id() . "',
-								action: '".$widget->get_action_alias()."',
-								data: requestData
-							},
-							function(result) {
-								var response = {};
-								try { 
-									response = $.parseJSON(result);
-								} catch (e) {
-									response.error = result;
-								}
-			                   	if (response.success){
-									" . $this->build_js_close_dialog($widget, $input_element) . "
-									" . $this->build_js_input_refresh($widget, $input_element) . "
-			                       	" . $this->build_js_busy_icon_hide() . "
-									if (response.success || response.undoURL){
-										$.messager.show({
-											title: 'Success',
-							                msg: response.success + (response.undoable ? ' <a href=\"" . $undo_url . "\" style=\"display:block; float:right;\">UNDO</a>' : ''),
-							                timeout:5000,
-							                showType:'slide'
-							            });
-									}
-			                    } else {
-									" . $this->build_js_busy_icon_hide() . "
-			                        $.messager.alert({
-			                            title: 'Error',
-			                            msg: response.error
-			                        });
-			                    }
-							}
-						);";
-		}
-	
-		return $output;
-		
-	}
-	
-	/**
-	 * @return ActionInterface
-	 */
-	private function get_action(){
-		return $this->get_widget()->get_action();
-	}
-	
-	protected function build_js_input_refresh($widget, $input_element){
-		return ($widget->get_refresh_input() && $input_element->build_js_refresh() ? $input_element->build_js_refresh() . ";" : "");
 	}
 	
 	protected function build_js_close_dialog($widget, $input_element){
 		return ($widget instanceof DialogButton && $widget->get_close_dialog_after_action_succeeds() ? "$('#" . $input_element->get_id() . "').dialog('close');" : "" );
 	}
 	
-	/**
-	 * Returns a javascript snippet, that replaces all placholders in a give string by values from a given javascript object.
-	 * Placeholders must be in the general ExFace syntax [#placholder#], while the value object must have a property for every
-	 * placeholder with the same name (without "[#" and "#]"!).
-	 * @param string $js_var - e.g. result (the variable must be already instantiated!)
-	 * @param string $js_values_array - e.g. values = {placeholder = "someId"}
-	 * @param string $string_with_placeholders - e.g. http://localhost/pages/[#placeholder#]
-	 * @param string $js_sanitizer_function - a Javascript function to be applied to each value (e.g. encodeURIComponent) - without braces!!!
-	 * @return string - e.g. result = result.replace('[#placeholder#]', values['placeholder']);
-	 */
-	protected function build_js_placeholder_replacer($js_var, $js_values_object, $string_with_placeholders, $js_sanitizer_function = null){
-		$output = '';
-		$placeholders = $this->get_template()->get_workbench()->utils()->find_placeholders_in_string($string_with_placeholders);
-		foreach ($placeholders as $ph){
-			$value = $js_values_object . "['" . $ph . "']";
-			if ($js_sanitizer_function){
-				$value = $js_sanitizer_function . '(' . $value . ')';
-			}
-			$output .= $js_var . " = " . $js_var . ".replace('[#" . $ph . "#]', " . $value . ");";
-		}
-		return $output;
-	}
 }
 ?>
