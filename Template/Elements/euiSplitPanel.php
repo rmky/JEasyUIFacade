@@ -9,7 +9,7 @@ class euiSplitPanel extends euiPanel {
 			case 'center': $style = 'width: calc(' . $this->get_width() . ' + 7px);height: calc(' . $this->get_height() . ' + 7px);'; break;
 		}
 		
-		$children_html = $this->children_generate_html();
+		$children_html = $this->build_html_for_children();
 		
 		// Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
 		if ($this->get_widget()->count_widgets() > 1){

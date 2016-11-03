@@ -10,13 +10,13 @@ class euiSplitVertical extends euiContainer {
 	
 	function generate_html(){	
 		$output = '	<div class="easyui-layout" id="' . $this->get_id() . '" data-options="fit:true">
-				' . $this->generate_widgets_html() . '
+				' . $this->build_html_for_widgets() . '
 					</div>
 				';
 		return $output;
 	}
 	
-	function generate_widgets_html(){
+	function build_html_for_widgets(){
 		/* @var $widget \exface\Core\Widgets\SplitVertical */
 		$widget = $this->get_widget();
 		$panels_html = '';

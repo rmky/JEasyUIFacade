@@ -13,7 +13,7 @@ class euiForm extends euiPanel {
 	
 	function form_generate_html(){
 		$output = '<form id="' . $this->get_id() . '"><div class="grid">';
-		$output .= $this->generate_widgets_html();
+		$output .= $this->build_html_for_widgets();
 		$output .= '</div></form>';
 		return $output;
 	}

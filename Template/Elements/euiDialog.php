@@ -10,7 +10,7 @@ class euiDialog extends euiPanel {
 	}
 	
 	function generate_html(){
-		$contents = ($this->get_widget()->get_lazy_loading() ? '' : $this->generate_widgets_html());
+		$contents = ($this->get_widget()->get_lazy_loading() ? '' : $this->build_html_for_widgets());
 		$output = <<<HTML
 	<div class="easyui-dialog" id="{$this->get_id()}" data-options="{$this->generate_data_options()}" title="{$this->get_widget()->get_caption()}" style="width: {$this->get_width()}; height: {$this->get_height()};">
 		{$contents}		
@@ -25,7 +25,7 @@ HTML;
 	function generate_js(){
 		$output = '';
 		if (!$this->get_widget()->get_lazy_loading()){
-			$output .= $this->generate_widgets_js();
+			$output .= $this->build_js_for_widgets();
 		}
 		$output .= $this->generate_buttons_js();
 		return $output;
