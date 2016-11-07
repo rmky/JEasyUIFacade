@@ -4,7 +4,7 @@ class euiTab extends euiPanel {
 	
 	function generate_html(){
 		$output = <<<HTML
-	<div title="{$this->get_widget()->get_caption()}">
+	<div title="{$this->get_widget()->get_caption()}" class="grid">
 		{$this->build_html_for_children()}
 	</div>
 HTML;
