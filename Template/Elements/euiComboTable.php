@@ -8,10 +8,13 @@ class euiComboTable extends euiInput {
 	}
 	
 	function generate_html(){
+		/* @var $widget \exface\Core\Widgets\ComboTable */
 		$widget = $this->get_widget();
 		$output = '	<input style="height: 100%;width:100%;" id="' . $this->get_id() . '" 
 							name="' . $widget->get_attribute_alias() . ($widget->get_multi_select() ? '[]' : '') . '" 
-							value="' . $this->get_value_with_defaults() . '" />
+							value="' . $this->get_value_with_defaults() . '"
+						' . ($widget->is_required() ? 'required="true" ' : '') . '
+						' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . ' />
 					';
 		
 		return $this->build_html_wrapper_div($output);
