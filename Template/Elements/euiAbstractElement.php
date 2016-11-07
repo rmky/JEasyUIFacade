@@ -5,14 +5,6 @@ use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
 
 abstract class euiAbstractElement extends AbstractJqueryElement {
 	
-	private $icon_classes = array(
-			'edit' => 'icon-edit',
-			'remove' => 'icon-remove',
-			'add' => 'icon-add',
-			'save' => 'icon-save',
-			'cancel' => 'icon-cancel'
-	);
-	
 	public function build_js_init_options(){
 		return '';
 	}
@@ -61,14 +53,6 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 		$data['total'] = $data_sheet->count_rows_all();
 		$data['footer'] = $data_sheet->get_totals_rows();
 		return $data;
-	}
-	
-	public function get_icon_class($exf_icon_name){
-		if ($this->icon_classes[$exf_icon_name]){
-			return $this->icon_classes[$exf_icon_name];
-		} else {
-			return 'icon-' . $exf_icon_name;
-		}
 	}
 	
 	public function build_js_busy_icon_show(){

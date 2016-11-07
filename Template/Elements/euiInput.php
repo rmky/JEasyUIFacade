@@ -56,7 +56,7 @@ class euiInput extends euiAbstractElement {
 			$input = $html;
 		}
 		
-		$output = '	<div class="fitem exf_input" title="' . trim($this->get_hint()) . '" style="width: ' . $this->get_width() . '; height: ' . $this->get_height() . ';">
+		$output = '	<div class="fitem exf_input" title="' . trim($this->build_hint_text()) . '" style="width: ' . $this->get_width() . '; height: ' . $this->get_height() . ';">
 						' . $input . '
 					</div>';
 		return $output;

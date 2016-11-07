@@ -59,7 +59,7 @@ class euiDataTable extends euiData {
 			if ($button_html) {
 				$output .= $button_html;
 			}
-			$output .= '<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="' . $this->get_function_prefix() . 'doSearch()">Search</a></div>';
+			$output .= '<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="' . $this->build_js_function_prefix() . 'doSearch()">Search</a></div>';
 			$output .= '</div>';
 		}
 		
@@ -147,7 +147,7 @@ class euiDataTable extends euiData {
 			$this->add_on_load_success($this->build_js_edit_mode_enabler());
 			// add data and changes getter if the grid is editable
 			$output .= "
-						function " . $this->get_function_prefix() . "getData(){
+						function " . $this->build_js_function_prefix() . "getData(){
 							var data = [];
 							var rows = $('#" . $this->get_id() . "')." . $this->get_element_type() . "('getRows');
 							for (var i=0; i<rows.length; i++){
@@ -192,7 +192,7 @@ class euiDataTable extends euiData {
 			$changes_cols = trim($changes_cols, ',');
 			
 			$output .= "
-						function " . $this->get_function_prefix() . "getChanges(){
+						function " . $this->build_js_function_prefix() . "getChanges(){
 							var data = [];
 							var cols = [" . $changes_cols . "];
 							var rowCount = $('#" . $this->get_id() . "')." . $this->get_element_type() . "('getRows').length;
@@ -234,7 +234,7 @@ class euiDataTable extends euiData {
 		}
 		// build JS for the search function
 		$output .= '
-						function ' . $this->get_function_prefix() . 'doSearch(){
+						function ' . $this->build_js_function_prefix() . 'doSearch(){
 							$("#' . $this->get_id() . '").' . $this->get_element_type() . '("load",{' . (count($fltrs)>0 ? implode(', ', $fltrs) . ',' : '') . 'action: "' . $widget->get_lazy_loading_action() . '", resource: "' . $this->get_page_id() . '", element: "' .  $this->get_widget()->get_id() . '"});
 						}';
 				
@@ -249,7 +249,7 @@ class euiDataTable extends euiData {
 			foreach ($widget->get_buttons() as $button){
 				if ($button->get_action()->get_input_rows_min() == 0){
 					$bottom_buttons[] = '{
-						iconCls:  "' . $this->get_icon_class($button->get_icon_name()) . '",
+						iconCls:  "' . $this->build_css_icon_class($button->get_icon_name()) . '",
 						title: "' . $button->get_caption() . '",
 						handler: ' . $this->get_template()->get_element($button)->build_js_click_function_name() . '
 					}'
@@ -302,7 +302,7 @@ class euiDataTable extends euiData {
 	
 	public function build_js_changes_getter(){
 		if ($this->is_editable()){
-			$output = $this->get_function_prefix() . "getChanges()";
+			$output = $this->build_js_function_prefix() . "getChanges()";
 		} else {
 			$output = "[]";		
 		}
@@ -313,7 +313,7 @@ class euiDataTable extends euiData {
 		if (is_null($action)){
 			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getData')";
 		} elseif ($this->is_editable() && $action->implements_interface('iModifyData')){
-			$rows = $this->get_function_prefix() . "getChanges()";
+			$rows = $this->build_js_function_prefix() . "getChanges()";
 		} else {
 			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections')";
 		}
@@ -321,7 +321,7 @@ class euiDataTable extends euiData {
 	}
 	
 	public function build_js_refresh(){
-		return $this->get_function_prefix() . 'doSearch()';
+		return $this->build_js_function_prefix() . 'doSearch()';
 	}
 	
 	public function generate_headers(){

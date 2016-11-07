@@ -189,7 +189,7 @@ class euiData extends euiAbstractElement {
 		// via java script, the fields are named by the column id (as configured here).
 		
 		// TODO add tooltips to the column headers. I'v tried this:
-		// title: "<span title=\"' . $this->get_hint($col->get_hint(), true) . '\">' . $col->get_caption() . '</span>"'
+		// title: "<span title=\"' . $this->build_hint_text($col->get_hint(), true) . '\">' . $col->get_caption() . '</span>"'
 		// ...but reverted to this:
 		// title: "' . $col->get_caption() . '"'
 		// ...because it kills the header alignment in Chrome. Don't really know why...
@@ -199,7 +199,7 @@ class euiData extends euiAbstractElement {
 		//$colspan = $col->get_colspan();
 		//$rowspan = $col->get_rowspan();
 		$output = '{
-							title: "<span title=\"' . $this->get_hint($col->get_hint(), true) . '\">' . $col->get_caption() . '</span>"'
+							title: "<span title=\"' . $this->build_hint_text($col->get_hint(), true) . '\">' . $col->get_caption() . '</span>"'
 							. ($col->get_attribute_alias() ? ', field: "' . $col->get_data_column_name() . '"' : '')
 							. ($colspan ? ', colspan: ' . intval($colspan) : '')
 							. ($rowspan ? ', rowspan: ' . intval($rowspan) : '')

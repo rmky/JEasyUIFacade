@@ -55,7 +55,7 @@ class euiChart extends euiAbstractElement {
 		{$fltr_html}
 		<div style="min-height: 30px;">
 			{$button_html}
-			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->get_function_prefix()}doSearch()">Search</a>
+			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->build_js_function_prefix()}doSearch()">Search</a>
 		</div>
 	</div>
 </div>
@@ -91,7 +91,7 @@ HTML;
 		
 		// Create the function to process fetched data
 		$output .= '
-			function ' . $this->get_function_prefix() . 'plot(ds){
+			function ' . $this->build_js_function_prefix() . 'plot(ds){
 				';
 		
 		// Transform the input data to a flot dataset
@@ -259,11 +259,11 @@ HTML;
 				
 			// Loader function
 			$output .= '
-				function ' . $this->get_function_prefix() . 'load(urlParams){
+				function ' . $this->build_js_function_prefix() . 'load(urlParams){
 					' . $this->build_js_busy_icon_show() . '
 					if (!urlParams) urlParams = "";
 					$.get("' . $this->get_ajax_url() . $url_params . '"+urlParams, function(data){
-						' . $this->get_function_prefix() . 'plot($.parseJSON(data));
+						' . $this->build_js_function_prefix() . 'plot($.parseJSON(data));
 						' . $this->build_js_busy_icon_hide() . '
 					});
 				}';
@@ -278,8 +278,8 @@ HTML;
 				}
 				// build JS for the search function
 				$output .= '
-						function ' .$this->get_function_prefix() . 'doSearch(){
-							' . $this->get_function_prefix() . "load(" . implode("+", $fltrs) . ');
+						function ' .$this->build_js_function_prefix() . 'doSearch(){
+							' . $this->build_js_function_prefix() . "load(" . implode("+", $fltrs) . ');
 						}';
 			}
 				
@@ -287,7 +287,7 @@ HTML;
 			$output .= "$('#" . $this->get_toolbar_id() . " .datagrid-filters').masonry({itemSelector: '.fitem', columnWidth: " . $this->get_width_relative_unit() . "});";
 				
 			// Call the data loader to populate the Chart initially
-			$output .= $this->get_function_prefix() . 'load();';
+			$output .= $this->build_js_function_prefix() . 'load();';
 		}
 		
 		return $output;
@@ -427,7 +427,7 @@ HTML;
 		$output = '';
 		if ($link = $this->get_widget()->get_data_widget_link()){
 			$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
-			$output .= $this->get_function_prefix() . 'plot(' . $linked_element->build_js_data_getter() . ".rows);";
+			$output .= $this->build_js_function_prefix() . 'plot(' . $linked_element->build_js_data_getter() . ".rows);";
 		}
 		return $output;
 	}

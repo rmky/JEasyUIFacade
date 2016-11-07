@@ -68,7 +68,7 @@ class euiButton extends euiAbstractElement {
 	
 	public function build_html_button(){
 		$output = '
-				<a id="' . $this->get_id() . '" href="javascript:;" plain="true" class="easyui-linkbutton" iconCls="' . $this->get_icon_class($this->get_widget()->get_icon_name()) . '" onclick="' . $this->get_function_prefix() . 'click();">
+				<a id="' . $this->get_id() . '" href="javascript:;" plain="true" class="easyui-linkbutton" iconCls="' . $this->build_css_icon_class($this->get_widget()->get_icon_name()) . '" onclick="' . $this->build_js_function_prefix() . 'click();">
 						' . $this->get_widget()->get_caption() . '
 				</a>';
 		return $output;

@@ -7,5 +7,11 @@
 	"FORBIDDEN_CHARS_IN_ELEMENT_ID": ["/", "(", ")", "."],
 	"FORBIDDEN_CHARS_IN_FUNCTION_PREFIX": ["-", "."],
 	"DEFAULT_AJAX_URL": "exface/exface.php?exftpl=exface.JEasyUiTemplate",
-	"DATAGRID_SHOW_FOOTER_BY_DEFAULT": false
+	"DATAGRID_SHOW_FOOTER_BY_DEFAULT": false,
+	"ICON_CLASSES.DEFAULT_CLASS_PREFIX": "icon-",
+	"ICON_CLASSES.EDIT": "icon-edit",
+	"ICON_CLASSES.REMOVE": "icon-remove",
+	"ICON_CLASSES.ADD": "icon-add",
+	"ICON_CLASSES.SAVE": "icon-save",
+	"ICON_CLASSES.CANCEL": "icon-cancel"
 }

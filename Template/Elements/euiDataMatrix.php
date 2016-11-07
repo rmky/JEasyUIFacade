@@ -35,7 +35,7 @@ class euiDataMatrix extends euiDataTable {
 			}
 			// build JS for the search function
 			$output .= '
-						function ' . $this->get_function_prefix() . 'doSearch(){
+						function ' . $this->build_js_function_prefix() . 'doSearch(){
 							$("#' . $this->get_id() . '").' . $this->get_element_type() . '("load",{' . implode(', ', $fltrs) . ', resource: "' . $this->get_page_id() . '", element: "' .  $this->get_widget()->get_id() . '"});
 						}';
 		}

@@ -15,7 +15,7 @@ class euiInputPropertyTable extends euiInput {
 			// TODO Look for default value here
 			$value = '{}';
 		}
-		$output = '	<div class="fitem exf_input" title="' . trim($this->get_hint()) . '" style="width: ' . $this->get_width() . '">
+		$output = '	<div class="fitem exf_input" title="' . trim($this->build_hint_text()) . '" style="width: ' . $this->get_width() . '">
 						<textarea name="' . $widget->get_attribute_alias() . '" id="' . $this->get_id() . '" style="display:none;" >' . $value . '</textarea>
 						<table id="' . $this->build_js_grid_id() . '" width="100%"></table>
 					'  . $this->build_html_toolbar() . '</div>';
@@ -44,9 +44,9 @@ $('#{$this->build_js_grid_id()}').{$this->get_element_type()}({
 		}
 		return data;
 	},
-	onLoadSuccess: {$this->get_function_prefix()}Sync
+	onLoadSuccess: {$this->build_js_function_prefix()}Sync
 });
-function {$this->get_function_prefix()}Sync(){
+function {$this->build_js_function_prefix()}Sync(){
 	var data = $('#{$this->build_js_grid_id()}').propertygrid('getData');
 	var result = {};
 	for (var i=0; i<data.rows.length; i++){
@@ -56,7 +56,7 @@ function {$this->get_function_prefix()}Sync(){
 	}
 	$('#{$this->get_id()}').val(JSON.stringify(result));
 }
-$('#{$this->build_js_grid_id()}').parents('form').form({onSubmit: {$this->get_function_prefix()}Sync});
+$('#{$this->build_js_grid_id()}').parents('form').form({onSubmit: {$this->build_js_function_prefix()}Sync});
 {$this->build_js_property_adder()}
 {$this->build_js_property_remover()}
 JS;
@@ -81,10 +81,10 @@ JS;
 		/* @var $widget \exface\Core\Widgets\InputPropertyTable */
 		$widget = $this->get_widget();
 		if ($widget->get_allow_add_properties()){
-			$output .= '<a href="#" class="icon-add" onclick="' . $this->get_function_prefix() . 'AddProperties();" title="Append property"></a>';
+			$output .= '<a href="#" class="icon-add" onclick="' . $this->build_js_function_prefix() . 'AddProperties();" title="Append property"></a>';
 		}
 		if ($widget->get_allow_remove_properties()){
-			$output .= '<a href="#" class="icon-remove" onclick="' . $this->get_function_prefix() . 'RemoveProperties();" title="Remove selected properties"></a>';
+			$output .= '<a href="#" class="icon-remove" onclick="' . $this->build_js_function_prefix() . 'RemoveProperties();" title="Remove selected properties"></a>';
 		}
 		if ($output){
 			$output = '<div id="' . $this->get_id() . '_tools">' . $output . '</div>';
@@ -96,14 +96,14 @@ JS;
 		$output = '';
 		if ($this->get_widget()->get_allow_add_properties()){
 			$output .= <<<JS
-function {$this->get_function_prefix()}AddProperties(){
+function {$this->build_js_function_prefix()}AddProperties(){
 	$.messager.prompt('Add property', 'Please enter property names, separated by commas:', function(r){
 		if (r){
 			var props = r.split(',');
 			for (var i=0; i<props.length; i++){
 				$('#{$this->build_js_grid_id()}').propertygrid('appendRow',{name: props[i].trim(), value: '', editor: 'text'});
 			}
-			{$this->get_function_prefix()}Sync();
+			{$this->build_js_function_prefix()}Sync();
 			$('#{$this->build_js_grid_id()}').parents('.panel-body').trigger('resize');
 		}
 	});
@@ -117,12 +117,12 @@ JS;
 		$output = '';
 		if ($this->get_widget()->get_allow_remove_properties()){
 			$output .= <<<JS
-function {$this->get_function_prefix()}RemoveProperties(){
+function {$this->build_js_function_prefix()}RemoveProperties(){
 	var rows = $('#{$this->build_js_grid_id()}').propertygrid('getSelections');
 	for (var i=0; i<rows.length; i++){
 		$('#{$this->build_js_grid_id()}').propertygrid('deleteRow', $('#{$this->build_js_grid_id()}').propertygrid('getRowIndex', rows[i]));
 	}
-	{$this->get_function_prefix()}Sync();
+	{$this->build_js_function_prefix()}Sync();
 	$('#{$this->build_js_grid_id()}').parents('.panel-body').trigger('resize');
 }
 JS;

@@ -45,7 +45,7 @@ class euiPanel extends euiContainer {
 		}
 		
 		$output = "collapsible: " . ($widget->get_collapsible() ? 'true' : 'false') .
-				($widget->get_icon_name() ? ", iconCls:'" . $this->get_icon_class($widget->get_icon_name()) . "'" : '') .
+				($widget->get_icon_name() ? ", iconCls:'" . $this->build_css_icon_class($widget->get_icon_name()) . "'" : '') .
 				($this->get_on_load_script() ? ", onLoad: function(){" . $this->get_on_load_script() . "}" : '') .
 				($this->get_on_resize_script() ? ", onResize: function(){" . $this->get_on_resize_script() . "}" : '')
 				;		
