@@ -1,5 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+use exface\Core\Interfaces\Actions\ActionInterface;
+
 class euiInputPropertyTable extends euiInput {
 	
 	protected function init(){
@@ -22,10 +24,18 @@ class euiInputPropertyTable extends euiInput {
 		return $output;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\JEasyUiTemplate\Template\Elements\euiInput::generate_js()
+	 */
 	function generate_js(){
 		/* @var $widget \exface\Core\Widgets\InputPropertyTable */
 		$widget = $this->get_widget();
 		
+		// FIXME The ...Sync() JS-method does not really work, because it does not get automatically called after values change. In former times,
+		// it got called right before the parent form was submitted. After we stopped using forms, this does not happen anymore. Instead the
+		// custom value getter was introduced. The question is, if we still need the textarea and the (now only partially working) synchronisation.
 		$output = <<<JS
 
 $('#{$this->build_js_grid_id()}').{$this->get_element_type()}({
@@ -46,6 +56,7 @@ $('#{$this->build_js_grid_id()}').{$this->get_element_type()}({
 	},
 	onLoadSuccess: {$this->build_js_function_prefix()}Sync
 });
+
 function {$this->build_js_function_prefix()}Sync(){
 	var data = $('#{$this->build_js_grid_id()}').propertygrid('getData');
 	var result = {};
@@ -56,12 +67,27 @@ function {$this->build_js_function_prefix()}Sync(){
 	}
 	$('#{$this->get_id()}').val(JSON.stringify(result));
 }
-$('#{$this->build_js_grid_id()}').parents('form').form({onSubmit: {$this->build_js_function_prefix()}Sync});
+
+function {$this->build_js_function_prefix()}GetValue(){
+	var data = $('#{$this->build_js_grid_id()}').propertygrid('getData');
+	var result = {};
+	for (var i=0; i<data.rows.length; i++){
+		$('#{$this->build_js_grid_id()}').propertygrid('endEdit', i);
+		result[data.rows[i].name] = data.rows[i].value;
+		$('#{$this->build_js_grid_id()}').propertygrid('beginEdit', i);
+	}
+	return JSON.stringify(result);
+}
+
 {$this->build_js_property_adder()}
 {$this->build_js_property_remover()}
 JS;
 
 		return $output;
+	}
+	
+	public function build_js_value_getter(){
+		return $this->build_js_function_prefix().'GetValue()';
 	}
 	
 	function build_js_init_options(){
