@@ -313,7 +313,11 @@ class euiDataTable extends euiData {
 		if (is_null($action)){
 			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getData')";
 		} elseif ($this->is_editable() && $action->implements_interface('iModifyData')){
-			$rows = $this->build_js_function_prefix() . "getChanges()";
+			if ($this->get_widget()->get_multi_select()){
+				$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections').length > 0 ? $('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections') : " . $this->build_js_function_prefix() . "getChanges()";
+			} else {
+				$rows = $this->build_js_function_prefix() . "getChanges()";
+			}
 		} else {
 			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections')";
 		}
