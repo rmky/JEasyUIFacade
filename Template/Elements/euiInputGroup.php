@@ -2,12 +2,22 @@
 
 class euiInputGroup extends euiPanel {
 	
-	public function generate_html(){
-		$output = <<<HTML
-	<div title="{$this->get_widget()->get_caption()}" class="grid fitem" style="height: {$this->get_height()}; width: {$this->get_width()}">
-		{$this->build_html_for_children()}
-	</div>
-HTML;
+	public function generate_html() {
+		$children_html = $this->build_html_for_children();
+		
+		// Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
+		if ($this->get_widget()->count_widgets() > 1){
+			$children_html = '<div class="grid">' . $children_html . '</div>';
+		}
+		
+		$output = '
+				<fieldset class="easyui-'.$this->get_element_type().'" 
+						id="'.$this->get_id().'" 
+						data-options="'.$this->generate_data_options().'" 
+						style="border-width: 1px 0 0 0; padding: 10px 0 20px 0;">
+					<legend>'.$this->get_widget()->get_caption().'</legend>
+					'.$children_html.'
+				</fieldset>';
 		return $output;
 	}
 	
