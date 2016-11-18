@@ -11,10 +11,9 @@ class euiInputGroup extends euiPanel {
 		}
 		
 		$output = '
-				<fieldset class="easyui-'.$this->get_element_type().'" 
+				<fieldset class="exface_inputgroup easyui-'.$this->get_element_type().'" 
 						id="'.$this->get_id().'" 
-						data-options="'.$this->generate_data_options().'" 
-						style="border-width: 1px 0 0 0; padding: 10px 0 20px 0;">
+						data-options="'.$this->generate_data_options().'">
 					<legend>'.$this->get_widget()->get_caption().'</legend>
 					'.$children_html.'
 				</fieldset>';
