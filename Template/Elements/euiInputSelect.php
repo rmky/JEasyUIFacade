@@ -16,7 +16,7 @@ class euiInputSelect extends euiInput {
 					<option value="' . $value . '"' . ($this->get_value_with_defaults() == $value ? ' selected="selected"' : '') . '>' . $text . '</option>';
 		}
 
-		$output = '	<select style="height: 100%; width: 100%;" class="textbox textbox-text textbox-prompt' . ($widget->is_required() ? ' validatebox-invalid' : '') . '"
+		$output = '	<select style="height: 100%; width: 100%;" class="textbox textbox-text textbox-prompt"
 						name="' . $widget->get_attribute_alias() . '"  
 						id="' . $this->get_id() . '"  
 						' . ($widget->is_required() ? 'required="true" ' : '') . '
