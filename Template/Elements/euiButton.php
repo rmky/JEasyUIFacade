@@ -76,6 +76,13 @@ class euiButton extends euiAbstractElement {
 	
 	protected function build_js_click_show_dialog(ActionInterface $action, AbstractJqueryElement $input_element){
 		$widget = $this->get_widget();
+		/* @var $prefill_link \exface\Core\CommonLogic\WidgetLink */
+		$prefill = '';
+		if ($prefill_link = $this->get_action()->get_prefill_with_data_from_widget_link()){
+			if ($prefill_link->get_page_id() == $widget->get_page_id()){
+				$prefill = ", prefill: " . $this->get_template()->get_element($prefill_link->get_widget())->build_js_data_getter($this->get_action());
+			}
+		}
 		return $this->build_js_request_data_collector($action, $input_element) . "
 					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog({
 							href: '" . $this->get_ajax_url() . "',
@@ -85,6 +92,7 @@ class euiButton extends euiAbstractElement {
 								element: '".$widget->get_id()."',
 								action: '".$widget->get_action_alias()."',
 								data: requestData
+								" . $prefill . "
 							}
 							" . ($this->build_js_input_refresh($widget, $input_element) ? ", onBeforeClose: function(){" . $this->build_js_input_refresh($widget, $input_element) . ";}" : "") . "
 						});
