@@ -4,10 +4,19 @@ class euiSplitPanel extends euiPanel {
 	private $region = null;
 	function generate_html(){
 		switch ($this->get_region()){
-			case 'north': case 'south': $style = 'height: calc(' . $this->get_height() . ' + 7px);'; break;
-			case 'east': case 'west': $style = 'width: calc(' . $this->get_width() . ' + 7px);'; break;
-			case 'center': $style = 'width: calc(' . $this->get_width() . ' + 7px);height: calc(' . $this->get_height() . ' + 7px);'; break;
+			case 'north': case 'south': $height = $this->get_height(); break;
+			case 'east': case 'west': $width = $this->get_width(); break;
+			case 'center': $width = $this->get_width(); $height = $this->get_height(); break;
 		}
+		
+		if ($height && !$this->get_widget()->get_height()->is_percentual()){
+			$height = 'calc( ' . $height . ' + 7px)';
+		}
+		if ($width && !$this->get_widget()->get_width()->is_percentual()){
+			$width = 'calc( ' . $width . ' + 7px)';
+		}
+		
+		$style = ($height ? 'height: ' . $height . ';' : '') . ($width ? 'width: ' . $width . ';' : '');
 		
 		$children_html = $this->build_html_for_children();
 		
