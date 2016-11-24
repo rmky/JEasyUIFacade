@@ -1,0 +1,6 @@
+text {fill: #000000;}
+svg {position: absolute;}
+polygon {fill:rgba(255,255,255,0.5);stroke-width:1;stroke:rgb(255,255,255);}
+polygon:hover {fill:rgba(255,255,255,0.9);}
+.elementList {position: absolute;pointer-events:none;}
+#VisualPlaceholder {position: relative;}
