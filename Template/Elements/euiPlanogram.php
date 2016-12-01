@@ -8,11 +8,14 @@ class euiPlanogram extends euiDiagram {
 	public function generate_html(){
 		$output = <<<HTML
 
-<div id="VisualRack" class="easyui-panel" title="{$this->get_widget()->get_caption()}" style="" data-options="fit:true,onResize:function(){ {$this->build_js_function_prefix()}init(); }">
+<div id="VisualRack" class="easyui-panel" title="{$this->get_widget()->get_caption()}" style="" data-options="fit:true,tools:'#{$this->get_id()}_tools',onResize:function(){ {$this->build_js_function_prefix()}init(); }">
 	{$this->get_template()->get_element($this->get_widget()->get_diagram_object_selector_widget())->generate_html()}
     <div id="VisualPlaceholder" style="margin: 10px 3px 0 3px;">
 
     </div>
+	<div id="{$this->get_id()}_tools">
+		<a href="javascript:void(0)" class="icon-reload" onclick="javascript:{$this->build_js_function_prefix()}init()" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
+	</div>
 </div>
 				
 		
@@ -46,6 +49,18 @@ function {$this->build_js_function_prefix()}init(){
 	var background = {'src':'{$widget->get_prefill_data()->get_cell_value($widget->get_background_image_attribute_alias(), 0)}', 'width': 303, 'height': 528};
 	getGridInfo(background);
 }
+
+$(document).ready(function(){
+	$("body").on('click', '#VisualPlaceholder svg polygon', function(){
+        alert("My name is "+$(this).data("oid"));
+    });
+    
+    $("body").on('click', '#VisualPlaceholder svg text', function(){
+        alert("My name is "+$(this).data("oid"));
+    });
+    
+    interact('tr.datagrid-row').draggables({max: 2});
+});
 		
 function getGridInfo(background){
 	var data = {};
@@ -64,6 +79,28 @@ function getGridInfo(background){
 		},
 		dataType: "json"
 	});
+}
+		
+function getArticles(){
+	var data = {};
+	var result = [];
+	data.resource = "{$this->get_page_id()}";
+	data.element = "{$shape->get_data()->get_id()}";
+	data.object = "{$shape->get_data()->get_meta_object()->get_id()}";
+	data.action = "{$widget->get_lazy_loading_action()}";
+	
+	$.ajax({
+		type: "POST",
+		url: "{$this->get_ajax_url()}",
+		async: false,
+		data: data,
+		success: function(data){
+			result = data;
+		},
+		dataType: "json"
+	});
+				
+	return result;
 }
 JS;
 		return $output . parent::generate_js();

@@ -1,7 +1,19 @@
 initialOffset = [5,12];
 textLineHeight = 16;
+// here we define what should be displayed per list entry.
+// every printed text line is one array
+// every entry in the line is one object
+displayElements =   [
+                        [   
+                        	{'type':'param', 'val':"ARTICLE_COLOR__STYLE__LABEL"}
+                        ],
+                        [
+                            {'type':'param', 'val':"ARTICLE_COLOR__COLOR__LABEL"}
+                        ]
+                    ];
 
-function fillListsWithArticles(){
+
+function fillListsWithArticles(firstrun){
     var articles = retrieveArticleList();
 
     var svg = getSVGForChange();
@@ -13,8 +25,8 @@ function fillListsWithArticles(){
                 max = svg_area.attr("data-max"),
                 width = parseInt(svg_area.attr("data-width"));
             area['offset'] = min.split(",");
-            area['offset'][1] = parseInt(area['offset'][1])+initialOffset[1];
-            var x = parseInt(area['offset'][0])+initialOffset[0];
+            area['offset'][1] = parseInt(area['offset'][1]);
+            var x = parseInt(area['offset'][0]);
         }
         else {
             area['visible'] = false;
@@ -23,30 +35,57 @@ function fillListsWithArticles(){
             if(element && area['visible']){
                 var text = element['ARTICLE_COLOR__STYLE__LABEL']+" "+element["ARTICLE_COLOR__COLOR__LABEL"];
                 var oid = element['OID'];
-
+                var lineAt = 0;
                 var y = area['offset'][1];
-                var helpercoord = getHelperCoords(x,y);
                 var altlength = (text.length*textLineHeight*0.4);
-                listofElements +='<g>';
-                listofElements +='<rect class="helperRect" data-helperfor="'+oid+'" x="'+helpercoord[0]+'" y="'+helpercoord[1]+'" height="'+textLineHeight+'" width="'+(altlength > width ? altlength : width)+'" mask="url(#poly_'+i+'_mask_helper)"/>';
-                listofElements +='<text class="dragElement" data-shelf-oid="'+i+'" data-oid="'+oid+'" data-origcoord="'+x+','+y+'" x="'+x+'" y="'+y+'" fulltext="'+text+'" mask="url(#poly_'+i+'_mask)">';
-                listofElements +=text+'</text>';
+                //wrapper element g
+                listofElements +='<g class="dragElement" transform="translate('+x+','+y+')" data-x="'+x+'"  data-y="'+y+'" data-origcoord="'+x+','+y+'" data-shelf-oid="'+i+'" data-oid="'+oid+'" mask="url(#poly_'+i+'_mask_helper)">';
+                //helper for background is calculated by line size
+                var helperheight = textLineHeight*displayElements.length;
+                listofElements +='<rect class="helperRect" x="0" y="0" height="'+helperheight+'" width="'+(altlength > width ? altlength : width)+'"/>';
+                //go through list of elements
+                $.each(displayElements, function(entryi, line){
+                    listofElements +='<text data-textfor="'+oid+'" x="'+initialOffset[0]+'" y="'+(parseInt(lineAt*textLineHeight)+parseInt(initialOffset[1]))+'"';
+                    var text = '';
+                    $.each(line, function(elindex, lineelement){
+                       if (lineelement.type == 'param'){
+                           text += element[lineelement.val];
+                       }
+                       else {
+                           text += lineelement.val;
+                       }
+                    });
+                    listofElements += ' fulltext="'+text+'" mask="url(#poly_'+i+'_mask)">'+text+'</text>';
+                    area['offset'][1] = parseInt(area['offset'][1])+textLineHeight;
+                    lineAt += 1;
+                });
+
+
+                //Close group
                 listofElements +='</g>';
-                area['offset'][1] = parseInt(area['offset'][1])+textLineHeight;
+
+
             }
         });
     });
-    $("#VisualPlaceholder").html(svg['wrapper']+svg['content']+listofElements+"</svg>");
-    initializeDragFunctionality();
+    $("#VisualPlaceholder").html(svg['wrapper']+svg['content']+'<g class="dragElementList">'+listofElements+'</g>'+"</svg>");
+    if (firstrun){initializeDragFunctionality()};
 
 }
-function getHelperCoords(x,y){
-    return [x-initialOffset[0], y-initialOffset[1]];
-}
+
 function getSVGForChange(){
-    var svg = $("#Planogram");
+
+    //delete old elements for drag
+    var dragElements = document.getElementsByClassName("dragElementList");
+    $(document).add(".dragElement").off();
+    if (dragElements.length > 0){
+        var parent = dragElements[0].parentNode;
+        parent.removeChild(dragElements[0]);
+    }
+    var svg = $("#Planogram").clone(false);
     var wrapperelement = '<svg ';
     var content = svg.html();
+
     $(svg).each(function() {
         $.each(this.attributes, function() {
             if(this.specified) {
@@ -75,6 +114,7 @@ function retrieveArticleList(){
 //-----------------------------------------------------------------------------
 // HELPER FUNCTIONS FOR DATA RETRIEVAL - FILLED WITH DEMO DATA
 //-----------------------------------------------------------------------------
+/* MOD aka: moved to ExFace
 function getArticles(){
     return {
         "rows": [
@@ -160,4 +200,4 @@ function getArticles(){
         "footer": []
     };
 
-}
+}*/

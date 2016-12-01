@@ -1,6 +1,7 @@
+/* MOD aka moved to ExFace
 $(document).ready(function(){
 
-    $("body").on('click', '#VisualPlaceholder svg .shelfElement', function(){
+    $("body").on('click', '#VisualPlaceholder svg .area', function(){
         alert("My name is "+$(this).attr("id"));
     });
 
@@ -11,11 +12,14 @@ $(document).ready(function(){
         setUpDisplay(background, data['rows']);
 
     });
+    $("#DeleteArticles").on("click", function(){
+        fillListsWithArticles(false)
+    });
     $(".dragElement, .externalDrop").click(function(event){
-       callClickEventForArticle(this);
+        callClickEventForArticle(this);
     });
 
-});
+});*/
 
 //------------------------------------------------------------
 // Click functions
@@ -35,7 +39,7 @@ function initializeDragFunctionality(){
     interact.on('dragmove', dragMove);
     interact('.dragElement').draggables({max: 2});
     interact('.externalDrop').draggables({max: 2});
-    interact('.shelfElement').dropzone({
+    interact('.area').dropzone({
         // only accept elements matching this CSS selector
         accept: '.dragElement, .externalDrop',
         overlap: 0.2,
@@ -56,16 +60,13 @@ function dragMove(e) {
     var oid = $(target).attr("data-oid");
     if(!$(target).attr("data-mask")){
         $(target).attr("data-mask", $(target).attr("mask")).attr("mask","");
-        var helper = $(".helperRect[data-helperfor='" + oid + "']");
-        helper.attr("data-mask", helper.attr("mask")).attr("mask","");
+        var textElement = $("text[data-textfor='" + oid + "']");
+        textElement.attr("data-mask", textElement.attr("mask")).attr("mask","");
     }
     if (isSVGElement(target)) {
         var oid = $(target).attr("data-oid");
-        var x = parseInt($(target).attr("x"))+e.dx;
-        var y = parseInt($(target).attr("y"))+e.dy;
-        var helperCoords = getHelperCoords(x,y);
-        $(".helperRect[data-helperfor='"+oid+"']").attr("x",helperCoords[0] ).attr("y", helperCoords[1]);
-        $(target).attr("x", x).attr("y", y);
+        setGroupPosition($(target),parseInt($(target).attr("data-x"))+e.dx, parseInt($(target).attr("data-y"))+e.dy);
+
     } else {
         if (!$(target).attr("data-origcoord")){
             $(target).attr("data-origcoord", "["+$(target).offset().left+","+$(target).offset().top+"]")
@@ -74,6 +75,9 @@ function dragMove(e) {
         target.style.top  = parseInt($(target).offset().top)  + e.dy + 'px';
     }
     return;
+}
+function setGroupPosition(target,x,y){
+   target.attr("transform", 'translate('+x+','+y+')').attr("data-x",x).attr("data-y",y);
 }
 function dragEnd(e) {
 
@@ -85,7 +89,7 @@ function dragEnd(e) {
     }
     return false;
 }
-// In the future that should also reset the helper
+
 function resetElement(target){
     var coords_original = $(target).attr("data-origcoord").split(",");
     var x = parseInt(coords_original[0]);
@@ -93,11 +97,9 @@ function resetElement(target){
     var oid = $(target).attr("data-oid");
     if (isSVGElement(target)) {
         $(target).attr("mask", $(target).attr("data-mask")).removeAttr("data-mask");
-        var helper = $(".helperRect[data-helperfor='" + oid + "']");
-        helper.attr("mask", helper.attr("data-mask")).removeAttr("data-mask");
-        var helperCoords = getHelperCoords(x, y);
-        helper.attr("x", helperCoords[0]).attr("y", helperCoords[1]);
-        $(target).attr("x", x).attr("y", y);
+        var textElement = $("text[data-textfor='" + oid + "']");
+        textElement.attr("mask", textElement.attr("data-mask")).removeAttr("data-mask");
+        setGroupPosition($(target),x,y);
     }else {
         target.style.left = x + 'px';
         target.style.top  = y + 'px';
@@ -126,10 +128,10 @@ function successfulDragAction(oid,sourceshelf,targetshelf){
 }
 
 function onDragEnter(event) {
-        var draggableElement = event.relatedTarget,
-            dropzoneElement = event.target;
-        dropzoneElement.classList.add('drop-target');
-        draggableElement.classList.add('can-drop');
+    var draggableElement = event.relatedTarget,
+        dropzoneElement = event.target;
+    dropzoneElement.classList.add('drop-target');
+    draggableElement.classList.add('can-drop');
 }
 function onDragLeave(event){
     event.target.classList.remove('drop-target');

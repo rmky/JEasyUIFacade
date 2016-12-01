@@ -1,6 +1,6 @@
 var svg = '';
 var dimensions = [200,200];
-var toff = [0,5]; //negative text offset for shelf name
+var toff = [5,5,"bottomright",""]; //negative text offset for shelf name
 
 function setUpAreas(data){
 
@@ -8,8 +8,8 @@ function setUpAreas(data){
         if (element.hasOwnProperty("TYPE")){
             //console.log(element['TYPE']);
         } else {
-        	// MOD aka: parseJSON for coordinates
-            var coords = $.parseJSON(element['COORDINATES']);
+            var coords = $.parseJSON(element['DIAGRAM_OPTIONS']).coordinates;
+            svg += '<g class="areaDefinition">';
             if (coords.length == 1 && coords[0].hasOwnProperty('r')){
 
                 var points = processCirclePoints(coords);
@@ -17,29 +17,49 @@ function setUpAreas(data){
             }
             else {
                 var points = processPolygonPoints(coords);
-                svg += createPolygon(element['OID'], points );
-                svg += printText(points['min'][0]-toff[0],points['min'][1]-toff[1], element['DESCRIPTION']);
+                svg += createPolygon(element['OID'], points, element['CODE']);
+
             }
+            svg += "</g>";
         }
     });
 }
 
-function createPolygon(id,points){
+function createPolygon(id,points, label){
+    var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
 
-    var text = '<polygon data-oid="'+id+'" id="poly_'+id+'" points="'+points['points']+'" data-width="'+points['size'][0]+'" data-max="'+points['max'].join()+'" data-min="'+points['min'].join()+'" class="shelfElement"/>';
-    //text +=  '<defs><linearGradient id="Gradient"><stop offset="0.9" stop-color="white" stop-opacity="1" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><mask id="poly_'+id+'_mask"><rect x="'+points['min'][0]+'" y="'+points['min'][1]+'" width="'+(points['size'][0]-(2*initialOffset[0]))+'" height="100%" fill="url(#Gradient)"  /> </mask></defs>';
-    text += '<defs><linearGradient id="Gradient'+id+'"><stop offset="0.8" stop-color="white" stop-opacity="1" /><stop offset="0.9" stop-color="white" stop-opacity="0" /></linearGradient><mask id="poly_'+id+'_mask"><polygon points="'+points['points']+'" fill="url(#Gradient'+id+')"/></mask><mask id="poly_'+id+'_mask_helper" fill="white"><polygon points="'+points['points']+'"/></mask></defs>'
+    var text = '<polygon data-oid="'+id+'" id="poly_'+id+'" points="'+points['points']+'" data-width="'+points['size'][0]+'" data-max="'+points['max'].join()+'" data-min="'+points['min'].join()+'" class="area"/>';
+
+    text += '<defs>' +
+                '<linearGradient id="Gradient'+id+'">' +
+                    '<stop offset="0.8" stop-color="white" stop-opacity="1" />' +
+                    '<stop offset="0.9" stop-color="white" stop-opacity="0" />' +
+                '</linearGradient>' +
+                '<mask id="poly_'+id+'_mask">' +
+                    '<polygon transform="translate(-'+points['min'][0]+',-'+points['min'][1]+')" points="'+points['points']+'" fill="url(#Gradient'+id+')"/>' +
+                '</mask>' +
+                '<mask id="poly_'+id+'_mask_helper" >' +
+                    '<polygon transform="translate(-'+points['min'][0]+',-'+points['min'][1]+')" points="'+points['points']+'" fill="white"  />' +
+                '</mask>' +
+            '</defs>';
+    //Add Label
+    switch(toff[2]){
+        case "bottomright":
+            text += printText(points['max'][0]-toff[0],points['max'][1]-toff[1], label,"end");
+            break;
+        default:
+            text += printText(points['min'][0]-toff[0],points['min'][1]-toff[1], label,"start");
+    }
     return text;
 }
 
 function createCircle(id, points){
-    var text = '<circle data-oid="'+id+'" id="poly_'+id+'" cx="'+points['points'][1]+'" cy="'+points['points'][2]+'" r="'+points['points'][0]+'" data-width="'+points['size'][0]+'" data-max="'+points['max'].join()+'" data-min="'+points['min'].join()+'" class="shelfElement"/>';
-    text += '<defs><linearGradient id="Gradient'+id+'"><stop offset="0.9" stop-color="white" stop-opacity="1" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><mask id="poly_'+id+'_mask"><rect x="'+points['min'][0]+'" y="'+points['min'][1]+'" width="'+(points['size'][1]-initialOffset[0])+'" height="100%" fill="url(#Gradient'+id+')"/></mask><mask id="poly_'+id+'_mask_helper" fill="white"><rect x="'+points['min'][0]+'" y="'+points['min'][1]+'" width="'+(points['size'][1]-initialOffset[0])+'" height="100%"/></mask></defs>'
+    var text = '<circle data-oid="'+id+'" id="poly_'+id+'" cx="'+points['points'][1]+'" cy="'+points['points'][2]+'" r="'+points['points'][0]+'" data-width="'+points['size'][0]+'" data-max="'+points['max'].join()+'" data-min="'+points['min'].join()+'" class="area"/>';
+    text += '<defs><linearGradient id="Gradient'+id+'"><stop offset="0.9" stop-color="white" stop-opacity="1" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><mask id="poly_'+id+'_mask"><rect x="0" y="0" width="'+(points['size'][1]-initialOffset[0])+'" height="100%" fill="url(#Gradient'+id+')"/></mask><mask id="poly_'+id+'_mask_helper" fill="white"><rect x="0" y="0" width="'+(points['size'][1]-initialOffset[0])+'" height="100%"/></mask></defs>'
     return text;
 }
-function printText(x,y,text){
-    return '<text x="'+x+'" y="'+y+'">'+text+'</text>';
-
+function printText(x,y,text, textanchor){
+    return '<text x="'+x+'" y="'+y+'" text-anchor="'+textanchor+'">'+text+'</text>';
 }
 
 function setUpDisplay(background, data){
@@ -53,7 +73,7 @@ function setUpDisplay(background, data){
     completeSVG();
     //Place it in the DOM
     $("#VisualPlaceholder").html(svg);
-    fillListsWithArticles();
+    fillListsWithArticles(true);
 }
 
 
@@ -75,7 +95,7 @@ function resetSVG(){
 
 function completeSVG(){
     //Dimensions is biggest know x and y value from all the values including background image
-    svg = '<svg viewBox="0 0 '+dimensions[0]+' '+dimensions[1]+'" id="Planogram">'+svg+'</svg>';
+    svg = '<svg viewBox="0 0 '+dimensions[0]+' '+dimensions[1]+'" width="99%" id="Planogram">'+svg+'</svg>';
 }
 
 function setBackgroundImage(background){
@@ -111,7 +131,7 @@ function processCirclePoints(coordinates){
 //-----------------------------------------------------------------------------
 // HELPER FUNCTIONS FOR DATA RETRIEVAL - FILLED WITH DEMO DATA
 //-----------------------------------------------------------------------------
-function getGridInfo(){
+/*function getGridInfo(){
     var data = {
         "rows": [
             {
@@ -291,7 +311,7 @@ function getGridInfo(){
     };
 
     return data;
-}
+}*/
 function getBackgroundImage(){
     return {'src':'./src/img/BackgroundImage.jpg', 'width': 542, 'height': 944};
 }
