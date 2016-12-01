@@ -8,9 +8,9 @@ class euiPlanogram extends euiDiagram {
 	public function generate_html(){
 		$output = <<<HTML
 
-<div id="VisualRack" class="easyui-panel" title="{$this->get_widget()->get_caption()}" style="text-align:center;" data-options="fit:true">
+<div id="VisualRack" class="easyui-panel" title="{$this->get_widget()->get_caption()}" style="" data-options="fit:true,onResize:function(){ {$this->build_js_function_prefix()}init(); }">
 	{$this->get_template()->get_element($this->get_widget()->get_diagram_object_selector_widget())->generate_html()}
-    <div id="VisualPlaceholder" style="margin-top: 10px;">
+    <div id="VisualPlaceholder" style="margin: 10px 3px 0 3px;">
 
     </div>
 </div>
@@ -41,15 +41,11 @@ HTML;
 		$filter = 'data.fltr01_' . RelationPath::relation_path_add($relation_to_diagram->to_string(), $relation_to_diagram->get_end_object()->get_uid_alias()) . ' = ' . $this->get_template()->get_element($widget->get_diagram_object_selector_widget())->build_js_value_getter() . ';';
 		
 		$output = <<<JS
-//On document load, setup
-$(document).ready(function(){
-	//Retrieve all data from external sources - demo in this case
+		
+function {$this->build_js_function_prefix()}init(){
 	var background = {'src':'{$widget->get_prefill_data()->get_cell_value($widget->get_background_image_attribute_alias(), 0)}', 'width': 303, 'height': 528};
-	//var data = getGridInfo();
 	getGridInfo(background);
-	//this is where the magic happens
-	//setUpDisplay(background, data['rows']);
-});
+}
 		
 function getGridInfo(background){
 	var data = {};
@@ -74,9 +70,7 @@ JS;
 	}
 	
 	public function build_js_refresh(){
-		$widget = $this->get_widget();
-		return "var background = {'src':'{$widget->get_prefill_data()->get_cell_value($widget->get_background_image_attribute_alias(), 0)}', 'width': 303, 'height': 528};
-		getGridInfo(background);";
+		return $this->build_js_function_prefix() . "init()";
 	}
 	
 	public function generate_headers(){
@@ -84,6 +78,8 @@ JS;
 		$includes[] = '<link rel="stylesheet" media="screen" href="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/style.css">';
 		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/gridbuilder.js"></script>';
 		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/gridinteraction.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/gridfiller.js"></script>';
+		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/interact.js"></script>';
 		return $includes;
 	}
 }

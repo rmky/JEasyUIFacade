@@ -1,42 +1,50 @@
 var svg = '';
 var dimensions = [200,200];
-var overlay ='';
-// MOD aka
-var toff = [-2,-12]; //negative text offset for shelf name
+var toff = [0,5]; //negative text offset for shelf name
 
 function setUpAreas(data){
 
     $.each(data, function(id,element){
         if (element.hasOwnProperty("TYPE")){
-            console.log(element['TYPE']);
+            //console.log(element['TYPE']);
         } else {
-        	// MOD aka
-        	var coordinates = $.parseJSON(element['COORDINATES']);
-            var positions = getWidthAndHeight(coordinates);
-            svg += createPolygon(element['OID'],coordinates);
-            console.log(positions);
-            svg += printText(positions[0]-toff[0],positions[1]-toff[1], element['CODE']);
-            overlay += '<div style="left:'+positions[0]+'px;top:'+positions[1]+'px;width:'+positions[2]+'px;height:'+positions[3]+'px;" id="list_'+element['OID']+'" class="elementList"></div>';
+        	// MOD aka: parseJSON for coordinates
+            var coords = $.parseJSON(element['COORDINATES']);
+            if (coords.length == 1 && coords[0].hasOwnProperty('r')){
+
+                var points = processCirclePoints(coords);
+                svg += createCircle(element['OID'],points);
+            }
+            else {
+                var points = processPolygonPoints(coords);
+                svg += createPolygon(element['OID'], points );
+                svg += printText(points['min'][0]-toff[0],points['min'][1]-toff[1], element['DESCRIPTION']);
+            }
         }
     });
 }
 
+function createPolygon(id,points){
 
-function createPolygon(id,params){
-
-    var points = "";
-    $.each(params, function(cID,coord){
-        points += coord['x']+","+coord['y']+" ";
-    });
-    return '<polygon id="'+id+'" points="'+points+'" class="shelfElement"/>';
+    var text = '<polygon data-oid="'+id+'" id="poly_'+id+'" points="'+points['points']+'" data-width="'+points['size'][0]+'" data-max="'+points['max'].join()+'" data-min="'+points['min'].join()+'" class="shelfElement"/>';
+    //text +=  '<defs><linearGradient id="Gradient"><stop offset="0.9" stop-color="white" stop-opacity="1" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><mask id="poly_'+id+'_mask"><rect x="'+points['min'][0]+'" y="'+points['min'][1]+'" width="'+(points['size'][0]-(2*initialOffset[0]))+'" height="100%" fill="url(#Gradient)"  /> </mask></defs>';
+    text += '<defs><linearGradient id="Gradient'+id+'"><stop offset="0.8" stop-color="white" stop-opacity="1" /><stop offset="0.9" stop-color="white" stop-opacity="0" /></linearGradient><mask id="poly_'+id+'_mask"><polygon points="'+points['points']+'" fill="url(#Gradient'+id+')"/></mask><mask id="poly_'+id+'_mask_helper" fill="white"><polygon points="'+points['points']+'"/></mask></defs>'
+    return text;
 }
 
-
+function createCircle(id, points){
+    var text = '<circle data-oid="'+id+'" id="poly_'+id+'" cx="'+points['points'][1]+'" cy="'+points['points'][2]+'" r="'+points['points'][0]+'" data-width="'+points['size'][0]+'" data-max="'+points['max'].join()+'" data-min="'+points['min'].join()+'" class="shelfElement"/>';
+    text += '<defs><linearGradient id="Gradient'+id+'"><stop offset="0.9" stop-color="white" stop-opacity="1" /><stop offset="1" stop-color="white" stop-opacity="0" /></linearGradient><mask id="poly_'+id+'_mask"><rect x="'+points['min'][0]+'" y="'+points['min'][1]+'" width="'+(points['size'][1]-initialOffset[0])+'" height="100%" fill="url(#Gradient'+id+')"/></mask><mask id="poly_'+id+'_mask_helper" fill="white"><rect x="'+points['min'][0]+'" y="'+points['min'][1]+'" width="'+(points['size'][1]-initialOffset[0])+'" height="100%"/></mask></defs>'
+    return text;
+}
 function printText(x,y,text){
-    return '<text x="'+x+'" y="'+y+'" fill="white">'+text+'</text>';
+    return '<text x="'+x+'" y="'+y+'">'+text+'</text>';
+
 }
 
 function setUpDisplay(background, data){
+    $("#VisualPlaceholder").empty();
+    resetSVG();
     //Get the Background Image and stuff it into SVG
     setBackgroundImage(background);
     //Get your area data amd stuff it into SVG
@@ -44,12 +52,14 @@ function setUpDisplay(background, data){
     //Wrap it in the svg tag
     completeSVG();
     //Place it in the DOM
-    $("#VisualPlaceholder").html(svg+overlay).width(dimensions[0]).height(dimensions[1]);
+    $("#VisualPlaceholder").html(svg);
+    fillListsWithArticles();
 }
 
+
 //On document load, setup
-/* MOVED to ExFace
- * $(document).ready(function(){
+/* MOD aka: moved to ExFace
+$(document).ready(function(){
     //Retrieve all data from external sources - demo in this case
     var background = getBackgroundImage();
     var data = getGridInfo();
@@ -62,9 +72,10 @@ function setUpDisplay(background, data){
 function resetSVG(){
     svg = '';
 }
+
 function completeSVG(){
     //Dimensions is biggest know x and y value from all the values including background image
-    svg = '<svg width="'+dimensions[0]+'" height="'+dimensions[1]+'">'+svg+'</svg>';
+    svg = '<svg viewBox="0 0 '+dimensions[0]+' '+dimensions[1]+'" id="Planogram">'+svg+'</svg>';
 }
 
 function setBackgroundImage(background){
@@ -75,29 +86,38 @@ function setBackgroundImage(background){
 //-----------------------------------------------------------------------------
 // HELPER FUNCTIONS FOR GEOMETRY
 //-----------------------------------------------------------------------------
-function getWidthAndHeight(params){
-    var maxx = 0, maxy = 0;
-    var minx = 9999999, miny = 9999999;
-    $.each(params, function(cID,coord){
-        if (coord['x'] < minx){minx =coord['x'];}
-        if (coord['y'] < miny){miny =coord['y'];}
-        if (coord['x'] > maxx){maxx =coord['x'];}
-        if (coord['y'] > maxy){maxy =coord['y'];}
+function processPolygonPoints(coordinates){
+    var points = "";
+    var minx = 999999, miny = 999999;
+    var maxx = 0,maxy = 0;
+    $.each(coordinates, function(cID,coord){
+        if (coord['x'] > maxx){maxx = coord['x'];}
+        if (coord['y'] > maxy){maxy = coord['y'];}
+        if (coord['x'] < minx){minx = coord['x'];}
+        if (coord['y'] < miny){miny = coord['y'];}
+        points += coord['x']+","+coord['y']+" ";
     });
     var width=maxx-minx;
     var height=maxy-miny;
-    return [minx, miny,width,height];
+    return {"points": points, "min":[minx,miny], "max":[maxx,maxy], "size":[width,height]}
+}
+function processCirclePoints(coordinates){
+    var radius = coordinates[0]['r'];
+    var cx = coordinates[0]['cx'];
+    var cy = coordinates[0]['cy'];
+    var isql = Math.round((Math.sqrt((radius*radius)/2))*100)/100;
+    return {"points": [radius,cx,cy],"min":[cx-(isql), cy-(isql)], "max":[cx+(isql), cy+(isql)], "size":[isql*2,isql*2]};
 }
 //-----------------------------------------------------------------------------
 // HELPER FUNCTIONS FOR DATA RETRIEVAL - FILLED WITH DEMO DATA
 //-----------------------------------------------------------------------------
-/*function getGridInfo(){
+function getGridInfo(){
     var data = {
         "rows": [
             {
                 "CODE": "HO1",
                 "DESCRIPTION": "Stange oben links",
-                "COORDINATES": [{'x':35,'y':40},{'x':135,'y':40},{'x':135,'y':220},{'x':35,'y':220}],
+                "COORDINATES": [{'x':35,'y':40},{'x':180,'y':40},{'x':185,'y':220},{'x':35,'y':220}],
                 "OID": "21",
                 "SEQUENCE": "1",
                 "VM_SHELF_MODEL__LABEL": "Fashion-Wand 15",
@@ -106,21 +126,21 @@ function getWidthAndHeight(params){
             {
                 "CODE": "HU1",
                 "DESCRIPTION": "Stange unten links",
-                "COORDINATES": [{'x':35,'y':280},{'x':135,'y':280},{'x':135,'y':430},{'x':35,'y':430}],
+                "COORDINATES": [{'x':35,'y':280},{'x':335,'y':280},{'x':335,'y':830},{'x':35,'y':830}],
                 "OID": "31",
                 "SEQUENCE": "2",
                 "VM_SHELF_MODEL__LABEL": "Fashion-Wand 15",
                 "VM_SHELF_MODEL__VM_SHELF_TYPE__LABEL": "Wand"
             },
-            //{
-            //    "CODE": "B1-1",
-            //    "DESCRIPTION": "Boden oben",
-            //    "COORDINATES": [],
-            //    "OID": "23",
-            //    "SEQUENCE": "3",
-            //    "VM_SHELF_MODEL__LABEL": "Fashion-Wand 15",
-            //    "VM_SHELF_MODEL__VM_SHELF_TYPE__LABEL": "Wand"
-            //},
+            {
+                "CODE": "B1-1",
+                "DESCRIPTION": "Boden oben",
+                "COORDINATES": [{'r':100,'cx':400,'cy':150}],
+                "OID": "23",
+                "SEQUENCE": "3",
+                "VM_SHELF_MODEL__LABEL": "Fashion-Wand 15",
+                "VM_SHELF_MODEL__VM_SHELF_TYPE__LABEL": "Wand"
+            },
             //{
             //    "CODE": "B1-2",
             //    "DESCRIPTION": "Boden oben",
@@ -273,5 +293,5 @@ function getWidthAndHeight(params){
     return data;
 }
 function getBackgroundImage(){
-    return {'src':'./src/img/FashionRack.png', 'width': 587, 'height': 528};
-}*/
+    return {'src':'./src/img/BackgroundImage.jpg', 'width': 542, 'height': 944};
+}
