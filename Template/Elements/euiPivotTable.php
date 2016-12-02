@@ -6,6 +6,7 @@ class euiPivotTable extends euiDataTable {
 	protected function init(){
 		parent::init();
 		$this->set_element_type('pivotgrid');
+		$this->add_on_before_load('if (!$("#' . $this->get_id() . '").data("layouted")) {$("#' . $this->get_id() . '").data("layouted", 1)}');
 	}
 	
 	function generate_js(){
@@ -19,9 +20,22 @@ class euiPivotTable extends euiDataTable {
 							if ($(this).treegrid('getData').length > 0) return false;
 						");*/
 		
+		// add initial sorters
+		$sort_by = array();
+		$direction = array();
+		if (count($widget->get_sorters()) > 0){
+			foreach ($widget->get_sorters() as $sort){
+				$sort_by[] = urlencode($sort->attribute_alias);
+				$direction[] = urlencode($sort->direction);
+			}
+			$sortColumn = ", sortName: '" . implode(',', $sort_by) . "'";
+			$sortOrder = ", sortOrder: '" . implode(',', $direction) . "'";
+		}
+		
 		// get the standard params for grids
 		$grid_head = $this->render_data_source();
-		$grid_head .=  ($this->get_on_before_load() ? ', onBeforeLoad: function(){' . $this->get_on_before_load() . '}' : '') . '
+		$grid_head .=  $sortColumn . $sortOrder .
+						($this->get_on_before_load() ? ', onBeforeLoad: function(param){' . $this->get_on_before_load() . '}' : '') . '
 						, toolbar:[ {
 					        text:\'Layout\',
 					        handler:function(){
@@ -69,6 +83,16 @@ class euiPivotTable extends euiDataTable {
 			}
 		} 
 		return $data;
+	}
+	
+	public function render_data_source(){
+		$result = parent::render_data_source();
+		
+		$result = substr($result, 0, -1);
+		//$result .= ', fltr99_' . $this->get_meta_object()->get_uid_alias() . ': ($("#' . $this->get_id() . '").data("layouted") ? "" : -1)}'; 
+		$result .= ', page: (!$("#' . $this->get_id() . '").data("layouted") ? "" : 1), rows: (!$("#' . $this->get_id() . '").data("layouted") ? "" : 1)}';
+		
+		return $result;
 	}
 }
 ?>
