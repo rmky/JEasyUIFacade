@@ -22,5 +22,9 @@ class euiDiagramShapeData extends euiAbstractElement {
 		$js = $this->get_template()->get_element($this->get_widget()->get_diagram())->get_id() . "_selected.data('oid')";
 		return $js;
 	}
+	
+	public function build_js_refresh(){
+		return $this->get_template()->get_element($this->get_widget()->get_diagram())->build_js_refresh();
+	}
 }
 ?>

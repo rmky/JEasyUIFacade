@@ -10,6 +10,13 @@ class euiPlanogram extends euiDiagram {
 		foreach ($this->get_widget()->get_shapes() as $shape){
 			foreach ($shape->get_data()->get_buttons() as $button){
 				$button_html .= $this->get_template()->get_element($button)->generate_html() . "\n";
+				$menu_html .= $this->get_template()->get_element($button)->build_html_button();
+			}
+			// Create a context menu if any items were found
+			if (count($shape->get_data()->get_buttons()) > 1 && $menu_html){
+				$menu_html = '<div id="' . $this->get_id() . '_smenu" class="easyui-menu">' . $menu_html . '</div>';
+			} else {
+				$menu_html = '';
 			}
 		}
 		$output = <<<HTML
@@ -23,6 +30,7 @@ class euiPlanogram extends euiDiagram {
 		<a href="javascript:void(0)" class="icon-reload" onclick="javascript:{$this->build_js_function_prefix()}init()" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
 	</div>
 	<div style="display:none">
+		{$menu_html}
 		{$button_html}
 	</div>
 </div>
@@ -55,6 +63,13 @@ HTML;
 				$actions_js .= $button_element->generate_js() . "\n";
 				$shape_click_js = $button_element->build_js_click_function_name() . '();';
 			}
+			
+			if (count($shape->get_data()->get_buttons()) > 1){
+				$shape_click_js = '$("#' . $this->get_id() . '_smenu").menu("show", {
+	                    left: e.pageX,
+	                    top: e.pageY
+	                });';
+			}
 		}
 		
 		/* @var $relation_to_diagram \exface\Core\CommonLogic\Model\RelationPath */
@@ -73,7 +88,7 @@ $(document).ready(function(){
         alert("My name is "+$(this).data("oid"));
     });
     
-    $("body").on('click', '#VisualPlaceholder svg text', function(){
+    $("body").on('click', '#VisualPlaceholder svg text', function(e){
    		{$this->get_id()}_selected = $(this).parent();
         {$shape_click_js}
     });
