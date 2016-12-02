@@ -6,6 +6,12 @@ use exface\Core\CommonLogic\Model\RelationPath;
 class euiPlanogram extends euiDiagram {
 	
 	public function generate_html(){
+		$button_html = "";
+		foreach ($this->get_widget()->get_shapes() as $shape){
+			foreach ($shape->get_data()->get_buttons() as $button){
+				$button_html .= $this->get_template()->get_element($button)->generate_html() . "\n";
+			}
+		}
 		$output = <<<HTML
 
 <div id="VisualRack" class="easyui-panel" title="{$this->get_widget()->get_caption()}" style="" data-options="fit:true,tools:'#{$this->get_id()}_tools',onResize:function(){ {$this->build_js_function_prefix()}init(); }">
@@ -15,6 +21,9 @@ class euiPlanogram extends euiDiagram {
     </div>
 	<div id="{$this->get_id()}_tools">
 		<a href="javascript:void(0)" class="icon-reload" onclick="javascript:{$this->build_js_function_prefix()}init()" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
+	</div>
+	<div style="display:none">
+		{$button_html}
 	</div>
 </div>
 				
@@ -35,8 +44,17 @@ HTML;
 	
 	public function generate_js(){
 		$widget = $this->get_widget();
+		$actions_js = '';
 		foreach ($widget->get_shapes() as $shape){
 			// TODO currently just rendering the last shape
+			
+			/* @var $button \exface\Core\Widgets\Button */
+			/* @var $button_element \exface\JEasyUiTemplate\Template\Elements\euiButton */
+			foreach ($shape->get_data()->get_buttons() as $button){
+				$button_element = $this->get_template()->get_element($button);
+				$actions_js .= $button_element->generate_js() . "\n";
+				$shape_click_js = $button_element->build_js_click_function_name() . '();';
+			}
 		}
 		
 		/* @var $relation_to_diagram \exface\Core\CommonLogic\Model\RelationPath */
@@ -56,7 +74,8 @@ $(document).ready(function(){
     });
     
     $("body").on('click', '#VisualPlaceholder svg text', function(){
-        alert("My name is "+$(this).data("oid"));
+   		{$this->get_id()}_selected = $(this).parent();
+        {$shape_click_js}
     });
     
     interact('tr.datagrid-row').draggables({max: 2});
@@ -102,6 +121,8 @@ function getArticles(){
 				
 	return result;
 }
+		
+{$actions_js}
 JS;
 		return $output . parent::generate_js();
 	}
@@ -119,5 +140,6 @@ JS;
 		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/interact.js"></script>';
 		return $includes;
 	}
+	
 }
 ?>
