@@ -5,7 +5,7 @@ use exface\Core\CommonLogic\DataSheets\DataColumn;
 class euiDataMatrix extends euiDataTable {
 	private $label_values = array();
 	
-	public function init(){
+	protected function init(){
 		parent::init();
 		$this->set_element_type('datagrid');
 	}

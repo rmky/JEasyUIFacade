@@ -26,7 +26,7 @@ class euiData extends euiAbstractElement {
 
 	}
 	
-	public function init(){
+	protected function init(){
 		/* @var $col \exface\Core\Widgets\DataColumn */
 		foreach ($this->get_widget()->get_columns() as $col){
 			// handle editors

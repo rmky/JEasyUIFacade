@@ -5,7 +5,7 @@ use exface\Core\Interfaces\Actions\ActionInterface;
 
 class euiDataTable extends euiData {
 	
-	public function init(){
+	protected function init(){
 		parent::init();
 		$this->set_element_type('datagrid');
 		if ($refresh_link = $this->get_widget()->get_refresh_with_widget()){
