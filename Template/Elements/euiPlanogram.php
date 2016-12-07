@@ -27,6 +27,7 @@ class euiPlanogram extends euiDiagram {
 
     </div>
 	<div id="{$this->get_id()}_tools">
+		<a href="http://nbdr223.salt-solutions.de/exface/319.html" class="icon-link" title="Preview" target="_blank"></a>
 		<a href="javascript:void(0)" class="icon-reload" onclick="javascript:{$this->build_js_function_prefix()}init()" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
 	</div>
 	<div style="display:none">
@@ -75,11 +76,12 @@ HTML;
 		/* @var $relation_to_diagram \exface\Core\CommonLogic\Model\RelationPath */
 		$relation_to_diagram = $shape->get_relation_path_to_diagram_object();
 		$filter = 'data.fltr01_' . RelationPath::relation_path_add($relation_to_diagram->to_string(), $relation_to_diagram->get_end_object()->get_uid_alias()) . ' = ' . $this->get_template()->get_element($widget->get_diagram_object_selector_widget())->build_js_value_getter() . ';';
-		
+		$bg_image = $widget->get_prefill_data()->get_cell_value($widget->get_background_image_attribute_alias(), 0);
+		$bg_image = $bg_image ? $bg_image : '{}';
 		$output = <<<JS
 		
 function {$this->build_js_function_prefix()}init(){
-	var background = {'src':'{$widget->get_prefill_data()->get_cell_value($widget->get_background_image_attribute_alias(), 0)}', 'width': 303, 'height': 528};
+	var background = {$bg_image};
 	getGridInfo(background);
 }
 

@@ -6,10 +6,10 @@ svg {}
 g.dragElement {cursor: move;}
 .helperRect {fill:rgba(255,255,255,0.8);stroke-width:1;}
 g.dragElement:hover .helperRect, g.dragElement.is-dragged .helperRect{fill:rgba(224,236,255,1);}
-.shelfElement {fill:rgba(255,255,255,0.5);stroke-width:1;stroke:rgb(255,255,255);}
+.shelfElement {fill:rgba(255,255,255,0.5);stroke-width:1;stroke:rgb(121,205,205);}
 .shelfElement:hover {fill:rgba(255,255,255,0.9);}
 .areaDefinition text {cursor: default; pointer-events: none;}
-.area {fill:rgba(255,255,255,0.5);stroke-width:1;stroke:rgb(255,255,255);}
+.area {fill:rgba(255,255,255,0.5);stroke-width:1;stroke:rgb(121,205,205);}
 .area:hover {fill:rgba(255,255,255,0.9);}
 
 .elementList {position: absolute;pointer-events:none;padding:3px;box-sizing: border-box;}
@@ -19,3 +19,4 @@ g.dragElement:hover .helperRect, g.dragElement.is-dragged .helperRect{fill:rgba(
 .drop-active {stroke-dasharray: 5,5;}
 .drop-target {fill:rgba(255,255,255,0.9);stroke-width:1;stroke:rgb(255,255,255);stroke-dasharray: none;}
 .externalDrop {position: absolute; width: 10%; height: 150px; border: 3px solid #00bbee;}
+
