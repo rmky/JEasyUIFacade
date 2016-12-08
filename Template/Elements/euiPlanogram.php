@@ -75,7 +75,9 @@ HTML;
 		
 		/* @var $relation_to_diagram \exface\Core\CommonLogic\Model\RelationPath */
 		$relation_to_diagram = $shape->get_relation_path_to_diagram_object();
-		$filter = 'data.fltr01_' . RelationPath::relation_path_add($relation_to_diagram->to_string(), $relation_to_diagram->get_end_object()->get_uid_alias()) . ' = ' . $this->get_template()->get_element($widget->get_diagram_object_selector_widget())->build_js_value_getter() . ';';
+		$relation_from_data_to_diagram = $shape->get_data()->get_meta_object()->find_relation_path($widget->get_meta_object())->to_string();
+		$filter_shape_options = 'data.fltr01_' . RelationPath::relation_path_add($relation_to_diagram->to_string(), $relation_to_diagram->get_end_object()->get_uid_alias()) . ' = ' . $this->get_template()->get_element($widget->get_diagram_object_selector_widget())->build_js_value_getter() . ';';
+		$filter_shape_data = 'data.fltr01_' . $relation_from_data_to_diagram . ' = ' . $this->get_template()->get_element($widget->get_diagram_object_selector_widget())->build_js_value_getter() . ';';
 		$bg_image = $widget->get_prefill_data()->get_cell_value($widget->get_background_image_attribute_alias(), 0);
 		$bg_image = $bg_image ? $bg_image : '{}';
 		$output = <<<JS
@@ -104,7 +106,7 @@ function getGridInfo(background){
 	data.element = "{$shape->get_id()}";
 	data.object = "{$shape->get_meta_object()->get_id()}";
 	data.action = "{$widget->get_lazy_loading_action()}";
-	{$filter}
+	{$filter_shape_options}
 	
 	$.ajax({
 		type: "POST",
@@ -123,7 +125,8 @@ function getArticles(){
 	data.resource = "{$this->get_page_id()}";
 	data.element = "{$shape->get_data()->get_id()}";
 	data.object = "{$shape->get_data()->get_meta_object()->get_id()}";
-	data.action = "{$widget->get_lazy_loading_action()}";
+	data.action = "{$shape->get_data()->get_lazy_loading_action()}";
+	{$filter_shape_data}
 	
 	$.ajax({
 		type: "POST",
