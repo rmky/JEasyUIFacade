@@ -32,7 +32,7 @@ class euiInput extends euiAbstractElement {
 		} else {
 			$value = $this->get_widget()->get_value();
 		}
-		if (is_null($value) || $value === ''){
+		if ((is_null($value) || $value === '') && $this->get_widget()->get_attribute()){
 			if (!$default_expr = $this->get_widget()->get_attribute()->get_fixed_value()){
 				$default_expr = $this->get_widget()->get_attribute()->get_default_value();
 			}
