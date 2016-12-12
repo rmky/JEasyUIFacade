@@ -297,7 +297,7 @@ class euiDataTable extends euiData {
 		if (is_null($column)){
 			$column = $this->get_widget()->get_meta_object()->get_uid_alias();
 		}
-		return $output . "['" . $column . "']";
+		return "(" . $output . " ? " . $output . "['" . $column . "'] : '')";
 	}
 	
 	public function build_js_changes_getter(){
