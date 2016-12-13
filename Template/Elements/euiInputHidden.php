@@ -10,18 +10,9 @@ class euiInputHidden extends euiInput {
 	function generate_html(){
 		$output = '<input type="hidden" 
 								name="' . $this->get_widget()->get_attribute_alias() . '" 
-								value="' . $this->get_value() . '" 
+								value="' . $this->get_value_with_defaults() . '" 
 								id="' . $this->get_id() . '" />';
 		return $output;
-	}
-	
-	function get_value() {
-		if ($this->get_widget()->get_value_expression() && $this->get_widget()->get_value_expression()->is_reference()){
-			$value = '';
-		} else {
-			$value = $this->get_widget()->get_value();
-		}
-		return $this->escape_string($value);
 	}
 	
 	function generate_js(){
