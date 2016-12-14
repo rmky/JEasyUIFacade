@@ -28,7 +28,7 @@ class euiPlanogram extends euiDiagram {
     </div>
 	<div id="{$this->get_id()}_tools">
 		<a href="http://nbdr223.salt-solutions.de/exface/319.html" class="icon-link" title="Preview" target="_blank"></a>
-		<a href="javascript:void(0)" class="icon-reload" onclick="javascript:{$this->build_js_function_prefix()}init()" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
+		<a href="javascript:void(0)" class="icon-reload" onclick="javascript:$('{$this->get_id()}').planogram('refresh');" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
 	</div>
 	<div style="display:none">
 		{$menu_html}
@@ -71,6 +71,8 @@ HTML;
 	                    top: e.pageY
 	                });';
 			}
+			
+			
 		}
 		
 		/* @var $relation_to_diagram \exface\Core\CommonLogic\Model\RelationPath */
@@ -114,12 +116,7 @@ $(document).ready(function(){
             options: '{$widget->get_shapes()[0]->get_shape_options_attribute_alias()}'
         },
 		dataTextField: [
-            [   
-            	{'type':'param', 'val':"ARTICLE_COLOR__STYLE__LABEL"}
-            ],
-            [
-                {'type':'param', 'val':"ARTICLE_COLOR__COLOR__LABEL"}
-            ]
+           {$data_display}
         ]
 	});
 
