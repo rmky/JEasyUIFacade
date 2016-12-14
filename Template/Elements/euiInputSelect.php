@@ -32,5 +32,9 @@ class euiInputSelect extends euiInput {
 		$output = '';
 		return $output;
 	}
+	
+	public function build_js_value_getter(){
+		return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getValue')";
+	}
 }
 ?>
