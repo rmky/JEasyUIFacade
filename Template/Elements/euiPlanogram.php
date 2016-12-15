@@ -80,8 +80,13 @@ HTML;
 		$relation_from_data_to_diagram = $shape->get_data()->get_meta_object()->find_relation_path($widget->get_meta_object())->to_string();
 		$filter_shape_options = 'data.fltr01_' . RelationPath::relation_path_add($relation_to_diagram->to_string(), $relation_to_diagram->get_end_object()->get_uid_alias()) . ' = ' . $this->get_template()->get_element($widget->get_diagram_object_selector_widget())->build_js_value_getter() . ';';
 		$filter_shape_data = 'data.fltr01_' . $relation_from_data_to_diagram . ' = ' . $this->get_template()->get_element($widget->get_diagram_object_selector_widget())->build_js_value_getter() . ';';
+		
 		$bg_image = $widget->get_prefill_data()->get_cell_value($widget->get_background_image_attribute_alias(), 0);
-		$bg_image_size = getimagesize($widget->get_workbench()->filemanager()->get_path_to_base_folder() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $bg_image);
+		if ($bg_image){
+			$bg_image_size = getimagesize($widget->get_workbench()->filemanager()->get_path_to_base_folder() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $bg_image);
+		} else {
+			$bg_image_size = array(0,0);
+		}
 		$output = <<<JS
 
 $(document).ready(function(){
