@@ -102,6 +102,7 @@ class euiData extends euiAbstractElement {
 				. ', striped: "' . ($widget->get_striped() ? 'true' : 'false') . '"'
 				. ', nowrap: "' . ($widget->get_nowrap() ? 'true' : 'false') . '"'
 				. ', toolbar: "#' . $this->get_toolbar_id() . '"'
+				. ', onLoadError: function(response){jeasyui_create_dialog($("body"), "asdf", {title: "Error", width: 800, height: "80%"}, response.responseText, true);}' 
 				. ($this->get_on_load_success() ? ', onLoadSuccess: function(){' . $this->get_on_load_success() . '}' : '')
 				. ($this->get_on_before_load() ? ', onBeforeLoad: function(param){' . $this->get_on_before_load() . '}' : '')
 				. ($this->get_load_filter_script() ? ', loadFilter: function(data){' . $this->get_load_filter_script() . ' return data;}' : '')
