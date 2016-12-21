@@ -1,6 +1,6 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
-class euiCheckbox extends euiInput {
+class euiCheckBox extends euiInput {
 	
 	protected function init(){
 		$this->set_element_type('checkbox');
