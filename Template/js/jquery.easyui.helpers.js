@@ -1,3 +1,14 @@
+function jeasyui_create_dialog(parentElement, id, options, content, parseContent){
+	parseContent = parseContent ? true : false;
+	var dialog = $('<div class="easyui-dialog" id="'+id+'"></div>');
+	dialog.append(content);
+	if (parseContent){
+		$.parser.parse(dialog);
+	}
+	parentElement.append(dialog);
+	dialog.dialog(options);
+}
+
 /*$.extend($.fn.textbox.methods, {
 	addClearBtn: function(jq, iconCls){
 		return jq.each(function(){
