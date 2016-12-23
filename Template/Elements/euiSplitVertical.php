@@ -1,6 +1,8 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
-use exface\Core\Exceptions\TemplateError;
+
+use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
+
 class euiSplitVertical extends euiContainer {
 	
 	protected function init(){
@@ -26,7 +28,7 @@ class euiSplitVertical extends euiContainer {
 				case 0: $elem->set_region('north'); break;
 				case 1: $elem->set_region('center'); break;
 				case 2: $elem->set_region('south'); break;
-				default: throw new TemplateError('The template jEasyUI currently only supports splits with a maximum of 3 panels! "' . $widget->get_id() . '" has "' . $widget->count_widgets() . '" panels.');
+				default: throw new TemplateUnsupportedWidgetPropertyWarning('The template jEasyUI currently only supports splits with a maximum of 3 panels! "' . $widget->get_id() . '" has "' . $widget->count_widgets() . '" panels.');
 			}
 			$panels_html .= $elem->generate_html();
 		}

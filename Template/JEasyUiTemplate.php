@@ -1,7 +1,7 @@
 <?php namespace exface\JEasyUiTemplate\Template;
 
 use exface\AbstractAjaxTemplate\Template\AbstractAjaxTemplate;
-use exface\Core\Exceptions\TemplateError;
+use exface\Core\Exceptions\DependencyNotFoundError;
 
 class JEasyUiTemplate extends AbstractAjaxTemplate {
 	
@@ -11,7 +11,7 @@ class JEasyUiTemplate extends AbstractAjaxTemplate {
 		$this->set_request_system_vars(array('_'));
 		$folder = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'jeasyui';
 		if (!is_dir($folder)){
-			throw new TemplateError('jEasyUI files not found! Please install jEasyUI to "' . $folder . '"!');
+			throw new DependencyNotFoundError('jEasyUI files not found! Please install jEasyUI to "' . $folder . '"!', '6T6HUFO');
 		}
 	}
 	

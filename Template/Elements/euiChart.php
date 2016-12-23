@@ -3,7 +3,7 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\ChartAxis;
 use exface\Core\Widgets\ChartSeries;
 use exface\Core\Widgets\Chart;
-use exface\Core\Exceptions\UiWidgetConfigException;
+use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
 class euiChart extends euiAbstractElement {
 	private $on_change_script = '';
 	
@@ -192,14 +192,14 @@ HTML;
 		$output = '';
 		if ($this->is_pie_chart()){
 			if (count($this->get_widget()->get_series()) > 1){
-				throw new UiWidgetConfigException('The template "' . $this->get_template()->get_alias() . '" does not support pie charts with multiple series!');
+				throw new TemplateUnsupportedWidgetPropertyWarning('The template "' . $this->get_template()->get_alias() . '" does not support pie charts with multiple series!');
 			}
 			
 			$output = $this->generate_series_id($this->get_widget()->get_series()[0]->get_id());
 		} else {
 			foreach ($this->get_widget()->get_series() as $series){
 				if ($series->get_chart_type() == ChartSeries::CHART_TYPE_PIE){
-					throw new UiWidgetConfigException('The template "' . $this->get_template()->get_alias() . '" does not support pie charts with multiple series!');
+					throw new TemplateUnsupportedWidgetPropertyWarning('The template "' . $this->get_template()->get_alias() . '" does not support pie charts with multiple series!');
 				}
 				$series_options = $this->generate_series_options($series);
 				$output .= ',
