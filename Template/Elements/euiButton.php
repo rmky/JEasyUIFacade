@@ -84,7 +84,7 @@ class euiButton extends euiAbstractElement {
 			}
 		}
 		return $this->build_js_request_data_collector($action, $input_element) . "
-					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog({
+					$('#" . $this->get_template()->get_element($action->get_dialog_widget())->get_id() . "').dialog({
 							href: '" . $this->get_ajax_url() . "',
 							method: 'post',
 							queryParams: {
@@ -97,7 +97,7 @@ class euiButton extends euiAbstractElement {
 							" . ($this->build_js_input_refresh($widget, $input_element) ? ", onBeforeClose: function(){" . $this->build_js_input_refresh($widget, $input_element) . ";}" : "") . "
 						});
 					" . $this->build_js_close_dialog($widget, $input_element) . "
-					$('#" . $this->get_id($action->get_dialog_widget()->get_id()) . "').dialog('open').dialog('setTitle','" . $widget->get_caption() . "');";
+					$('#" . $this->get_template()->get_element($action->get_dialog_widget())->get_id() . "').dialog('open').dialog('setTitle','" . $widget->get_caption() . "');";
 	}
 	
 	protected function build_js_close_dialog($widget, $input_element){
