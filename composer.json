@@ -1,30 +1,39 @@
 {
-	"name" : "ExFace/JEasyUiTemplate",
-	"description" : "UI template for the ExFace plattform based on jQuery EasyUI",
-	"type" : "library",
-	"license" : "GPL-3.0+",
-	"authors" : [{
-			"name" : "Andrej Kabachnik",
-			"email" : "kabachnik@gmail.com",
-			"role" : "Creator"
-		}
-	],
-	"support" : {
-		"issues" : "https://github.com/exface/JEasyUiTemplate/issues"
-	},
-	"require" : {
-		"exface/core" : "~0.1",
-		"bower-asset/jquery" : "1.8.*",
-		"bower-asset/jeasyui" : "1.4.2",
-		"bower-asset/masonry" : "~4",
-		"bower-asset/handsontable-ruleJS" : "~0.0.4",
-		"bower-asset/blueimp-file-upload" : "~9.12",
-		"bower-asset/jsoneditor" : "~4.2",
-		"bower-asset/paste.js" : "~0.0.15",
-		"npm-asset/flot-charts" : "~0.8",
-		"npm-asset/jquery-prettytextdiff" : "~1.0.4",
-		"npm-asset/diff-match-patch" : "~1.0",
-		"npm-asset/Datejs" : "1.0.0.0-beta2",
-		"npm-asset/blueimp-load-image" : "~2.6"
-	}
+    "name": "ExFace/JEasyUiTemplate",
+    "description": "UI template for the ExFace plattform based on jQuery EasyUI",
+    "type": "library",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "Andrej Kabachnik",
+            "email": "kabachnik@gmail.com",
+            "role": "Creator"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/exface/JEasyUiTemplate/issues"
+    },
+    "require": {
+        "exface/core": "~0.1",
+        "bower-asset/jquery": "1.8.*",
+        "bower-asset/jeasyui": "1.4.2",
+        "bower-asset/masonry": "~4",
+        "bower-asset/handsontable-ruleJS": "~0.0.4",
+        "bower-asset/blueimp-file-upload": "~9.12",
+        "bower-asset/jsoneditor": "~4.2",
+        "bower-asset/paste.js": "~0.0.15",
+        "npm-asset/flot-charts": "~0.8",
+        "npm-asset/jquery-prettytextdiff": "~1.0.4",
+        "npm-asset/diff-match-patch": "~1.0",
+        "npm-asset/Datejs": "1.0.0.0-beta2",
+        "npm-asset/blueimp-load-image": "~2.6"
+    },
+    "extra": {
+        "app": {
+            "app_uid": "0x11e6c930ff1f486693cce4b318306b9a",
+            "app_alias": "exface.JEasyUiTemplate",
+            "model_md5": "3a9186147989c0588bc254c018c0733c",
+            "model_timestamp": "2016-12-23 16:59:01"
+        }
+    }
 }
