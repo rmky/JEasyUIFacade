@@ -114,7 +114,7 @@ HTML;
 						$data_value = $series->get_data_column()->get_data_column_name();
 				}
 				$series_data .= '
-							' . $series_id . '[i] = [ (ds.rows[i]["' . $data_key  . '"]' . ($series->get_axis_x()->get_axes_type() == 'time' ? '*1000' : '') . '), ds.rows[i]["' . $data_value . '"] ];';
+							' . $series_id . '[i] = [ (ds.rows[i]["' . $data_key  . '"]' . ($series->get_axis_x()->get_axis_type() == 'time' ? '*1000' : '') . '), ds.rows[i]["' . $data_value . '"] ];';
 			}			
 		}
 		
@@ -342,7 +342,7 @@ HTML;
 									, align: "center"
 									' . (!$series->get_chart()->get_stack_series() && count($series->get_chart()->get_series_by_chart_type($series->get_chart_type())) > 1 ? ', barWidth: 0.2, order: ' . $series->get_series_number() : '') . '
 									';
-				if ($series->get_axis_x()->get_axes_type() == ChartAxis::AXIS_TYPE_TIME || $series->get_axis_y()->get_axes_type() == ChartAxis::AXIS_TYPE_TIME){
+				if ($series->get_axis_x()->get_axis_type() == ChartAxis::AXIS_TYPE_TIME || $series->get_axis_y()->get_axis_type() == ChartAxis::AXIS_TYPE_TIME){
 					$options .= '
 									, barWidth: 24*60*60*1000';
 				}
@@ -370,7 +370,7 @@ HTML;
 								. (is_numeric($axis->get_max_value()) ? ', max: ' . $axis->get_max_value() : '')
 								;
 		
-		switch ($axis->get_axes_type()){
+		switch ($axis->get_axis_type()){
 			case 'text': $output .= '
 								, mode: "categories"'; break;
 			case 'time': $output .= '
