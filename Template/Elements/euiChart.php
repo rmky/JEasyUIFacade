@@ -371,9 +371,9 @@ HTML;
 								;
 		
 		switch ($axis->get_axis_type()){
-			case 'text': $output .= '
+			case ChartAxis::AXIS_TYPE_TEXT: $output .= '
 								, mode: "categories"'; break;
-			case 'time': $output .= '
+			case ChartAxis::AXIS_TYPE_TIME: $output .= '
 								, mode: "time"'; break;
 			default:
 		}
