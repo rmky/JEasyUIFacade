@@ -63,12 +63,9 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 		return "$.messager.progress('close');";
 	}
 	
-	public function build_js_show_error_message($message_body_js, $title = null){
-		$title = !is_null($title) ? $title : 'Error';
-		return "$.messager.alert({
-					title: '" . $title . "',
-					msg: " . $message_body_js . "
-				});";
+	public function build_js_show_error_message($message_body_js, $title_js = null){
+		$title_js = !is_null($title_js) ? $title_js : '"Error"';
+		return 'jeasyui_create_dialog($("body"), "' . $this->get_id() . '_error", {title: ' . $title_js . ', width: 800, height: "80%"}, ' . $message_body_js . ', true);';
 	}
 	
 	public function build_js_show_success_message($message_body_js, $title = null){

@@ -262,9 +262,16 @@ HTML;
 				function ' . $this->build_js_function_prefix() . 'load(urlParams){
 					' . $this->build_js_busy_icon_show() . '
 					if (!urlParams) urlParams = "";
-					$.get("' . $this->get_ajax_url() . $url_params . '"+urlParams, function(data){
-						' . $this->build_js_function_prefix() . 'plot($.parseJSON(data));
-						' . $this->build_js_busy_icon_hide() . '
+					$.ajax({
+						url: "' . $this->get_ajax_url() . $url_params . '"+urlParams,
+						success: function(data){
+							' . $this->build_js_function_prefix() . 'plot($.parseJSON(data));
+							' . $this->build_js_busy_icon_hide() . '
+						},
+						error: function(jqXHR, textStatus, errorThrown){
+							' . $this->build_js_show_error_message('jqXHR.responseText', 'jqXHR.status + " " + jqXHR.statusText') . '
+							' . $this->build_js_busy_icon_hide() . '
+						}
 					});
 				}';
 				

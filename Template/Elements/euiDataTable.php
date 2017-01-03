@@ -100,6 +100,7 @@ class euiDataTable extends euiData {
 			                    	onLoad: function(){
 			                    		$('#" . $this->get_id() . "')." . $this->get_element_type() . "('fixDetailRowHeight',index);
 			                    	},
+			                    	onLoadError: function(response){" . $this->build_js_show_error_message('response.responseText', 'response.status + " " + response.statusText') . "},
 			       					onResize: function(){
 			                    		$('#" . $this->get_id() . "')." . $this->get_element_type() . "('fixDetailRowHeight',index);			
                     				}
