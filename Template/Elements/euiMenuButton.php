@@ -1,6 +1,7 @@
 <?php namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
+use exface\Core\Widgets\Dialog;
 
 /**
  * generates jEasyUI-Buttons for ExFace
@@ -11,6 +12,11 @@ class euiMenuButton extends euiAbstractElement {
 	
 	use JqueryButtonTrait;
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::init()
+	 */
 	protected function init(){
 		parent::init();
 		$this->set_element_type('menubutton');
@@ -50,9 +56,25 @@ class euiMenuButton extends euiAbstractElement {
 			</div>
 			';
 		
-		return $this->build_html_wrapper_div($output);
+		if ($this->get_widget()->get_input_widget() instanceof Dialog) {
+			$output = $this->build_html_wrapper_div($output);
+		}
+		
+		return $output;
 	}
 	
+	/**
+	 * 
+	 */
+	function build_html_button() {
+		
+	}
+	
+	/**
+	 * 
+	 * @param unknown $html
+	 * @return string
+	 */
 	protected function build_html_wrapper_div($html){
 		$output =
 			'<div class="fitem exf_input" title="'.trim($this->build_hint_text()).'" style="width: '.$this->get_width().'; height: '.$this->get_height().';">
@@ -62,6 +84,11 @@ class euiMenuButton extends euiAbstractElement {
 		return $output;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generate_js()
+	 */
 	function generate_js(){
 		$output = '';
 		$output .=
@@ -84,6 +111,10 @@ class euiMenuButton extends euiAbstractElement {
 		return $output;
 	}
 	
+	/**
+	 * 
+	 * @return string
+	 */
 	function build_js_menu_name() {
 		return $this->get_id().'_menu';
 	}
