@@ -1,11 +1,12 @@
 function jeasyui_create_dialog(parentElement, id, options, content, parseContent){
 	parseContent = parseContent ? true : false;
 	var dialog = $('<div class="easyui-dialog" id="'+id+'"></div>');
+	parentElement.append(dialog);
+	$.parser.parse(content);
 	dialog.append(content);
 	if (parseContent){
 		$.parser.parse(dialog);
 	}
-	parentElement.append(dialog);
 	dialog.dialog(options);
 }
 
