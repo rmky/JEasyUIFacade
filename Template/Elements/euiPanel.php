@@ -1,5 +1,15 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+
+use exface\Core\Widgets\Panel;
+
+/**
+ * The Panel widget is mapped to a panel in jEasyUI
+ * 
+ * @author Andrej Kabachnik
+ *
+ * @method Panel get_widget()
+ */
 class euiPanel extends euiContainer {
 	
 	private $on_load_script = '';
@@ -10,7 +20,7 @@ class euiPanel extends euiContainer {
 		$this->set_element_type('panel');
 	}
 	
-	function generate_html(){
+	public function generate_html(){
 		$children_html = $this->build_html_for_children();
 		
 		// Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
