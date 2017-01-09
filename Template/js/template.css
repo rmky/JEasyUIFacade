@@ -42,3 +42,5 @@ div.panel-body{background-color:#fff;}
 #sf-resetcontent {padding: 20px 10px 0 10px; width: auto !important; max-width: 970px;} 
 #sf-resetcontent h1 {display: none;} 
 h2.block_exception.clear_fix {margin: 0}
+pre.sf-dump {background-color: white !important; margin: 10px;}
+pre.sf-dump .sf-dump-private {color: black !important; "}
