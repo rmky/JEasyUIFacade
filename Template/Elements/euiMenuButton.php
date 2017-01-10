@@ -39,8 +39,9 @@ class euiMenuButton extends euiAbstractElement {
 			}
 			// In any case, create a menu entry
 			$icon = $b->get_icon_name() ? ' iconCls="'.$this->build_css_icon_class($b->get_icon_name()).'"' : '';
+			$disabled = $b->is_disabled() ? ' disabled=true' : '';
 			$buttons_html .=
-				'<div'.$icon.'>
+				'<div'.$icon.$disabled.'>
 					'.$b->get_caption().'
 				</div>
 				';
