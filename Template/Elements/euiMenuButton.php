@@ -57,7 +57,9 @@ class euiMenuButton extends euiAbstractElement {
 			</div>
 			';
 		
-		if ($this->get_widget()->get_input_widget() instanceof Dialog) {
+		if ($this->get_widget()->get_input_widget() instanceof Dialog && !$this->get_widget()->get_parent() instanceof Dialog) {
+			// Hier wird versucht zu unterscheiden wo sich der Knopf befindet. Der Wrapper wird nur benoetigt
+			// wenn er sich in einem Dialog befindet, aber nicht als Knopf im Footer, sondern im Inhalt.
 			$output = $this->build_html_wrapper_div($output);
 		}
 		
