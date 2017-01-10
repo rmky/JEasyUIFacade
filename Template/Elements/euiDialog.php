@@ -15,10 +15,35 @@ class euiDialog extends euiPanel {
 	<div class="easyui-dialog" id="{$this->get_id()}" data-options="{$this->generate_data_options()}" title="{$this->get_widget()->get_caption()}" style="width: {$this->get_width()}; height: {$this->get_height()};">
 		{$contents}		
 	</div>
-	<div id="{$this->buttons_div_id}">
-		{$this->generate_buttons_html()}
-	</div>
+	{$this->generate_buttons_html()}
 HTML;
+		return $output;
+	}
+	
+	function generate_buttons_html() {
+		$button_align_groups = [];
+		$output = '';
+		
+		// The buttons are first separated into align groups.
+		foreach ($this->get_widget()->get_buttons() as $btn){
+			$button_align = $btn->get_align() ? $btn->get_align() : EXF_ALIGN_RIGHT;
+			$button_align_groups[$button_align][] = $this->get_template()->generate_html($btn);
+		}
+		
+		// Each align group is wrapped into one div.
+		foreach ($button_align_groups as $align => $group) {
+			$output .= "<div style=\"float:".$align.";height:".$this->get_template()->get_element($btn)->get_height().";\">\n";
+			foreach ($group as $button_html) {
+				$output .= "	".$button_html."\n";
+			}
+			$output .= "</div>\n";
+		}
+		
+		//Wrapper div for everything, the height has to be set explicitely.
+		$output = "<div id=\"".$this->buttons_div_id."\" style=\"height:".$this->get_template()->get_element($btn)->get_height().";\">\n"
+					.$output
+				."</div>\n";
+		
 		return $output;
 	}
 	
