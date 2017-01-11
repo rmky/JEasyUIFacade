@@ -62,7 +62,7 @@ class euiPanel extends euiContainer {
 		return $output;
 	}
 	
-	function generate_buttons_html(){
+	function build_html_buttons(){
 		$output = '';
 		foreach ($this->get_widget()->get_buttons() as $btn){
 			$output .= $this->get_template()->generate_html($btn);
@@ -71,7 +71,7 @@ class euiPanel extends euiContainer {
 		return $output;
 	}
 	
-	function generate_buttons_js(){
+	function build_js_buttons(){
 		$output = '';
 		foreach ($this->get_widget()->get_buttons() as $btn){
 			$output .= $this->get_template()->generate_js($btn);
