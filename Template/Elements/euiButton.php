@@ -67,15 +67,30 @@ class euiButton extends euiAbstractElement {
 	}
 	
 	public function build_html_button(){
+		$widget = $this->get_widget();
+		
 		$style = '';
-		switch ($this->get_widget()->get_align()){
+		switch ($widget->get_align()){
 			case EXF_ALIGN_LEFT: $style .= 'float: left;'; break;
 			case EXF_ALIGN_RIGHT: $style .= 'float: right;'; break;
 		}
 		
+		$data_options = '';
+		if ($widget->get_visibility() != EXF_WIDGET_VISIBILITY_PROMOTED){
+			$data_options .= 'plain: true';
+		} else {
+			$data_options .= 'plain: false';
+		}
+		if ($widget->is_disabled()) {
+			$data_options .= ', disabled: true';
+		}
+		if ($widget->get_icon_name()) {
+			$data_options .= ", iconCls: '" . $this->build_css_icon_class($widget->get_icon_name()) . "'";
+		}
+		
 		$output = '
-				<a id="' . $this->get_id() . '" href="javascript:;" plain="true" class="easyui-linkbutton" style="' . $style . '" iconCls="' . $this->build_css_icon_class($this->get_widget()->get_icon_name()) . '" onclick="' . $this->build_js_function_prefix() . 'click();">
-						' . $this->get_widget()->get_caption() . '
+				<a id="' . $this->get_id() . '" href="javascript:;" class="easyui-linkbutton" data-options="' . $data_options . '" style="' . $style . '" onclick="' . $this->build_js_function_prefix() . 'click();">
+						' . $widget->get_caption() . '
 				</a>';
 		return $output;
 	}
