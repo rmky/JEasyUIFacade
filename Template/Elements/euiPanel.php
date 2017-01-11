@@ -62,24 +62,6 @@ class euiPanel extends euiContainer {
 		return $output;
 	}
 	
-	function build_html_buttons(){
-		$output = '';
-		foreach ($this->get_widget()->get_buttons() as $btn){
-			$output .= $this->get_template()->generate_html($btn);
-		}
-	
-		return $output;
-	}
-	
-	function build_js_buttons(){
-		$output = '';
-		foreach ($this->get_widget()->get_buttons() as $btn){
-			$output .= $this->get_template()->generate_js($btn);
-		}
-	
-		return $output;
-	}
-	
 	public function generate_headers(){
 		$includes = parent::generate_headers();
 		if ($this->get_widget()->get_column_number() != 1){

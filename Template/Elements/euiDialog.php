@@ -1,6 +1,6 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
-class euiDialog extends euiPanel {
+class euiDialog extends euiForm {
 	private $buttons_div_id = '';
 	
 	protected function init(){

@@ -10,5 +10,22 @@ namespace exface\JEasyUiTemplate\Template\Elements;
  */
 class euiForm extends euiPanel {
 	
+	function build_html_buttons(){
+		$output = '';
+		foreach ($this->get_widget()->get_buttons() as $btn){
+			$output .= $this->get_template()->generate_html($btn);
+		}
+	
+		return $output;
+	}
+	
+	function build_js_buttons(){
+		$output = '';
+		foreach ($this->get_widget()->get_buttons() as $btn){
+			$output .= $this->get_template()->generate_js($btn);
+		}
+	
+		return $output;
+	}
 }
 ?>
