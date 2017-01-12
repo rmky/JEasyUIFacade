@@ -1,5 +1,15 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+use exface\Core\Interfaces\Actions\ActionInterface;
+use exface\Core\Widgets\Input;
+
+/**
+ * 
+ * @method Input get_widget()
+ * 
+ * @author Andrej Kabachnik
+ *
+ */
 class euiInput extends euiAbstractElement {
 	
 	protected function init(){
@@ -121,6 +131,19 @@ class euiInput extends euiAbstractElement {
 			return "$('#" . $this->get_id() . "').change(function(event){" . $this->get_on_change_script() . "});";
 		} else {
 			return '';
+		}
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_data_getter($action, $custom_body_js)
+	 */
+	public function build_js_data_getter(ActionInterface $action = null, $custom_body_js = null){
+		if ($this->get_widget()->is_readonly()){
+			return parent::build_js_data_getter($action, '');
+		} else {
+			return parent::build_js_data_getter($action, $custom_body_js);
 		}
 	}
 }
