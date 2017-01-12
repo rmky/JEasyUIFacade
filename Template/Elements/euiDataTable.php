@@ -214,7 +214,7 @@ class euiDataTable extends euiData {
 		}
 		
 		// get the standard params for grids and put them before the custom grid head
-		$grid_head = $this->render_grid_head() . $grid_head;
+		$grid_head = $this->build_js_init_options() . $grid_head;
 		$grid_head .= ', fit: true'
 				. ($widget->has_filters() ? ', onResize: function(){$("#' . $this->get_toolbar_id() . ' .datagrid-filters").masonry({itemSelector: \'.fitem\', columnWidth: ' . $this->get_width_relative_unit() . '});}' : '')
 				. ($this->get_on_change_script() ? ', onSelect: function(index, row){' . $this->get_on_change_script() . '}' : '')
@@ -345,10 +345,10 @@ class euiDataTable extends euiData {
 	}
 	
 	/*
-	public function render_grid_head(){
+	public function build_js_init_options_head(){
 		/* @var $widget exface\Core\Widgets\DataTable */
 		/*$widget = $this->get_widget();
-		$output = parent::render_grid_head();
+		$output = parent::build_js_init_options_head();
 		$output .= ', fit: true'
 				. ($widget->get_caption() ? ', title: "' . $widget->get_caption() . '"' : '')
 				;

@@ -8,7 +8,7 @@ class euiDataTree extends euiDataTable {
 		$this->set_element_type('treegrid');
 	}
 	
-	public function render_grid_head(){
+	public function build_js_init_options_head(){
 		if ($this->is_editable()){
 			$this->add_on_expand('
 					if (row){
@@ -19,7 +19,7 @@ class euiDataTree extends euiDataTable {
 					}
 					');
 		}
-		$grid_head = parent::render_grid_head()
+		$grid_head = parent::build_js_init_options_head()
 			. ', treeField: "' . $this->get_widget()->get_tree_column()->get_data_column_name() . '"'
 			. ($this->get_on_expand() ? ', onExpand: function(row){' . $this->get_on_expand() . '}' : '');
 		return $grid_head;

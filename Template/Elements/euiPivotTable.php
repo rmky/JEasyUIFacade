@@ -33,7 +33,7 @@ class euiPivotTable extends euiDataTable {
 		}
 		
 		// get the standard params for grids
-		$grid_head = $this->render_data_source();
+		$grid_head = $this->build_js_data_source();
 		$grid_head .=  $sortColumn . $sortOrder .
 						($this->get_on_before_load() ? ', onBeforeLoad: function(param){' . $this->get_on_before_load() . '}' : '') . '
 						, toolbar:[ {
@@ -85,8 +85,8 @@ class euiPivotTable extends euiDataTable {
 		return $data;
 	}
 	
-	public function render_data_source(){
-		$result = parent::render_data_source();
+	public function build_js_data_source(){
+		$result = parent::build_js_data_source();
 		
 		$result = substr($result, 0, -1);
 		//$result .= ', fltr99_' . $this->get_meta_object()->get_uid_alias() . ': ($("#' . $this->get_id() . '").data("layouted") ? "" : -1)}'; 

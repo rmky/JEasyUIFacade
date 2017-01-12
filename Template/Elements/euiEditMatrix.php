@@ -68,7 +68,7 @@ class euiEditMatrix extends euiDataMatrix {
 		$widget = $this->get_widget();
 		$output = '			
 			$("#' . $this->get_id() . '").handsontable({
-              ' . $this->render_grid_head() . '
+              ' . $this->build_js_init_options_head() . '
             });
 				';
 		
@@ -92,10 +92,10 @@ class euiEditMatrix extends euiDataMatrix {
 		return $output;
 	}
 	
-	public function render_grid_head() {
+	public function build_js_init_options_head() {
 		$widget = $this->get_widget();
 		
-		$output = $this->render_data_source()
+		$output = $this->build_js_data_source()
 				. ', columnSorting: true'
 				. ', sortIndicator: true'
 				. ', manualColumnResize: true'
@@ -105,7 +105,7 @@ class euiEditMatrix extends euiDataMatrix {
 				. ($widget->get_formulas_enabled() ? ', formulas: true' : '')
 				. ($this->get_width() ? ', width: ' . $this->get_width() : '')
 				. ($widget->get_caption() ? ', title: "' . $widget->get_caption() . '"' : '')
-				. ', ' . $this->render_column_headers()
+				. ', ' . $this->build_js_init_options_columns()
 		;
 		return $output;
 	}
@@ -113,9 +113,9 @@ class euiEditMatrix extends euiDataMatrix {
 	/**
 	 * This special column renderer for the matrix replaces the column specified by label_column_id with a set of new columns for
 	 * every unique value in the column specified by data_column_id. The new columns retain most properties of the replaced label column.
-	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::render_column_headers()
+	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::build_js_init_options_columns()
 	 */
-	public function render_column_headers(array $cols = null){
+	public function build_js_init_options_columns(array $cols = null){
 		$widget = $this->get_widget();
 		$output = '';
 		if (!$cols){
@@ -160,9 +160,9 @@ class euiEditMatrix extends euiDataMatrix {
 	 * This special data source renderer fetches data according to the filters an reorganizes the rows and column to fit the matrix.
 	 * It basically transposes the data column (data_column_id) using values of the label column (label_column_id) as new column headers.
 	 * The other columns remain untouched.
-	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::render_data_source()
+	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::build_js_data_source()
 	 */
-	public function render_data_source(){
+	public function build_js_data_source(){
 		$widget = $this->get_widget();
 		$visible_columns = array();
 		$output = '';

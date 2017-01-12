@@ -21,7 +21,7 @@ class euiDataMatrix extends euiDataTable {
 		}
 		
 		// get the standard params for grids
-		$grid_head = $this->render_grid_head();
+		$grid_head = $this->build_js_init_options();
 		
 		// instantiate the data grid
 		$output .= '$("#' . $this->get_id() . '").' . $this->get_element_type() . '({' . $grid_head . '});';
@@ -47,9 +47,9 @@ class euiDataMatrix extends euiDataTable {
 	 * This special data source renderer fetches data according to the filters an reorganizes the rows and column to fit the matrix.
 	 * It basically transposes the data column (data_column_id) using values of the label column (label_column_id) as new column headers.
 	 * The other columns remain untouched.
-	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::render_data_source()
+	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::build_js_data_source()
 	 */
-	public function render_data_source(){
+	public function build_js_data_source(){
 		/* @var $widget \exface\Core\Widgets\DataMatrix  */
 		$widget = $this->get_widget();
 		$visible_columns = array();
@@ -123,9 +123,9 @@ class euiDataMatrix extends euiDataTable {
 	/**
 	 * This special column renderer for the matrix replaces the column specified by label_column_id with a set of new columns for
 	 * every unique value in the column specified by data_column_id. The new columns retain most properties of the replaced label column.
-	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::render_column_headers()
+	 * @see \exface\JEasyUiTemplate\Template\Elements\grid::build_js_init_options_columns()
 	 */
-	public function render_column_headers(array $column_groups = null){
+	public function build_js_init_options_columns(array $column_groups = null){
 		$widget = $this->get_widget();
 		$cols = $this->get_widget()->get_columns();
 		$new_cols = $widget->get_page()->create_widget('DataColumnGroup', $widget);
@@ -146,7 +146,7 @@ class euiDataMatrix extends euiDataTable {
 			}
 		}
 		
-		return parent::render_column_headers(array($new_cols));
+		return parent::build_js_init_options_columns(array($new_cols));
 	}
 }
 ?>

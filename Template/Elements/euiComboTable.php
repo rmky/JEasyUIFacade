@@ -72,9 +72,14 @@ class euiComboTable extends euiInput {
 			$table->add_load_filter_script('data.rows.unshift({' . $widget->get_table()->get_uid_column()->get_data_column_name() . ': "' . $key . '", ' . $widget->get_text_column()->get_data_column_name() . ': "' . $value . '"});');
 		}
 		
-		// Init the combogrid itself.
-		$output .= $table->render_grid_head();
-		$output .= '
+		// Init the combogrid itself
+		$inherited_options = '';
+		if ($widget->get_lazy_loading() || (!$widget->get_lazy_loading() && $widget->is_disabled())){
+			$inherited_options = $table->build_js_data_source();
+		}
+		$inherited_options .= $table->build_js_init_options_head();
+		
+		$output .= trim($inherited_options, ',') . '
 						, textField:"' . $this->get_widget()->get_text_column()->get_data_column_name() . '"
 						, mode: "remote"
 						, method: "post"

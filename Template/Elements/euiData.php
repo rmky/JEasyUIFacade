@@ -1,9 +1,14 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\DataColumnGroup;
+use exface\Core\Widgets\Data;
+use exface\Core\CommonLogic\DataSheets\DataSheet;
 
 /**
  * Implementation of a basic grid.
+ * 
+ * @method Data get_widget()
+ * 
  * @author Andrej Kabachnik
  *
  */
@@ -19,11 +24,11 @@ class euiData extends euiAbstractElement {
 	private $headers_rowspan = array();
 	
 	public function generate_html(){
-		
+		return '';
 	}
 	
 	public function generate_js(){
-
+		return '';
 	}
 	
 	protected function init(){
@@ -43,30 +48,41 @@ class euiData extends euiAbstractElement {
 	 * By default the data source is remote and will be fetched via AJAX. Override this method for local data sources.
 	 * @return string
 	 */
-	public function render_data_source(){
+	public function build_js_data_source(){
 		$widget = $this->get_widget();
-		$params = array();
-		$queryParams = array(
-				'resource' => $this->get_page_id(),
-				'element' => $widget->get_id(),
-				'object' => $this->get_widget()->get_meta_object()->get_id(),
-				'action' => $widget->get_lazy_loading_action()
-		);
-		foreach($queryParams as $param => $val){
-			$params[] = $param . ': "' . $val . '"';
-		}
 		
-		// add initial filters
-		if ($this->get_widget()->has_filters()){
-			foreach ($this->get_widget()->get_filters() as $fnr => $fltr){
-				$params[] = 'fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ': "' . $fltr->get_comparator() . urlencode(strpos($fltr->get_value(), '=') === 0 ? '' : $fltr->get_value()) . '"';
+		if ($widget->get_lazy_loading()){
+			// Lazy loading via AJAX
+			$params = array();
+			$queryParams = array(
+					'resource' => $this->get_page_id(),
+					'element' => $widget->get_id(),
+					'object' => $this->get_widget()->get_meta_object()->get_id(),
+					'action' => $widget->get_lazy_loading_action()
+			);
+			foreach($queryParams as $param => $val){
+				$params[] = $param . ': "' . $val . '"';
 			}
+			
+			// add initial filters
+			if ($this->get_widget()->has_filters()){
+				foreach ($this->get_widget()->get_filters() as $fnr => $fltr){
+					$params[] = 'fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ': "' . $fltr->get_comparator() . urlencode(strpos($fltr->get_value(), '=') === 0 ? '' : $fltr->get_value()) . '"';
+				}
+			}
+			$result = 'url: "' . $this->get_ajax_url() . '", queryParams: {' . implode(',', $params) . '}';
+		} else {
+			// Data embedded in the code of the DataGrid
+			$data = $widget->prepare_data_sheet_to_read();
+			$data->data_read();
+			$result = 'remoteSort: false'
+					. ', loader: function(param, success, error){' . $this->build_js_data_loader_without_ajax($data) . '}';
 		}
 		
-		return 'url: "' . $this->get_ajax_url() . '", queryParams: {' . implode(',', $params) . '}';
+		return $result;
 	}
 	
-	public function render_grid_head() {
+	public function build_js_init_options_head() {
 		/* @var $widget \exface\Core\Widgets\Data */
 		$widget = $this->get_widget();
 		
@@ -87,8 +103,7 @@ class euiData extends euiAbstractElement {
 			$this->add_on_load_success('$(this).' . $this->get_element_type() . '("clearSelections");');
 		}
 		
-		$output = $this->render_data_source()
-				. ', rownumbers: ' . ($widget->get_show_row_numbers() ? 'true' : 'false')
+		$output = ', rownumbers: ' . ($widget->get_show_row_numbers() ? 'true' : 'false')
 				. ', fitColumns: true'
 				. ', multiSort: ' . ($widget->get_header_sort_multiple() ? 'true' : 'false')
 				. $sortColumn . $sortOrder
@@ -106,12 +121,12 @@ class euiData extends euiAbstractElement {
 				. ($this->get_on_load_success() ? ', onLoadSuccess: function(){' . $this->get_on_load_success() . '}' : '')
 				. ($this->get_on_before_load() ? ', onBeforeLoad: function(param){' . $this->get_on_before_load() . '}' : '')
 				. ($this->get_load_filter_script() ? ', loadFilter: function(data){' . $this->get_load_filter_script() . ' return data;}' : '')
-				. ', columns: [ ' .  implode(',', $this->render_column_headers()) . ' ]'
+				. ', columns: [ ' .  implode(',', $this->build_js_init_options_columns()) . ' ]'
 		;
 		return $output;
 	}
 	
-	public function render_column_headers(array $column_groups = null){
+	public function build_js_init_options_columns(array $column_groups = null){
 		if (!$column_groups){
 			$column_groups = $this->get_widget()->get_column_groups();
 		}
@@ -147,7 +162,7 @@ class euiData extends euiAbstractElement {
 				$put_into_header_row = 0;
 			}
 			foreach ($column_group->get_columns() as $col){
-				$header_rows[$put_into_header_row][] = $this->render_grid_column($col);
+				$header_rows[$put_into_header_row][] = $this->build_js_init_options_column($col);
 				if ($col->has_footer()) $this->set_show_footer(true);
 			}
 		}
@@ -181,7 +196,7 @@ class euiData extends euiAbstractElement {
 		return $this->headers_rowspan[$column_id];
 	}
 	
-	public function render_grid_column (\exface\Core\Widgets\DataColumn $col){
+	public function build_js_init_options_column (\exface\Core\Widgets\DataColumn $col){
 		// set defaults
 		$editor = $this->editors[$col->get_id()];
 		// TODO Settig "field" to the id of the column is dirty, since the data sheet column has 
@@ -282,6 +297,45 @@ class euiData extends euiAbstractElement {
 	
 	public function get_load_filter_script(){
 		return $this->load_filter_script;
+	}
+	
+	public function build_js_data_loader_without_ajax(DataSheet $data){
+		$js = <<<JS
+		
+		try {
+			var data = {$this->get_template()->encode_data($this->prepare_data($data))};
+		} catch (err){
+			error();
+			return;
+		}
+		
+		var filter, value, total = data.rows.length;
+		for(var p in param){
+			if (p.startsWith("fltr")){
+				column = p.substring(7);	
+				value = param[p];
+			}
+			
+			if (value){
+				var regexp = new RegExp(value, 'i');
+				for (var row=0; row<total; row++){
+					if (data.rows[row] && typeof data.rows[row][column] !== 'undefined'){
+						if (!data.rows[row][column].match(regexp)){
+							data.rows.splice(row, 1);
+						}
+					}
+				}
+			}
+		}
+		data.total = data.rows.length;
+		success(data);	
+		return;
+JS;
+		return $js;
+	}
+	
+	public function build_js_init_options(){
+		return $this->build_js_data_source() . $this->build_js_init_options_head();
 	}
 	  
 }
