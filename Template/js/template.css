@@ -11,7 +11,7 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 .exf_input {box-sizing: border-box; padding:4px; text-align:right;}
 .exf_input label {margin: 0 3px; display: inline-block; max-width: 158px;}
 .exf_input_wrapper {width:calc(100% - 167px); display: inline-block; height: 100%;}
-.exf_input textarea {vertical-align:middle;border: 1px solid #c3d9e0;}
+.exf_input textarea {vertical-align:middle;border: 1px solid #c3d9e0; tab-size: 4}
 .numberbox input {text-align: right;}
 .exface_inputgroup {border-width: 1px 0 0 0; padding: 10px 0 20px 0;}
 
