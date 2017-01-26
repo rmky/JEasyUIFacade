@@ -89,14 +89,15 @@ class euiPanel extends euiContainer {
 	}  
 	
 	public function build_js_layouter(){
+		$grid_jquery_selector = "$('#{$this->get_id()} .grid')";
 		$script .= <<<JS
 	if (!$('#{$this->get_id()} .grid').data('masonry')){
-		if ($('#{$this->get_id()} .grid').find('.fitem').length > 0){
-			$('#{$this->get_id()} .grid').masonry({itemSelector: '.fitem', columnWidth: {$this->get_width_relative_unit()}});
+		if ({$grid_jquery_selector}.find('.fitem').length > 0){
+			{$grid_jquery_selector}.masonry({itemSelector: '.fitem', columnWidth: {$this->get_width_relative_unit()}});
 		}
 	} else {
-		$('#{$this->get_id()} .grid').masonry('reloadItems');
-		$('#{$this->get_id()} .grid').masonry();
+		{$grid_jquery_selector}.masonry('reloadItems');
+		{$grid_jquery_selector}.masonry();
 	}
 JS;
 		return $script;
