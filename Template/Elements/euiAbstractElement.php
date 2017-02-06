@@ -63,13 +63,28 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 		return "$.messager.progress('close');";
 	}
 	
-	public function build_js_show_error_message($message_body_js, $title_js = null){
+	public function build_js_show_error($message_body_js, $title_js = null){
 		$title_js = !is_null($title_js) ? $title_js : '"Error"';
 		return 'jeasyui_create_dialog($("body"), "' . $this->get_id() . '_error", {title: ' . $title_js . ', width: 800, height: "80%"}, ' . $message_body_js . ', true);';
 	}
 	
-	public function build_js_show_success_message($message_body_js, $title = null){
-		$title = !is_null($title) ? $title : 'Error';
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_show_message_success($message_body_js, $title)
+	 */
+	public function build_js_show_message_error($message_body_js, $title = null){
+		$title = !is_null($title) ? $title : '"' . $this->translate('MESSAGE.ERROR_TITLE') . '"';
+		return "$.messager.alert(" . $title . "," . $message_body_js . ",'error');";
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_show_message_success($message_body_js, $title)
+	 */
+	public function build_js_show_message_success($message_body_js, $title = null){
+		$title = !is_null($title) ? $title : '"' . $this->translate('MESSAGE.SUCCESS_TITLE') . '"';
 		return "$.messager.show({
 					title: '" . $title . "',
 	                msg: " . $message_body_js . ",

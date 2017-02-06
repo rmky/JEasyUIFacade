@@ -117,7 +117,7 @@ class euiData extends euiAbstractElement {
 				. ', striped: "' . ($widget->get_striped() ? 'true' : 'false') . '"'
 				. ', nowrap: "' . ($widget->get_nowrap() ? 'true' : 'false') . '"'
 				. ', toolbar: "#' . $this->get_toolbar_id() . '"'
-				. ', onLoadError: function(response){' . $this->build_js_show_error_message('response.responseText', 'response.status + " " + response.statusText') . '}' 
+				. ', onLoadError: function(response){' . $this->build_js_show_error('response.responseText', 'response.status + " " + response.statusText') . '}' 
 				. ($this->get_on_load_success() ? ', onLoadSuccess: function(){' . $this->get_on_load_success() . '}' : '')
 				. ($this->get_on_before_load() ? ', onBeforeLoad: function(param){' . $this->get_on_before_load() . '}' : '')
 				. ($this->get_load_filter_script() ? ', loadFilter: function(data){' . $this->get_load_filter_script() . ' return data;}' : '')

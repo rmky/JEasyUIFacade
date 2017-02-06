@@ -269,7 +269,7 @@ HTML;
 							' . $this->build_js_busy_icon_hide() . '
 						},
 						error: function(jqXHR, textStatus, errorThrown){
-							' . $this->build_js_show_error_message('jqXHR.responseText', 'jqXHR.status + " " + jqXHR.statusText') . '
+							' . $this->build_js_show_error('jqXHR.responseText', 'jqXHR.status + " " + jqXHR.statusText') . '
 							' . $this->build_js_busy_icon_hide() . '
 						}
 					});
