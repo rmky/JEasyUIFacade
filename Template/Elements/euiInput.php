@@ -130,11 +130,11 @@ class euiInput extends euiAbstractElement {
 	 * {@inheritDoc}
 	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_data_getter($action, $custom_body_js)
 	 */
-	public function build_js_data_getter(ActionInterface $action = null, $custom_body_js = null){
+	public function build_js_data_getter(ActionInterface $action = null){
 		if ($this->get_widget()->is_readonly()){
-			return parent::build_js_data_getter($action, '');
+			return '{}';
 		} else {
-			return parent::build_js_data_getter($action, $custom_body_js);
+			return parent::build_js_data_getter($action);
 		}
 	}
 }

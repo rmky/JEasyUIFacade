@@ -310,7 +310,7 @@ class euiDataTable extends euiData {
 		return $output;
 	}
 	
-	public function build_js_data_getter(ActionInterface $action = null, $custom_body_js = null){
+	public function build_js_data_getter(ActionInterface $action = null){
 		if (is_null($action)){
 			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getData')";
 		} elseif ($this->is_editable() && $action->implements_interface('iModifyData')){
@@ -322,7 +322,7 @@ class euiDataTable extends euiData {
 		} else {
 			$rows = "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getSelections')";
 		}
-		return parent::build_js_data_getter($action, "data.rows = " . $rows . ";");
+		return "{oId: '" . $this->get_widget()->get_meta_object_id() . "', rows: " . $rows . "}";
 	}
 	
 	public function build_js_refresh(){

@@ -11,11 +11,13 @@ class euiDiagramShapeData extends euiAbstractElement {
 		return '';
 	}
 	
-	public function build_js_data_getter(ActionInterface $action = null, $custom_body_js = null){
+	public function build_js_data_getter(ActionInterface $action = null){
 		if ($action){
-			$custom_body_js = $custom_body_js . "data.rows = [{'" . $this->get_meta_object()->get_uid_alias() . "': " . $this->build_js_value_getter() . "}]";
+			$rows = "[{'" . $this->get_meta_object()->get_uid_alias() . "': " . $this->build_js_value_getter() . "}]";
+		} else {
+			// TODO
 		}
-		return parent::build_js_data_getter($action, $custom_body_js);
+		return "{oId: '" . $this->get_widget()->get_meta_object_id() . "', rows: " . $rows . "}";
 	}
 	
 	public function build_js_value_getter(){
