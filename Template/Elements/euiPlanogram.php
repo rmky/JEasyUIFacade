@@ -28,7 +28,7 @@ class euiPlanogram extends euiDiagram {
     </div>
 	<div id="{$this->get_id()}_tools">
 		<a href="http://nbdr223.salt-solutions.de/exface/319.html" class="icon-link" title="Preview" target="_blank"></a>
-		<a href="javascript:void(0)" class="icon-reload" onclick="javascript:$('{$this->get_id()}').planogram('refresh');" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
+		<a href="#" onclick="{$this->build_js_refresh()};" class="icon-reload" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
 	</div>
 	<div style="display:none">
 		{$menu_html}
@@ -57,6 +57,15 @@ HTML;
 		foreach ($widget->get_shapes() as $shape){
 			// TODO currently just rendering the last shape
 			
+			// Shape data to display within each shape
+			$data_display_rows = array();
+			foreach ($shape->get_data()->get_columns() as $column){
+				if ($column->is_hidden()) continue;
+				$data_display_rows[] = "[{type:'param', val:'" . $column->get_data_column_name() . "'}]";
+			}
+			$data_display = implode(',', $data_display_rows);
+			
+			// Shape data buttons for click-menus
 			/* @var $button \exface\Core\Widgets\Button */
 			/* @var $button_element \exface\JEasyUiTemplate\Template\Elements\euiButton */
 			foreach ($shape->get_data()->get_buttons() as $button){
@@ -87,10 +96,16 @@ HTML;
 		} else {
 			$bg_image_size = array(0,0);
 		}
+		if ($bg_image_size[1] > 800){
+			$width = "100%";
+			$height = "auto";
+		} else {
+			$width = "auto";
+			$height = "90%";
+		}
 		$output = <<<JS
 
 $(document).ready(function(){
-
 	var {$this->get_id()}planogram = $("#{$this->get_id()}").planogram({
     	background: '{$bg_image}',
     	backgroundStretch: 'fit',
@@ -98,24 +113,24 @@ $(document).ready(function(){
 		dataLoader: {$this->build_js_function_prefix()}dataLoader,
 		boxWidth: {$bg_image_size[0]},
 		boxHeight: {$bg_image_size[1]},
-		width: "auto",
-		height: 'auto',
-		onLoad: function(){console.log("loaded")},
+		width: "{$width}",
+		height: "{$height}",
+		parentElement: $("#{$this->get_id()}").parentsUntil(".panel", ".panel-body"),
+		onLoad: function(){ {$this->build_js_busy_icon_hide()} },
 		onShapeClick: function(data){
 			{$this->get_id()}_selected = $(this).parent();
         	{$shape_click_js}
 		},
 		shapeOptionsDefaults: {
-            style: {'shape-fill': 'rgba(255,255,255,0.5)',
+            style: {'shape-fill': 'rgba(184,229,229,0.6)',
                     'shape-stroke-width': 1,
                     'shape-stroke':'rgb(121,205,205)',
-                    'text-fill':'rgb(255,255,255)',
-                    'text-stroke-width': 1,
-                    'text-stroke':'rgb(255,255,255)',
+                    'text-fill':'rgb(0,0,0)',
+                    'text-stroke-width': 0,
                     'text-font-family': 'Arial',
                     'text-font-size'   : 12,
                     },
-            titleBoxOffset: [5,5,"bottomright"],             //negative offset for area name [x,y,position]
+            titleBoxOffset: [4,4,"bottomright"],             //negative offset for area name [x,y,position]
             id: '{$widget->get_shapes()[0]->get_meta_object()->get_uid_alias()}',
             label: '{$widget->get_shapes()[0]->get_shape_caption_attribute_alias()}',
             options: '{$widget->get_shapes()[0]->get_shape_options_attribute_alias()}'
@@ -138,6 +153,7 @@ $(document).ready(function(){
 });
 		
 function {$this->build_js_function_prefix()}shapeLoader(){
+	{$this->build_js_busy_icon_show()}
 	var data = {};
 	var diagram = this;
 	data.resource = "{$this->get_page_id()}";
@@ -158,6 +174,7 @@ function {$this->build_js_function_prefix()}shapeLoader(){
 }
 		
 function {$this->build_js_function_prefix()}dataLoader(){
+	{$this->build_js_busy_icon_show()}
 	var data = {};
 	var result = [];
 	var diagram = this;
@@ -184,7 +201,7 @@ JS;
 	}
 	
 	public function build_js_refresh(){
-		return "$('" . $this->get_id() . "').planogram('refresh')";
+		return "$('#" . $this->get_id() . "').planogram('refreshData');";
 	}
 	
 	public function generate_headers(){
@@ -193,6 +210,14 @@ JS;
 		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/planogram.plugin.js"></script>';
 		$includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/interact.js"></script>';
 		return $includes;
+	}
+	
+	public function build_js_busy_icon_show(){
+		return 'if($("#' . $this->get_id() . ' .datagrid-mask").length == 0) $("#' . $this->get_id() . '").append(\'<div class="datagrid-mask" style="display:block"></div><div class="datagrid-mask-msg" style="display: block; left: 50%; height: 40px; margin-left: -90px; line-height: 40px;">Processing, please wait ...</div>\');';
+	}
+	
+	public function build_js_busy_icon_hide(){
+		return '$("#' . $this->get_id() . ' .datagrid-mask").remove();$("#' . $this->get_id() . ' .datagrid-mask-msg").remove();';
 	}
 	
 }

@@ -85,7 +85,6 @@
             }
             $.each(plugin.areaData, function(id,element){
                 var coords = (typeof element[soptions.options] === 'object' ? element[soptions.options] : $.parseJSON(element[soptions.options])).coordinates;
-                
                 var ownstyle= $.extend({},soptions.style, element[soptions.options]);
                 if (coords){
                     plugin.svg_areas += '<g class="areaDefinition">';
@@ -138,6 +137,7 @@
                         var y = area['offset'][1];
                         var altlength = 0;
                         var textentries = "";
+                        var tooltip = "";
                         //go through list of elements
                         $.each(disEl, function(entryi, line){
                             var fs = parseInt(ownstyle['text-font-size']);
@@ -152,6 +152,7 @@
                                     text += lineelement.val;
                                 }
                             });
+                            tooltip += (tooltip ? "\n" : "") + text;
                             altlength = altlength<(text.length*tlh*0.4) ? (text.length*tlh*0.4) : altlength;
                             textentries += ' mask="url(#poly_'+i+'_mask)">'+text+'</text>';
                             area['offset'][1] = parseInt(area['offset'][1])+tlh;
@@ -159,6 +160,7 @@
                         });
                         //wrapper element g
                         plugin.svg_interactables +='<g class="dragElement" transform="translate('+x+','+y+')" data-x="'+x+'"  data-y="'+y+'" data-origcoord="'+x+','+y+'" data-shelf-oid="'+i+'" data-oid="'+oid+'" mask="url(#poly_'+i+'_mask_helper)">';
+                        plugin.svg_interactables +='<title>'+tooltip+'</title>';
                         //helper for background is calculated by line size
                         var helperheight = tlh*disEl.length;
                         plugin.svg_interactables +='<rect class="helperRect" style="'+shapeStyle+'" x="0" y="'+inOff[1]+'" height="'+helperheight+'" width="'+(altlength > width ? altlength : width)+'"/>';
@@ -176,9 +178,11 @@
             var plugin = this;
 
             if (typeof interact!== 'undefined'){
-                interact.on('dragend', dragEnd);
-                interact.on('dragmove', dragMove);
-                interact(plugin.options.draggableElements).draggables({max: 2});
+                console.log("#"+plugin.$element.attr("id"));
+                interact(plugin.options.draggableElements)
+                    .draggables({max: 2})
+                    .on('dragmove', function(event) {dragMove(event,plugin);})
+                    .on('dragend', dragEnd);
                 interact('.area').dropzone({
                     // only accept elements matching this CSS selector
                     accept: plugin.options.acceptedDropElements,
@@ -208,9 +212,6 @@
                 if (typeof plugin.options.onShapeClick == 'function') {
                     plugin.options.onShapeClick.call(plugin,plugin.processedAreas[oid]);
                 }
-
-
-                //
             });
         },
         setAreaData: function(option) {
@@ -256,31 +257,49 @@
         }
     };
     var setWrapper = function(plugin){
-        var width = plugin.options.width=="auto"? plugin.options.width : parseInt(plugin.options.width);
-        var height = plugin.options.height=="auto"? plugin.options.height : parseInt(plugin.options.height);
+        var widthAbs = parseInt(plugin.options.width),
+            heightAbs = parseInt(plugin.options.height);
+        	widthRel = String(plugin.options.width).match( /('auto' || '%')/ ) ? String(plugin.options.width) : '';
+        	heightRel = String(plugin.options.height).match( /('auto' || '%')/ ) ? String(plugin.options.height) : '';
+        var pEl = plugin.options.parentElement;
+        if (heightRel && (pEl=='' || $(pEl).height()==0)){
+            log(plugin,"You need to define a parent element with a height bigger then 0 to sucessfully render percentual height");
+            var dimensions = 'width="'+(widthRel ? widthRel : widthAbs)+'"';
+        }else {
+            var correlation = parseFloat(plugin.options.boxWidth)/parseFloat(plugin.options.boxHeight);
 
-        var correlation = parseFloat(plugin.options.boxWidth)/parseFloat(plugin.options.boxHeight);
-
-        if (width == "auto"){
-            if (height!="auto"){
-                var calculatedWidth = height*correlation;
-                var dimensions = 'width="'+calculatedWidth+'" height="'+height+'"';
-            }
-            else {
-                var dimensions = 'width="'+plugin.options.boxWidth+'"';
-            }
-        }
-        else if (width!="auto"){
-            if (height=="auto"){
-                var dimensions = 'width="'+width+'"';
-            }else {
-                var calculatedHeight= width/correlation;
-                if (height>=calculatedHeight){
-                    var dimensions = 'width="'+width+'"';
-                }
-                else {
+            if (widthRel == "auto"){
+                if (heightRel!="auto"){
+                    if (heightRel) {
+                        height = parseFloat($(pEl).height())/100*parseInt(heightRel);
+                    } else {
+                    	height = heightAbs;
+                    }
                     var calculatedWidth = height*correlation;
                     var dimensions = 'width="'+calculatedWidth+'" height="'+height+'"';
+                }
+                else {
+                    var dimensions = 'width="'+plugin.options.boxWidth+'"';
+                }
+            }
+            else if (widthRel!="auto"){
+                if (heightRel=="auto"){
+                    var dimensions = 'width="'+widthRel+'"';
+                }else {
+                    var calculatedHeight = widthAbs/correlation;
+                    if (String(heightRel).indexOf('%')!==-1) {
+                        height = parseFloat($(pEl).height())/100*parseInt(heightRel);
+                    } else {
+                    	height = heightAbs;
+                    }
+
+                    if (height>=calculatedHeight){
+                        var dimensions = 'width="'+(widthRel ? widthRel : widthAbs)+'"';
+                    }
+                    else {
+                        var calculatedWidth = height*correlation;
+                        var dimensions = 'width="'+calculatedWidth+'" height="'+height+'"';
+                    }
                 }
             }
         }
@@ -394,7 +413,6 @@
     var printText = function(x,y,text, textanchor, style){
         return '<text style="'+style+'" x="'+x+'" y="'+y+'" text-anchor="'+textanchor+'">'+text+'</text>';
     }
-
     var processPolygonPoints = function(coordinates){
         var points = "";
         var minx = 999999, miny = 999999;
@@ -417,31 +435,33 @@
         var isql = Math.round((Math.sqrt((radius*radius)/2))*100)/100;
         return {"points": [radius,cx,cy],"min":[cx-(isql), cy-(isql)], "max":[cx+(isql), cy+(isql)], "size":[isql*2,isql*2]};
     }
-    function dragMove(e) {
+    function dragMove(e,plugin) {
+
         var target = e.target;
         var oid = $(target).attr("data-oid");
-
-        if (isSVGElement(target)) {
-            if(!$(target).attr("data-mask")){
-                $(target).attr("data-mask", $(target).attr("mask")).attr("mask","");
-                var textElement = $("text[data-textfor='" + oid + "']");
-                textElement.attr("data-mask", textElement.attr("mask")).attr("mask","");
-            }
-            var oid = $(target).attr("data-oid");
-            setGroupPosition($(target),parseInt($(target).attr("data-x"))+e.dx, parseInt($(target).attr("data-y"))+e.dy);
-
-        } else {
-            if ($(target).hasClass("dragRow")){
-                //var original = $("#"+$(target).attr("data-original"));
-                target.style.left =  parseInt($(target).position().left) +e.dx + 'px';
-                target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
-            }
-            else {
-                if (!$(target).attr("data-origcoord")){
-                    $(target).attr("data-origcoord", "["+$(target).offset().left+","+$(target).offset().top+"]")
+        if ($(e.target).is(plugin.options.draggableElements)){
+            if (isSVGElement(target)) {
+                if(!$(target).attr("data-mask")){
+                    $(target).attr("data-mask", $(target).attr("mask")).attr("mask","");
+                    var textElement = $("text[data-textfor='" + oid + "']");
+                    textElement.attr("data-mask", textElement.attr("mask")).attr("mask","");
                 }
-                target.style.left = parseInt($(target).position().left) +e.dx + 'px';
-                target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
+                var oid = $(target).attr("data-oid");
+                setGroupPosition($(target),parseInt($(target).attr("data-x"))+e.dx, parseInt($(target).attr("data-y"))+e.dy);
+
+            } else {
+                if ($(target).hasClass("dragRow")){
+                    //var original = $("#"+$(target).attr("data-original"));
+                    target.style.left =  parseInt($(target).position().left) +e.dx + 'px';
+                    target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
+                }
+                else {
+                    if (!$(target).attr("data-origcoord")){
+                        $(target).attr("data-origcoord", "["+$(target).offset().left+","+$(target).offset().top+"]")
+                    }
+                    target.style.left = parseInt($(target).position().left) +e.dx + 'px';
+                    target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
+                }
             }
         }
         return;
@@ -619,6 +639,7 @@
         shapeLoader: function(){this.setAreaData({})},
         dataLoader: function(){this.setElementData({})},
         onLoad: function(){},
+        parentElement: '',
         onShapeClick: function(plugin,data){},
         onDrop: function(plugin, dragItem, dropArea){
             var draggableItemShelf = $(dragItem).attr("data-shelf-oid");
