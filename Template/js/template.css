@@ -15,6 +15,9 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 .numberbox input {text-align: right;}
 .exface_inputgroup {border-width: 1px 0 0 0; padding: 10px 0 20px 0;}
 
+/* Text & headings */
+.panel-body>h1, .panel-body>h2, .panel-body>h3, .panel-body>h4, .panel-body>h5, .panel-body>p {padding: 0 10px;}
+
 /* jEasyUI customizing */
 div.panel-body{background-color:#fff;}
 
