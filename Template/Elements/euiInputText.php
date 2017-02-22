@@ -23,7 +23,7 @@ class euiInputText extends euiInput {
 	
 	function generate_js(){
 		$output = '';
-		$output .= $this->build_js_live_refrence();
+		$output .= $this->build_js_live_reference();
 		$output .= $this->build_js_on_change_handler();
 		return $output;
 	}
