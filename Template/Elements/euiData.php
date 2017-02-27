@@ -64,10 +64,20 @@ class euiData extends euiAbstractElement {
 				$params[] = $param . ': "' . $val . '"';
 			}
 			
-			// add initial filters
+			// Add initial filters
 			if ($this->get_widget()->has_filters()){
 				foreach ($this->get_widget()->get_filters() as $fnr => $fltr){
-					$params[] = 'fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ': "' . $fltr->get_comparator() . urlencode(strpos($fltr->get_value(), '=') === 0 ? '' : $fltr->get_value()) . '"';
+					// If the filter is a live reference, add the code to use it to the onBeforeLoad event
+					if ($fltr->get_value_expression() && $fltr->get_value_expression()->is_reference()){
+							$link = $fltr->get_value_expression()->get_widget_link();
+							$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
+							$live_filter_js .= 'param.fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . '= "' . $fltr->get_comparator() . '"+' . $linked_element->build_js_value_getter() . ';';
+							$this->add_on_before_load($live_filter_js);
+					} 
+					// If the filter has a static value, just set it here
+					else {
+						$params[] = 'fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ': "' . $fltr->get_comparator() . urlencode(strpos($fltr->get_value(), '=') === 0 ? '' : $fltr->get_value()) . '"';
+					}
 				}
 			}
 			$result = 'url: "' . $this->get_ajax_url() . '", queryParams: {' . implode(',', $params) . '}';
@@ -264,7 +274,9 @@ class euiData extends euiAbstractElement {
 	}
 	
 	/**
-	 * Binds a script to the onBeforeLoad event.
+	 * Add JS code to be executed on the OnBeforeLoad event of jEasyUI datagrid. The script will have access to the "param" variable
+	 * representing all XHR parameters to be sent to the server.
+	 * 
 	 * @param string $script
 	 */
 	public function add_on_before_load($script){
