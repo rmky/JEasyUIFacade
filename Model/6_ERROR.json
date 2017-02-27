@@ -65,6 +65,13 @@
             "attribute_alias": "ERROR_TEXT"
         },
         {
+            "expression": "DESCRIPTION",
+            "name": "DESCRIPTION",
+            "hidden": false,
+            "data_type": "Text",
+            "attribute_alias": "DESCRIPTION"
+        },
+        {
             "expression": "LABEL",
             "name": "LABEL",
             "hidden": false,
@@ -83,6 +90,7 @@
             "APP": "0x11e6c930ff1f486693cce4b318306b9a",
             "ERROR_CODE": "6T6HUFO",
             "ERROR_TEXT": "jEasyUI files not found! Please install jEasyUI before using the template!",
+            "DESCRIPTION": null,
             "LABEL": "exface.JEasyUiTemplate.6T6HUFO"
         }
     ],
