@@ -4,11 +4,11 @@ use exface\Core\Widgets\ChartAxis;
 use exface\Core\Widgets\ChartSeries;
 use exface\Core\Widgets\Chart;
 use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryChartReferenceTrait;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryFlotTrait;
 
 class euiChart extends euiAbstractElement {
 	
-	use JqueryChartReferenceTrait;
+	use JqueryFlotTrait;
 	
 	private $on_change_script = '';
 	

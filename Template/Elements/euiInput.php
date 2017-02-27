@@ -2,7 +2,7 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\Core\Widgets\Input;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryInputReferenceTrait;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
 
 /**
  * 
@@ -13,7 +13,7 @@ use exface\AbstractAjaxTemplate\Template\Elements\JqueryInputReferenceTrait;
  */
 class euiInput extends euiAbstractElement {
 	
-	use JqueryInputReferenceTrait;
+	use JqueryLiveReferenceTrait;
 	
 	protected function init(){
 		parent::init();
