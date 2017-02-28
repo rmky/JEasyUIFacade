@@ -2,6 +2,7 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\Core\Widgets\Input;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
 
 /**
  * 
@@ -11,6 +12,8 @@ use exface\Core\Widgets\Input;
  *
  */
 class euiInput extends euiAbstractElement {
+	
+	use JqueryLiveReferenceTrait;
 	
 	protected function init(){
 		parent::init();
@@ -68,41 +71,9 @@ class euiInput extends euiAbstractElement {
 		$output .= "
 				$('#" . $this->get_id() . "')." . $this->get_element_type() . "(" . ($this->build_js_data_options() ? '{' . $this->build_js_data_options() . '}' : '') . ");//.textbox('addClearBtn', 'icon-clear');
 				";
-		$output .= $this->build_js_live_refrence();
+		$output .= $this->build_js_live_reference();
 		$output .= $this->build_js_on_change_handler();
 		return $output;
-	}
-	
-	protected function build_js_live_refrence(){
-		$output = '';
-		if ($this->get_widget()->get_value_expression() && $this->get_widget()->get_value_expression()->is_reference()){
-			$link = $this->get_widget()->get_value_expression()->get_widget_link();
-			$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
-			if ($linked_element){
-				$output = $this->build_js_value_setter($linked_element->build_js_value_getter($link->get_column_id())) . ";";
-			}
-		}
-		return $output;
-	}
-	
-	/**
-	 * Makes sure, this element is always updated, once the value of a live reference changes - of course, only if there is a live reference!
-	 * @return euiInput
-	 */
-	protected function register_live_reference_at_linked_element(){
-		if ($linked_element = $this->get_linked_template_element()){
-			$linked_element->add_on_change_script($this->build_js_live_refrence());
-		}
-		return $this;
-	}
-	
-	public function get_linked_template_element(){
-		$linked_element = null;
-		if ($this->get_widget()->get_value_expression() && $this->get_widget()->get_value_expression()->is_reference()){
-			$link = $this->get_widget()->get_value_expression()->get_widget_link();
-			$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
-		}
-		return $linked_element;
 	}
 	
 	function build_js_init_options(){
