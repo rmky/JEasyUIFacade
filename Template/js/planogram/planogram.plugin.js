@@ -183,6 +183,8 @@
                     .draggables({max: 2})
                     .on('dragmove', function(event) {dragMove(event,plugin);})
                     .on('dragend', dragEnd);
+                interact(plugin.options.dragCopyElements)
+                    .on('move', function(event) {move(event,plugin);});
                 interact('.area').dropzone({
                     // only accept elements matching this CSS selector
                     accept: plugin.options.acceptedDropElements,
@@ -435,6 +437,20 @@
         var isql = Math.round((Math.sqrt((radius*radius)/2))*100)/100;
         return {"points": [radius,cx,cy],"min":[cx-(isql), cy-(isql)], "max":[cx+(isql), cy+(isql)], "size":[isql*2,isql*2]};
     }
+    function move(e,plugin) {
+    	if ($(e.currentTarget).is(plugin.options.dragCopyElements)){
+            var interaction = e.interaction;
+            if (interaction.pointerIsDown && !interaction.interacting()) {
+                var original = e.currentTarget, clone = e.currentTarget.cloneNode(true);
+                clone.classList += " dragRow";
+                $(clone).attr("data-original", $(original).attr("id"));
+                document.body.appendChild(clone);
+                interaction.start({ name: 'drag' },
+                    e.interactable,
+                    clone);
+            }
+        }
+    }
     function dragMove(e,plugin) {
 
         var target = e.target;
@@ -658,7 +674,8 @@
             }
         },
         acceptedDropElements: '.dragElement, .externalDrop, .dragRow',
-        draggableElements: '.dragElement',
+        draggableElements: '.dragElement, tr.datagrid-row',
+        dragCopyElements: 'tr.datagrid-row',
         shapeOptionsDefaults: {
             style: {'shape-fill': 'rgba(255,255,255,0.5)',
                     'shape-stroke-width': 1,
