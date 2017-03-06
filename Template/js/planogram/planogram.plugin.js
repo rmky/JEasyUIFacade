@@ -179,10 +179,10 @@
 
             if (typeof interact!== 'undefined'){
                 console.log("#"+plugin.$element.attr("id"));
+                interact.on('dragmove', function(event) {dragMove(event,plugin);});
+                interact.on('dragend', dragEnd);
                 interact(plugin.options.draggableElements)
-                    .draggables({max: 2})
-                    .on('dragmove', function(event) {dragMove(event,plugin);})
-                    .on('dragend', dragEnd);
+            		.draggables({max: 2});
                 interact(plugin.options.dragCopyElements)
                     .on('move', function(event) {move(event,plugin);});
                 interact('.area').dropzone({
@@ -204,7 +204,7 @@
                     },
                     ondropdeactivate: onDropDeactivate
                 });
-            }else {
+            } else {
                 log(plugin,"You need to implement interact.js");
             }
 
@@ -441,13 +441,16 @@
     	if ($(e.currentTarget).is(plugin.options.dragCopyElements)){
             var interaction = e.interaction;
             if (interaction.pointerIsDown && !interaction.interacting()) {
-                var original = e.currentTarget, clone = e.currentTarget.cloneNode(true);
-                clone.classList += " dragRow";
-                $(clone).attr("data-original", $(original).attr("id"));
-                document.body.appendChild(clone);
-                interaction.start({ name: 'drag' },
-                    e.interactable,
-                    clone);
+                var original = e.currentTarget;
+                if (!original.classList.contains("dragRow")) {
+	                var clone = e.currentTarget.cloneNode(true);
+	                $(clone).attr("id", $(original).attr("id") + "_dragRow");
+	                $(clone).attr("data-original", $(original).attr("id"));
+	                clone.classList.add("dragRow");
+	                $(clone).offset($(original).offset());
+	                document.body.appendChild(clone);
+	                interaction.start({ name: 'drag' }, e.interactable, clone);
+                }
             }
         }
     }
@@ -462,7 +465,6 @@
                     var textElement = $("text[data-textfor='" + oid + "']");
                     textElement.attr("data-mask", textElement.attr("mask")).attr("mask","");
                 }
-                var oid = $(target).attr("data-oid");
                 setGroupPosition($(target),parseInt($(target).attr("data-x"))+e.dx, parseInt($(target).attr("data-y"))+e.dy);
 
             } else {
@@ -487,14 +489,14 @@
     }
     function dragEnd(e) {
         var target = e.target;
-        if (target.classList.value.indexOf("can-drop")===-1) {
-            resetElement(target);
+        if (target.classList.contains("dragRow")){
+        	document.body.removeChild(target);
+        } else if (!target.classList.contains("can-drop")) {
+        	resetElement(target);
         }
         return false;
     }
-
     function resetElement(target){
-
         var oid = $(target).attr("data-oid");
         if (isSVGElement(target)) {
             var coords_original = $(target).attr("data-origcoord").split(",");
@@ -504,20 +506,13 @@
             var textElement = $("text[data-textfor='" + oid + "']");
             textElement.attr("mask", textElement.attr("data-mask")).removeAttr("data-mask");
             setGroupPosition($(target),x,y);
-        }else {
-            if ($(target).hasClass("dragRow")){
-                var parent = target.parentNode;
-                parent.removeChild(target);
-            }
-            else {
-                var coords_original = $(target).attr("data-origcoord").split(",");
-                var x = parseInt(coords_original[0]);
-                var y = parseInt(coords_original[1]);
-                target.style.left = x + 'px';
-                target.style.top  = y + 'px';}
-        }
+        } else {
+            var coords_original = $(target).attr("data-origcoord").split(",");
+            var x = parseInt(coords_original[0]);
+            var y = parseInt(coords_original[1]);
+            target.style.left = x + 'px';
+            target.style.top  = y + 'px';}
     }
-
     function onDragEnter(event) {
         var draggableElement = event.relatedTarget,
             dropzoneElement = event.target;
@@ -536,7 +531,6 @@
 
     function isSVGElement(element){
         return 'SVGElement' in window && element instanceof SVGElement;
-        return false;
     }
     var isAHex = function(val){
         return /^#[0-9A-F]{6}$/i.test(val);
@@ -669,7 +663,6 @@
             }
             else {
                 log(plugin,"Element with ID " + draggableOID + " from Shelf " + draggableItemShelf + " was dropped in Shelf " + enteredItemShelf);
-                $(event.target).removeClass(".dropped");
                 return;
             }
         },
