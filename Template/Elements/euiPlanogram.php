@@ -27,7 +27,7 @@ class euiPlanogram extends euiDiagram {
 
     </div>
 	<div id="{$this->get_id()}_tools">
-		<a href="http://nbdr223.salt-solutions.de/exface/319.html" class="icon-link" title="Preview" target="_blank"></a>
+		<a href="319.html" class="icon-link" title="Preview" target="_blank"></a>
 		<a href="#" onclick="{$this->build_js_refresh()};" class="icon-reload" title="{$this->get_template()->get_app()->get_translator()->translate('REFRESH')}"></a>
 	</div>
 	<div style="display:none">
