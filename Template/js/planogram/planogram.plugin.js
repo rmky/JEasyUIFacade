@@ -180,7 +180,7 @@
             if (typeof interact!== 'undefined'){
                 console.log("#"+plugin.$element.attr("id"));
                 interact.on('dragmove', function(event) {dragMove(event,plugin);});
-                interact.on('dragend', dragEnd);
+                interact.on('dragend', function(event) {dragEnd(event,plugin);});
                 interact(plugin.options.draggableElements)
             		.draggables({max: 2});
                 interact(plugin.options.dragCopyElements)
@@ -438,13 +438,14 @@
         return {"points": [radius,cx,cy],"min":[cx-(isql), cy-(isql)], "max":[cx+(isql), cy+(isql)], "size":[isql*2,isql*2]};
     }
     function move(e,plugin) {
-    	if ($(e.currentTarget).is(plugin.options.dragCopyElements)){
+    	if ($(e.currentTarget).is('tr.datagrid-row')){
             var interaction = e.interaction;
             if (interaction.pointerIsDown && !interaction.interacting()) {
                 var original = e.currentTarget;
                 if (!original.classList.contains("dragRow")) {
 	                var clone = e.currentTarget.cloneNode(true);
 	                $(clone).attr("id", $(original).attr("id") + "_dragRow");
+	                $(clone).attr("data-oid", $(clone).find('td[field="OID"] div.datagrid-cell').html());
 	                $(clone).attr("data-original", $(original).attr("id"));
 	                clone.classList.add("dragRow");
 	                $(clone).offset($(original).offset());
@@ -458,7 +459,7 @@
 
         var target = e.target;
         var oid = $(target).attr("data-oid");
-        if ($(e.target).is(plugin.options.draggableElements)){
+        if ($(target).is(plugin.options.draggableElements)){
             if (isSVGElement(target)) {
                 if(!$(target).attr("data-mask")){
                     $(target).attr("data-mask", $(target).attr("mask")).attr("mask","");
@@ -468,18 +469,11 @@
                 setGroupPosition($(target),parseInt($(target).attr("data-x"))+e.dx, parseInt($(target).attr("data-y"))+e.dy);
 
             } else {
-                if ($(target).hasClass("dragRow")){
-                    //var original = $("#"+$(target).attr("data-original"));
-                    target.style.left =  parseInt($(target).position().left) +e.dx + 'px';
-                    target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
+            	if (!$(target).attr("data-origcoord")){
+                    $(target).attr("data-origcoord", "["+$(target).offset().left+","+$(target).offset().top+"]")
                 }
-                else {
-                    if (!$(target).attr("data-origcoord")){
-                        $(target).attr("data-origcoord", "["+$(target).offset().left+","+$(target).offset().top+"]")
-                    }
-                    target.style.left = parseInt($(target).position().left) +e.dx + 'px';
-                    target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
-                }
+                target.style.left = parseInt($(target).position().left) +e.dx + 'px';
+                target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
             }
         }
         return;
@@ -487,9 +481,9 @@
     function setGroupPosition(target,x,y){
         target.attr("transform", 'translate('+x+','+y+')').attr("data-x",x).attr("data-y",y);
     }
-    function dragEnd(e) {
+    function dragEnd(e,plugin) {
         var target = e.target;
-        if (target.classList.contains("dragRow")){
+        if ($(target).is(plugin.options.dragCopyElements)){
         	document.body.removeChild(target);
         } else if (!target.classList.contains("can-drop")) {
         	resetElement(target);
@@ -667,7 +661,7 @@
             }
         },
         acceptedDropElements: '.dragElement, .externalDrop, .dragRow',
-        draggableElements: '.dragElement, tr.datagrid-row',
+        draggableElements: '.dragElement, .dragRow',
         dragCopyElements: 'tr.datagrid-row',
         shapeOptionsDefaults: {
             style: {'shape-fill': 'rgba(255,255,255,0.5)',
