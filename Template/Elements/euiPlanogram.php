@@ -103,6 +103,13 @@ HTML;
 			$width = "auto";
 			$height = "90%";
 		}
+		
+		if ($widget->get_add_row_link_button_id()) {
+			$add_row_function = $this->get_template()->get_element_by_widget_id($widget->get_add_row_link_button_id(), $this->get_page_id())->build_js_click_function();
+			$add_row_function = preg_replace(['/var requestData = {.*?};\r?\n/', '/, prefill: {.*?}\r?\n/'], ['', ''], $add_row_function);
+			$vm_shelf_oid = $this->get_template()->get_element($this->get_widget()->get_diagram_object_selector_widget())->build_js_value_getter();
+		}
+		
 		$output = <<<JS
 
 $(document).ready(function(){
@@ -121,6 +128,24 @@ $(document).ready(function(){
 			{$this->get_id()}_selected = $(this).parent();
         	{$shape_click_js}
 		},
+		onDrop: function(plugin, dragItem, dropArea){
+            var draggableItemShelf = $(dragItem).attr("data-shelf-oid");
+            var draggableOID = $(dragItem).attr("data-oid");
+            var enteredItemShelf = $(dropArea).attr("data-oid");
+
+            if (draggableItemShelf == enteredItemShelf) {
+                resetElement(dragItem);
+                console.log("Dropped in same shelf - nothing is accomplished");
+                return;
+            } else {
+                console.log("Element with ID " + draggableOID + " from Shelf " + draggableItemShelf + " was dropped in Shelf " + enteredItemShelf);
+                if ($(dragItem).is('.dragRow')) {
+                	var requestData = {oId: '0x11e6b0c8227136b78943e4b318306b9a', rows: [{ARTICLE_COLOR: draggableOID, VM_SHELF: {$vm_shelf_oid}, VM_SHELF_MODEL_POSITION: enteredItemShelf}]};
+        			{$add_row_function}
+				}
+                return;
+            }
+        },
 		shapeOptionsDefaults: {
             style: {'shape-fill': 'rgba(184,229,229,0.6)',
                     'shape-stroke-width': 1,
@@ -219,6 +244,5 @@ JS;
 	public function build_js_busy_icon_hide(){
 		return '$("#' . $this->get_id() . ' .datagrid-mask").remove();$("#' . $this->get_id() . ' .datagrid-mask-msg").remove();';
 	}
-	
 }
 ?>
