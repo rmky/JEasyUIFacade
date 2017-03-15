@@ -142,3 +142,9 @@
 .icon-export-data{
 	background:url('icons/data_out.png') no-repeat center center;
 }
+.icon-logout{
+	background:url('icons/exit.png') no-repeat center center;
+}
+.icon-basket {
+	background:url('icons/shopping_basket_empty.png') no-repeat center center;
+}
