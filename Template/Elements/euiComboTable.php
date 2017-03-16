@@ -25,9 +25,25 @@ class euiComboTable extends euiInput {
 		$output .= '$("#' . $this->get_id() . '").combogrid({';
 		$output .= $this->build_js_init_options();
 		$output .= '});';
+		
 		// Add a clear icon to each combo grid - a small cross to the right, that resets the value
 		// TODO The addClearBtn extension seems to break the setText method, so that it also sets the value. Perhaps we can find a better way some time
 		// $output .= "$('#" . $this->get_id() . "').combogrid('addClearBtn', 'icon-clear');";
+		
+		// Register a value setter function for this combo
+		$output .= <<<JS
+		function {$this->build_js_function_prefix()}SetValue(valueJs){
+			if (String($('#{$this->get_id()}').combogrid('getValue')) != String(valueJs)){
+				$('#{$this->get_id()}').{$this->get_element_type()}('options').firstLoad = false;
+				$('#{$this->get_id()}').combogrid('grid').datagrid('options').queryParams.fltr00_OID = valueJs;
+				$('#{$this->get_id()}').combogrid('grid').datagrid('options').queryParams.q = '';
+				$('#{$this->get_id()}').combogrid('grid').datagrid('reload');
+				delete $('#{$this->get_id()}').combogrid('grid').datagrid('options').queryParams.fltr00_OID;
+				$('#{$this->get_id()}').combogrid('setValue', valueJs);
+			};
+		}
+JS;
+
 		return $output;
 	}
 	
@@ -103,10 +119,20 @@ class euiComboTable extends euiInput {
 			return '$("#' . $this->get_id() . '").combogrid("getValues").join()';
 		} else {
 			if (!is_null($column) && $column !== ''){
-				return 'function(){var row = $("#' . $this->get_id() . '").combogrid("grid").datagrid("getSelected"); if(row) {return row["' . $column . '"]} else {return ""}}';
+				return 'function(){var row = $("#' . $this->get_id() . '").combogrid("grid").datagrid("getSelected"); if(row) {return row["' . $column . '"]} else {return ""}}()';
 			}
 			return '$("#' . $this->get_id() . '").combogrid("getValue")';
 		}
+	}
+	
+	/**
+	 * The JS value setter for EasyUI combogrids is a custom function defined in euiComboTable::generate_js() - it only needs to be called here.
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_value_setter($value)
+	 */
+	function build_js_value_setter($value){
+		return $this->build_js_function_prefix() . 'SetValue(' . $value . ')';
 	}
 }
 ?>
