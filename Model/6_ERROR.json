@@ -90,7 +90,7 @@
             "APP": "0x11e6c930ff1f486693cce4b318306b9a",
             "ERROR_CODE": "6T6HUFO",
             "ERROR_TEXT": "jEasyUI files not found! Please install jEasyUI before using the template!",
-            "DESCRIPTION": null,
+            "DESCRIPTION": "",
             "LABEL": "exface.JEasyUiTemplate.6T6HUFO"
         }
     ],

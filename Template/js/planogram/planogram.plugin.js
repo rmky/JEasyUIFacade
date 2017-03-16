@@ -179,10 +179,12 @@
 
             if (typeof interact!== 'undefined'){
                 console.log("#"+plugin.$element.attr("id"));
+                interact.on('dragmove', function(event) {dragMove(event,plugin);});
+                interact.on('dragend', function(event) {dragEnd(event,plugin);});
                 interact(plugin.options.draggableElements)
-                    .draggables({max: 2})
-                    .on('dragmove', function(event) {dragMove(event,plugin);})
-                    .on('dragend', dragEnd);
+            		.draggables({max: 2});
+                interact(plugin.options.dragCopyElements)
+                    .on('move', function(event) {move(event,plugin);});
                 interact('.area').dropzone({
                     // only accept elements matching this CSS selector
                     accept: plugin.options.acceptedDropElements,
@@ -202,7 +204,7 @@
                     },
                     ondropdeactivate: onDropDeactivate
                 });
-            }else {
+            } else {
                 log(plugin,"You need to implement interact.js");
             }
 
@@ -435,33 +437,43 @@
         var isql = Math.round((Math.sqrt((radius*radius)/2))*100)/100;
         return {"points": [radius,cx,cy],"min":[cx-(isql), cy-(isql)], "max":[cx+(isql), cy+(isql)], "size":[isql*2,isql*2]};
     }
+    function move(e,plugin) {
+    	if ($(e.currentTarget).is('tr.datagrid-row')){
+            var interaction = e.interaction;
+            if (interaction.pointerIsDown && !interaction.interacting()) {
+                var original = e.currentTarget;
+                if (!original.classList.contains("dragRow")) {
+	                var clone = e.currentTarget.cloneNode(true);
+	                $(clone).attr("id", $(original).attr("id") + "_dragRow");
+	                $(clone).attr("data-oid", $(clone).find('td[field="OID"] div.datagrid-cell').html());
+	                $(clone).attr("data-original", $(original).attr("id"));
+	                clone.classList.add("dragRow");
+	                $(clone).offset($(original).offset());
+	                document.body.appendChild(clone);
+	                interaction.start({ name: 'drag' }, e.interactable, clone);
+                }
+            }
+        }
+    }
     function dragMove(e,plugin) {
 
         var target = e.target;
         var oid = $(target).attr("data-oid");
-        if ($(e.target).is(plugin.options.draggableElements)){
+        if ($(target).is(plugin.options.draggableElements)){
             if (isSVGElement(target)) {
                 if(!$(target).attr("data-mask")){
                     $(target).attr("data-mask", $(target).attr("mask")).attr("mask","");
                     var textElement = $("text[data-textfor='" + oid + "']");
                     textElement.attr("data-mask", textElement.attr("mask")).attr("mask","");
                 }
-                var oid = $(target).attr("data-oid");
                 setGroupPosition($(target),parseInt($(target).attr("data-x"))+e.dx, parseInt($(target).attr("data-y"))+e.dy);
 
             } else {
-                if ($(target).hasClass("dragRow")){
-                    //var original = $("#"+$(target).attr("data-original"));
-                    target.style.left =  parseInt($(target).position().left) +e.dx + 'px';
-                    target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
+            	if (!$(target).attr("data-origcoord")){
+                    $(target).attr("data-origcoord", "["+$(target).offset().left+","+$(target).offset().top+"]")
                 }
-                else {
-                    if (!$(target).attr("data-origcoord")){
-                        $(target).attr("data-origcoord", "["+$(target).offset().left+","+$(target).offset().top+"]")
-                    }
-                    target.style.left = parseInt($(target).position().left) +e.dx + 'px';
-                    target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
-                }
+                target.style.left = parseInt($(target).position().left) +e.dx + 'px';
+                target.style.top  = parseInt($(target).position().top) + e.dy + 'px';
             }
         }
         return;
@@ -469,16 +481,16 @@
     function setGroupPosition(target,x,y){
         target.attr("transform", 'translate('+x+','+y+')').attr("data-x",x).attr("data-y",y);
     }
-    function dragEnd(e) {
+    function dragEnd(e,plugin) {
         var target = e.target;
-        if (target.classList.value.indexOf("can-drop")===-1) {
-            resetElement(target);
+        if ($(target).is(plugin.options.dragCopyElements)){
+        	document.body.removeChild(target);
+        } else if (!target.classList.contains("can-drop")) {
+        	resetElement(target);
         }
         return false;
     }
-
     function resetElement(target){
-
         var oid = $(target).attr("data-oid");
         if (isSVGElement(target)) {
             var coords_original = $(target).attr("data-origcoord").split(",");
@@ -488,20 +500,13 @@
             var textElement = $("text[data-textfor='" + oid + "']");
             textElement.attr("mask", textElement.attr("data-mask")).removeAttr("data-mask");
             setGroupPosition($(target),x,y);
-        }else {
-            if ($(target).hasClass("dragRow")){
-                var parent = target.parentNode;
-                parent.removeChild(target);
-            }
-            else {
-                var coords_original = $(target).attr("data-origcoord").split(",");
-                var x = parseInt(coords_original[0]);
-                var y = parseInt(coords_original[1]);
-                target.style.left = x + 'px';
-                target.style.top  = y + 'px';}
-        }
+        } else {
+            var coords_original = $(target).attr("data-origcoord").split(",");
+            var x = parseInt(coords_original[0]);
+            var y = parseInt(coords_original[1]);
+            target.style.left = x + 'px';
+            target.style.top  = y + 'px';}
     }
-
     function onDragEnter(event) {
         var draggableElement = event.relatedTarget,
             dropzoneElement = event.target;
@@ -520,7 +525,6 @@
 
     function isSVGElement(element){
         return 'SVGElement' in window && element instanceof SVGElement;
-        return false;
     }
     var isAHex = function(val){
         return /^#[0-9A-F]{6}$/i.test(val);
@@ -653,12 +657,12 @@
             }
             else {
                 log(plugin,"Element with ID " + draggableOID + " from Shelf " + draggableItemShelf + " was dropped in Shelf " + enteredItemShelf);
-                $(event.target).removeClass(".dropped");
                 return;
             }
         },
         acceptedDropElements: '.dragElement, .externalDrop, .dragRow',
-        draggableElements: '.dragElement',
+        draggableElements: '.dragElement, .dragRow',
+        dragCopyElements: 'tr.datagrid-row',
         shapeOptionsDefaults: {
             style: {'shape-fill': 'rgba(255,255,255,0.5)',
                     'shape-stroke-width': 1,

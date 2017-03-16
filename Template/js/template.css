@@ -20,6 +20,7 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 
 /* jEasyUI customizing */
 div.panel-body{background-color:#fff;}
+div.messager-body{overflow-y: auto;}
 
 /* TextDiff widget */
 .difftext-container {border: 1px solid #c3d9e0;}
