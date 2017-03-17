@@ -48,8 +48,13 @@ class euiMenuButton extends euiAbstractElement {
 		}
 		
 		$icon = $this->get_widget()->get_icon_name() ? ',iconCls:\''.$this->build_css_icon_class($this->get_widget()->get_icon_name()).'\'' : '';
+		switch ($this->get_widget()->get_align()){
+			case EXF_ALIGN_LEFT: $align_style = 'float: left;'; break;
+			case EXF_ALIGN_RIGHT: $align_style = 'float: right;'; break;
+			default: $align_style = '';
+		}
 		$output .=
-			'<a href="javascript:void(0)" id="'.$this->get_id().'" class="easyui-'.$this->get_element_type().'" data-options="menu:\'#'.$this->build_js_menu_name().'\''.$icon.'">
+		'<a href="javascript:void(0)" id="'.$this->get_id().'" class="easyui-'.$this->get_element_type().'" data-options="menu:\'#'.$this->build_js_menu_name().'\''.$icon.'" style="' . $align_style . '">
 				'.$this->get_widget()->get_caption().'
 			</a>
 			<div id="'.$this->build_js_menu_name().'">

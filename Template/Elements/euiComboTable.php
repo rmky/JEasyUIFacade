@@ -71,6 +71,8 @@ JS;
 			$first_load_script = "return false;";
 		}
 		
+		// q wird im value_setter erst geloescht, dann on_before_load wieder hinzugefuegt, wofuer
+		// ist q eigentlich genau da?
 		$table->add_on_before_load("
 			if ($('#" . $this->get_id() . "')." . $this->get_element_type() . "('options').firstLoad){
 				$('#" . $this->get_id() . "')." . $this->get_element_type() . "('options').firstLoad = false;
@@ -81,6 +83,15 @@ JS;
 				}
 			}
 		");
+		
+		// Wert darf eigentlich erst gesetzt werden, nachdem die Tabelle geladen wurde, da sonst
+		// das on_change Skript u.U. keine Werte auslesen kann. So ist auch keine dauerhafte Loesung,
+		// on_change duerfte jetzt insgesamt dreimal ausgeloest werden (erstes Setzen, leeren,
+		// zweites Setzen)
+		$table->add_on_load_success("
+			var value = $('#{$this->get_id()}').combogrid('getValue');
+			$('#{$this->get_id()}').combogrid('clear');
+			$('#{$this->get_id()}').combogrid('setValue', value);");
 		
 		// Add explicitly specified values to every return data
 		foreach ($widget->get_selectable_options() as $key => $value){
@@ -115,14 +126,25 @@ JS;
 	}
 	
 	function build_js_value_getter($column = null, $row = null){
-		if ($this->get_widget()->get_multi_select()){
-			return '$("#' . $this->get_id() . '").combogrid("getValues").join()';
+		if ($this->get_widget()->get_multi_select() || is_null($column) || $column === ''){
+			$output = '(function() {
+					if ($("#' . $this->get_id() . '").data("combogrid")) {
+						return $("#' . $this->get_id() . '").combogrid("getValues").join();
+					} else {
+						return $("#' . $this->get_id() . '").val();
+					}
+				})()';
 		} else {
-			if (!is_null($column) && $column !== ''){
-				return 'function(){var row = $("#' . $this->get_id() . '").combogrid("grid").datagrid("getSelected"); if(row) {return row["' . $column . '"]} else {return ""}}()';
-			}
-			return '$("#' . $this->get_id() . '").combogrid("getValue")';
+			$output = '(function() {
+					if ($("#' . $this->get_id() . '").data("combogrid")) {
+						var row = $("#' . $this->get_id() . '").combogrid("grid").datagrid("getSelected");
+						if (row) { return row["' . $column . '"]; } else { return ""; }
+					} else {
+						return $("#' . $this->get_id() . '").val();
+					}
+				})()';
 		}
+		return $output;
 	}
 	
 	/**
