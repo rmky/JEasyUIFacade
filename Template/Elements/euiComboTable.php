@@ -1,5 +1,15 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+
+use exface\Core\Widgets\ComboTable;
+
+/**
+ * 
+ * @method ComboTable get_widget()
+ * 
+ * @author Andrej Kabachnik
+ *
+ */
 class euiComboTable extends euiInput {
 	
 	protected function init(){
@@ -22,7 +32,7 @@ class euiComboTable extends euiInput {
 	
 	function generate_js(){
 		// Need to understand, if it's the first time loading to prevent that loading if a value is set already
-		$output .= '$("#' . $this->get_id() . '").combogrid({';
+		$output .= '$("#' . $this->get_id() . '").' . $this->get_element_type() . '({';
 		$output .= $this->build_js_init_options();
 		$output .= '});';
 		
@@ -33,13 +43,13 @@ class euiComboTable extends euiInput {
 		// Register a value setter function for this combo
 		$output .= <<<JS
 		function {$this->build_js_function_prefix()}SetValue(valueJs){
-			if (String($('#{$this->get_id()}').combogrid('getValue')) != String(valueJs)){
+			if (String($('#{$this->get_id()}').{$this->get_element_type()}('getValue')) != String(valueJs)){
 				$('#{$this->get_id()}').{$this->get_element_type()}('options').firstLoad = false;
-				$('#{$this->get_id()}').combogrid('grid').datagrid('options').queryParams.fltr00_OID = valueJs;
-				$('#{$this->get_id()}').combogrid('grid').datagrid('options').queryParams.q = '';
-				$('#{$this->get_id()}').combogrid('grid').datagrid('reload');
-				delete $('#{$this->get_id()}').combogrid('grid').datagrid('options').queryParams.fltr00_OID;
-				$('#{$this->get_id()}').combogrid('setValue', valueJs);
+				$('#{$this->get_id()}').{$this->get_element_type()}('grid').datagrid('options').queryParams.fltr00_{$this->get_widget()->get_value_column()->get_data_column_name()} = valueJs;
+				$('#{$this->get_id()}').{$this->get_element_type()}('grid').datagrid('options').queryParams.q = '';
+				$('#{$this->get_id()}').{$this->get_element_type()}('grid').datagrid('reload');
+				delete $('#{$this->get_id()}').{$this->get_element_type()}('grid').datagrid('options').queryParams.fltr00_OID;
+				$('#{$this->get_id()}').{$this->get_element_type()}('setValue', valueJs);
 			};
 		}
 JS;
@@ -116,12 +126,12 @@ JS;
 	
 	function build_js_value_getter($column = null, $row = null){
 		if ($this->get_widget()->get_multi_select()){
-			return '$("#' . $this->get_id() . '").combogrid("getValues").join()';
+			return '$("#' . $this->get_id() . '").' . $this->get_element_type() . '("getValues").join()';
 		} else {
 			if (!is_null($column) && $column !== ''){
-				return 'function(){var row = $("#' . $this->get_id() . '").combogrid("grid").datagrid("getSelected"); if(row) {return row["' . $column . '"]} else {return ""}}()';
+				return 'function(){var row = $("#' . $this->get_id() . '").' . $this->get_element_type() . '("grid").datagrid("getSelected"); if(row) {return row["' . $column . '"]} else {return ""}}()';
 			}
-			return '$("#' . $this->get_id() . '").combogrid("getValue")';
+			return '$("#' . $this->get_id() . '").' . $this->get_element_type() . '("getValue")';
 		}
 	}
 	
