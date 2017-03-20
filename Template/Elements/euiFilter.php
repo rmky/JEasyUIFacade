@@ -2,6 +2,10 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 class euiFilter extends euiInput {
 	
+	protected function init(){
+		$this->set_element_type('textbox');
+	}
+	
 	function generate_html(){
 		return $this->get_template()->get_element($this->get_widget()->get_widget())->generate_html();
 	}
@@ -35,6 +39,8 @@ class euiFilter extends euiInput {
 	 * Thus, the filter is a simple proxy from the point of view of the template. However, it can be easily
 	 * enhanced with additional methods, that will override the ones of the value widget.
 	 * TODO this did not really work so far. Don't know why. As a work around, added some explicit proxy methods
+	 * -> __call wird aufgerufen, wenn eine unzugreifbare Methode in einem Objekt aufgerufen wird
+	 * (werden die ueberschriebenen Proxymethoden entfernt, existieren sie ja auch noch euiInput)
 	 * @param string $name
 	 * @param array $arguments
 	 */

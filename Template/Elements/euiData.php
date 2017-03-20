@@ -19,6 +19,7 @@ class euiData extends euiAbstractElement {
 	private $editors = array();
 	private $on_before_load = '';
 	private $on_load_success = '';
+	private $on_load_error = '';
 	private $load_filter_script = '';
 	private $headers_colspan = array();
 	private $headers_rowspan = array();
@@ -58,7 +59,8 @@ class euiData extends euiAbstractElement {
 					'resource' => $this->get_page_id(),
 					'element' => $widget->get_id(),
 					'object' => $this->get_widget()->get_meta_object()->get_id(),
-					'action' => $widget->get_lazy_loading_action()
+					'action' => $widget->get_lazy_loading_action(),
+					'firstLoad' => true
 			);
 			foreach($queryParams as $param => $val){
 				$params[] = $param . ': "' . $val . '"';
@@ -80,13 +82,16 @@ class euiData extends euiAbstractElement {
 					}
 				}
 			}
-			$result = 'url: "' . $this->get_ajax_url() . '", queryParams: {' . implode(',', $params) . '}';
+			$result = '
+				url: "' . $this->get_ajax_url() . '"
+				, queryParams: {' . implode("\n\t\t\t\t\t, ", $params) . '}';
 		} else {
 			// Data embedded in the code of the DataGrid
 			$data = $widget->prepare_data_sheet_to_read();
 			$data->data_read();
-			$result = 'remoteSort: false'
-					. ', loader: function(param, success, error){' . $this->build_js_data_loader_without_ajax($data) . '}';
+			$result = '
+				remoteSort: false
+				, loader: function(param, success, error) {' . $this->build_js_data_loader_without_ajax($data) . '}';
 		}
 		
 		return $result;
@@ -113,26 +118,36 @@ class euiData extends euiAbstractElement {
 			$this->add_on_load_success('$(this).' . $this->get_element_type() . '("clearSelections");');
 		}
 		
-		$output = ', rownumbers: ' . ($widget->get_show_row_numbers() ? 'true' : 'false')
-				. ', fitColumns: true'
-				. ', multiSort: ' . ($widget->get_header_sort_multiple() ? 'true' : 'false')
-				. $sortColumn . $sortOrder
-				. ', showFooter: "' . ($this->get_show_footer() ? 'true' : 'false' ) . '"'
-				. ', idField: "' . $widget->get_uid_column()->get_data_column_name() . '"'
-				. (!$widget->get_multi_select() ? ', singleSelect: true' : '')
-				. ($this->get_width() ? ', width: "' . $this->get_width() . '"' : '')
-				. ', pagination: ' . ($widget->get_paginate() ? 'true' : 'false')
-				. ', pageList: ' . json_encode($widget->get_paginate_page_sizes())
-				. ', pageSize: ' . $widget->get_paginate_default_page_size()
-				. ', striped: "' . ($widget->get_striped() ? 'true' : 'false') . '"'
-				. ', nowrap: "' . ($widget->get_nowrap() ? 'true' : 'false') . '"'
-				. ', toolbar: "#' . $this->get_toolbar_id() . '"'
-				. ', onLoadError: function(response){' . $this->build_js_show_error('response.responseText', 'response.status + " " + response.statusText') . '}' 
-				. ($this->get_on_load_success() ? ', onLoadSuccess: function(){' . $this->get_on_load_success() . '}' : '')
-				. ($this->get_on_before_load() ? ', onBeforeLoad: function(param){' . $this->get_on_before_load() . '}' : '')
-				. ($this->get_load_filter_script() ? ', loadFilter: function(data){' . $this->get_load_filter_script() . ' return data;}' : '')
-				. ', columns: [ ' .  implode(',', $this->build_js_init_options_columns()) . ' ]'
-		;
+		$output = '
+				, rownumbers: ' . ($widget->get_show_row_numbers() ? 'true' : 'false') . '
+				, fitColumns: true
+				, multiSort: ' . ($widget->get_header_sort_multiple() ? 'true' : 'false') .'
+				' . $sortColumn . $sortOrder . '
+				, showFooter: "' . ($this->get_show_footer() ? 'true' : 'false' ) . '"
+				, idField: "' . $widget->get_uid_column()->get_data_column_name() . '"
+				' . (!$widget->get_multi_select() ? ', singleSelect: true' : '') . '
+				' . ($this->get_width() ? ', width: "' . $this->get_width() . '"' : '') . '
+				, pagination: ' . ($widget->get_paginate() ? 'true' : 'false') . '
+				, pageList: ' . json_encode($widget->get_paginate_page_sizes()) . '
+				, pageSize: ' . $widget->get_paginate_default_page_size() . '
+				, striped: "' . ($widget->get_striped() ? 'true' : 'false') . '"
+				, nowrap: "' . ($widget->get_nowrap() ? 'true' : 'false') . '"
+				, toolbar: "#' . $this->get_toolbar_id() . '"
+				' . ($this->get_on_before_load() ? ', onBeforeLoad: function(param) {
+					' . $this->get_on_before_load() . '
+				}' : '') . '
+				' . ($this->get_on_load_success() ? ', onLoadSuccess: function() {
+					' . $this->get_on_load_success() . '
+				}' : '') . '
+				, onLoadError: function(response) {
+					' . $this->build_js_show_error('response.responseText', 'response.status + " " + response.statusText') . '
+					' . $this->get_on_load_error() . '
+				}
+				' . ($this->get_load_filter_script() ? ', loadFilter: function(data) {
+					' . $this->get_load_filter_script() . '
+					return data;
+				}' : '') . '
+				, columns: [ ' .  implode(',', $this->build_js_init_options_columns()) . ' ]';
 		return $output;
 	}
 	
@@ -295,12 +310,24 @@ class euiData extends euiAbstractElement {
 		$this->on_load_success .= $script;
 	}
 	
-	public function add_on_change_script($string){
-		return $this->add_on_load_success($string);
-	}
-	
 	protected function get_on_load_success(){
 		return $this->on_load_success;
+	}
+	
+	/**
+	 * Binds a script to the onLoadError event.
+	 * @param string $script
+	 */
+	public function add_on_load_error($script) {
+		$this->on_load_error .= $script;
+	}
+	
+	protected function get_on_load_error(){
+		return $this->on_load_error;
+	}
+	
+	public function add_on_change_script($string){
+		return $this->add_on_load_success($string);
 	}
 	
 	public function add_load_filter_script($javascript){
