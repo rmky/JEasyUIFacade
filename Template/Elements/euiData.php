@@ -136,7 +136,7 @@ class euiData extends euiAbstractElement {
 				' . ($this->get_on_before_load() ? ', onBeforeLoad: function(param) {
 					' . $this->get_on_before_load() . '
 				}' : '') . '
-				' . ($this->get_on_load_success() ? ', onLoadSuccess: function() {
+				' . ($this->get_on_load_success() ? ', onLoadSuccess: function(data) {
 					' . $this->get_on_load_success() . '
 				}' : '') . '
 				, onLoadError: function(response) {
@@ -296,6 +296,16 @@ class euiData extends euiAbstractElement {
 	 */
 	public function add_on_before_load($script){
 		$this->on_before_load .= $script;
+	}
+	
+	/**
+	 * Set JS code to be executed on the OnBeforeLoad event of jEasyUI datagrid. The script will have access to the "param" variable
+	 * representing all XHR parameters to be sent to the server.
+	 *
+	 * @param string $script
+	 */
+	public function set_on_before_load($script){
+		$this->on_before_load = $script;
 	}
 	
 	protected function get_on_before_load(){
