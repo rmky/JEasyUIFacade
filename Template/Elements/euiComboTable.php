@@ -1,5 +1,15 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+
+use exface\Core\Widgets\ComboTable;
+
+/**
+ * 
+ * @method ComboTable get_widget()
+ * 
+ * @author Andrej Kabachnik
+ *
+ */
 class euiComboTable extends euiInput {
 	
 	protected function init(){
