@@ -14,12 +14,8 @@ class euiComboTable extends euiInput {
 					$link = $fltr->get_value_expression()->get_widget_link();
 					$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 					$linked_element->add_on_change_script('
-							// kein update bei value-setter sonst
-							//if (!$("#' . $linked_element->get_id() . '").combogrid("grid").datagrid("options").queryParams.jsValueSetterUpdate) {
-								$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams.jsFilterSetterUpdate = true;
-								$("#' . $this->get_id() . '").combogrid("grid").datagrid("reload");
-							//}');
-							//stattdessen valueSetter
+							$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams.jsFilterSetterUpdate = true;
+							$("#' . $this->get_id() . '").combogrid("grid").datagrid("reload");');
 				}
 			}
 		}
@@ -246,7 +242,6 @@ class euiComboTable extends euiInput {
 						' . $value_filters_script . '
 					} else if (param.firstLoad) {
 						delete dataUrlParams.firstLoad;
-						//param.jsValueSetterUpdate = true;
 						' . $first_load_script . '
 					} else {
 						' . $filters_script . '
@@ -277,19 +272,15 @@ class euiComboTable extends euiInput {
 							delete dataUrlParams[key];
 						}
 					}
-					
 					if (dataUrlParams.q) {
 						delete dataUrlParams.q;
 					}
-					
 					if (dataUrlParams.firstLoad) {
 						delete dataUrlParams.firstLoad;
 					}
-							
 					if (dataUrlParams.jsFilterSetterUpdate) {
 						delete dataUrlParams.jsFilterSetterUpdate;
 					}
-					
 					if (dataUrlParams.jsValueSetterUpdate) {
 						// es gibt sonst Konstellationen, in denen nur die Oid angezeigt wird
 						// (Tastatureingabe, dann aber keine Auswahl, anschliessend value-Setter update)
@@ -315,19 +306,15 @@ class euiComboTable extends euiInput {
 							delete dataUrlParams[key];
 						}
 					}
-					
 					if (dataUrlParams.q) {
 						delete dataUrlParams.q;
 					}
-					
 					if (dataUrlParams.firstLoad) {
 						delete dataUrlParams.firstLoad;
 					}
-					
 					if (dataUrlParams.jsFilterSetterUpdate) {
 						delete dataUrlParams.jsFilterSetterUpdate;
 					}
-					
 					if (dataUrlParams.jsValueSetterUpdate) {
 						// es gibt sonst Konstellationen, in denen nur die Oid angezeigt wird
 						// (Tastatureingabe, dann aber keine Auswahl, anschliessend value-Setter update)
