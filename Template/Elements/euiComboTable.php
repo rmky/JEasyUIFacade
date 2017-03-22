@@ -188,22 +188,15 @@ class euiComboTable extends euiInput {
 	function build_js_on_beforeload_live_reference() {
 		$widget = $this->get_widget();
 		
-		// Prevent loading data from backend if the value and value_text are set already or there is
-		// no value and thus no need to search for anything.
+		// If the value is set data is loaded from the backend. Same if also value-text is set, because otherwise
+		// live-references don't work at the beginning. If no value is set, loading from the backend is prevented.
 		// The trouble here is, that if the first loading is prevented, the next time the user clicks on the dropdown button,
 		// an empty table will be shown, because the last result is cached. To fix this, we bind a reload of the table to
 		// onShowPanel in case the grid is empty (see above).
 		if (!is_null($this->get_value_with_defaults()) && $this->get_value_with_defaults() !== ''){
-			if ($widget->get_value_text()){
-				// If the text is already known, set it an prevent initial backend request
-				$first_load_script = '
-						$("#' . $this->get_id() .'").combogrid("setText", "' . str_replace('"', '\"', $widget->get_value_text()) . '");
-						return false;';
-			} else {
-				// If there is a value, but no text, add a filter over the UID column with this value and do not prevent the initial autoload
-				$first_load_script = '
+			$first_load_script = '
+						dataUrlParams.jsValueSetterUpdate = true;
 						param.fltr01_' . $widget->get_value_column()->get_data_column_name() . ' = "' . $this->get_value_with_defaults() . '";';
-			}
 		} else {
 			// If no value set, just supress initial autoload
 			$first_load_script = '
