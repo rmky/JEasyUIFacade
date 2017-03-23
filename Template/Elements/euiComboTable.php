@@ -24,8 +24,10 @@ class euiComboTable extends euiInput {
 					$link = $fltr->get_value_expression()->get_widget_link();
 					$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 					$linked_element->add_on_change_script('
-							$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams.jsFilterSetterUpdate = true;
-							$("#' . $this->get_id() . '").combogrid("grid").datagrid("reload");');
+							if (typeof suppressFilterSetterUpdate == "undefined" || !suppressFilterSetterUpdate) {
+								$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams.jsFilterSetterUpdate = true;
+								$("#' . $this->get_id() . '").combogrid("grid").datagrid("reload");
+							}');
 				}
 			}
 		}
@@ -93,9 +95,10 @@ class euiComboTable extends euiInput {
 						' . ($this->get_on_change_script() ? ', onChange: function(newValue, oldValue) {
 							if (!newValue) {
 								// Loeschen der verlinkten Elemente wenn der Wert manuell geloescht wird
-								// Update: Fuehrt in komplexen Beispiel zu einer zu großen (aber endlichen)
-								// Kaskade von Requests
-								' /*. $this->get_on_change_script()*/ . '
+								// Die Updates der Filter-Links werden an dieser Stelle unterdrueckt und
+								// nur einmal nach dem value-Setter update onLoadSuccess ausgefuehrt.
+								var suppressFilterSetterUpdate = true;
+								' . $this->get_on_change_script() . '
 							}
 						}
 						, onSelect: function(index, row) {
@@ -103,7 +106,7 @@ class euiComboTable extends euiInput {
 						}' : '') . '
 						, onShowPanel: function() {
 							// Wird firstLoad verhindert, wuerde man eine leere Tabelle sehen. Um das zu
-							// wird die Tabelle hier neu geladen, falls sie leer ist
+							// verhindern wird die Tabelle hier neu geladen, falls sie leer ist.
 							// Update: dadurch wird bei anfaenglicher manueller Eingabe eines Wertes doppelt geladen
 							if($(this).combogrid("grid").datagrid("getRows").length == 0) {
 								$(this).combogrid("grid").datagrid("reload");
