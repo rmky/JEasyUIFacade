@@ -149,42 +149,44 @@ class euiComboTable extends euiInput {
 		$widget = $this->get_widget();
 		
 		$output = '
-							var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
-							var value = ' . $value . ', valueArray;
-							if (' . $this->get_id() . '_cg.data("combogrid")) {
-								if (value) {
-									switch ($.type(value)) {
-										case "number":
-											valueArray = [value]; break;
-										case "string":
-											valueArray = $.map(value.split(","), $.trim); break;
-										case "array":
-											valueArray = value; break;
-										default:
-											valueArray = [];
+							(function() {
+								var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
+								var value = ' . $value . ', valueArray;
+								if (' . $this->get_id() . '_cg.data("combogrid")) {
+									if (value) {
+										switch ($.type(value)) {
+											case "number":
+												valueArray = [value]; break;
+											case "string":
+												valueArray = $.map(value.split(","), $.trim); break;
+											case "array":
+												valueArray = value; break;
+											default:
+												valueArray = [];
+										}
+									} else {
+										valueArray = [];
 									}
-								} else {
-									valueArray = [];
-								}
-								if (!' . $this->get_id() . '_cg.combogrid("getValues").equals(valueArray)) {';
+									if (!' . $this->get_id() . '_cg.combogrid("getValues").equals(valueArray)) {';
 		
 		if ($this->get_widget()->get_multi_select()) {
 			$output .= '
-									' . $this->get_id() . '_cg.combogrid("setValues", valueArray);';
+										' . $this->get_id() . '_cg.combogrid("setValues", valueArray);';
 		} else {
 			$output .= '
-									if (valueArray.length <= 1) {
-										' . $this->get_id() . '_cg.combogrid("setValues", valueArray);
-									}';
+										if (valueArray.length <= 1) {
+											' . $this->get_id() . '_cg.combogrid("setValues", valueArray);
+										}';
 		}
 		
 		$output .= '
-									' . $this->get_id() . '_cg.combogrid("grid").datagrid("options").queryParams.jsValueSetterUpdate = true;
-									' . $this->get_id() . '_cg.combogrid("grid").datagrid("reload");
+										' . $this->get_id() . '_cg.combogrid("grid").datagrid("options").queryParams.jsValueSetterUpdate = true;
+										' . $this->get_id() . '_cg.combogrid("grid").datagrid("reload");
+									}
+								} else {
+									$("#' . $this->get_id() . '").val(value).trigger("change");
 								}
-							} else {
-								$("#' . $this->get_id() . '").val(value).trigger("change");
-							}';
+							})()';
 		
 		return $output;
 	}
