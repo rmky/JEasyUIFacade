@@ -128,7 +128,7 @@ class euiData extends euiAbstractElement {
 				' . (!$widget->get_multi_select() ? ', singleSelect: true' : '') . '
 				' . ($this->get_width() ? ', width: "' . $this->get_width() . '"' : '') . '
 				, pagination: ' . ($widget->get_paginate() ? 'true' : 'false') . '
-				, pageList: ' . json_encode($widget->get_paginate_page_sizes()) . '
+				, pageList: ' . json_encode($this->get_template()->get_app()->get_config()->get_option('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')) . '
 				, pageSize: ' . $widget->get_paginate_default_page_size() . '
 				, striped: "' . ($widget->get_striped() ? 'true' : 'false') . '"
 				, nowrap: "' . ($widget->get_nowrap() ? 'true' : 'false') . '"
