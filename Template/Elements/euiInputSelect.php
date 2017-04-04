@@ -29,7 +29,7 @@ class euiInputSelect extends euiInput {
 		}
 
 		$output = '	<select style="height: 100%; width: 100%;" class="easyui-' . $this->get_element_type() . '" 
-						name="' . $widget->get_attribute_alias() . ($widget->get_multi_select() ? '[]' : '') . '"  
+						name="' . $widget->get_attribute_alias() . '"  
 						id="' . $this->get_id() . '"  
 						' . ($widget->is_required() ? 'required="true" ' : '') . '
 						' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . '
@@ -46,7 +46,11 @@ class euiInputSelect extends euiInput {
 	}
 	
 	public function build_js_value_getter(){
-		return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('" . ($this->get_widget()->get_multi_select() ? 'getValues' : 'getValue') . "')";
+		if ($this->get_widget()->get_multi_select()){
+			return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getValues').join()";
+		} else {
+			return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getValue')";
+		}
 	}
 	
 	public function build_js_data_options(){
