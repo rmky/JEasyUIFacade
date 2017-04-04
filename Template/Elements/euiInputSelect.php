@@ -13,7 +13,7 @@ class euiInputSelect extends euiInput {
 		$options = '';
 		foreach ($widget->get_selectable_options() as $value => $text){
 			$options .= '
-					<option value="' . $value . '"' . ($this->get_value_with_defaults() == $value ? ' selected="selected"' : '') . '>' . $text . '</option>';
+					<option value="' . $value . '"' . (strcasecmp($this->get_value_with_defaults(), $value) == 0 ? ' selected="selected"' : '') . '>' . $text . '</option>';
 		}
 
 		$output = '	<select style="height: 100%; width: 100%;" class="easyui-' . $this->get_element_type() . '" 
@@ -35,6 +35,10 @@ class euiInputSelect extends euiInput {
 	
 	public function build_js_value_getter(){
 		return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getValue')";
+	}
+	
+	public function build_js_data_options(){
+		return ($this->get_widget()->get_multi_select() ? 'multiple: true' : '');
 	}
 }
 ?>
