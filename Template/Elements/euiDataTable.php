@@ -55,7 +55,7 @@ class euiDataTable extends euiData {
 			if ($widget->get_hide_toolbar_top()){
 				$toolbar_style = 'visibility: hidden; height: 0px; padding: 0px;';
 			}
-			$output .= '<div id="' . $this->get_toolbar_id() . '"  style="' . $toolbar_style . '">';
+			$output .= '<form id="' . $this->get_toolbar_id() . '"  style="' . $toolbar_style . '" onsubmit="' . $this->build_js_function_prefix() . 'doSearch();return false;">';
 			if ($fltr_html){
 				$output .= '<div class="datagrid-filters">' . $fltr_html . '</div>';
 			}
@@ -63,8 +63,8 @@ class euiDataTable extends euiData {
 			if ($button_html) {
 				$output .= $button_html;
 			}
-			$output .= '<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="' . $this->build_js_function_prefix() . 'doSearch()">Search</a></div>';
-			$output .= '</div>';
+			$output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search">Search</button></div>';
+			$output .= '</form>';
 		}
 		
 		// Create a context menu if any items were found
