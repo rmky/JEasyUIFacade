@@ -83,7 +83,8 @@ class euiComboTable extends euiInput {
 		$table->add_on_load_error($this->build_js_on_load_error_live_reference());
 		$inherited_options .= $table->build_js_init_options_head();
 		
-		$output .= trim($inherited_options, ',') . '
+		$inherited_options = trim($inherited_options, "\r\n\t,");
+		$output .= $inherited_options . '
 						, textField:"' . $this->get_widget()->get_text_column()->get_data_column_name() . '"
 						, mode: "remote"
 						, method: "post"
