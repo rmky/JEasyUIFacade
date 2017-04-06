@@ -1,10 +1,13 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+
 use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
-use exface\Core\Factories\ActionFactory;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 
 class euiDataTable extends euiData {
+	
+	use JqueryDataTableTrait;
 	
 	protected function init(){
 		parent::init();
@@ -73,20 +76,6 @@ class euiDataTable extends euiData {
 		return $output;
 	}
 	
-	protected function build_js_filter_data_getter(){
-		$data_getters = array();
-		foreach ($this->get_widget()->get_filters() as $filter){
-			$data_getters[] = $this->get_template()->get_element($filter)->build_js_data_getter(ActionFactory::create_from_string($this->get_workbench(), $this->get_widget()->get_row_details_action()));
-		}
-		if (count($data_getters) > 0){
-			// Merge all the JS data objects, but remember to overwrite the head oId in the resulting object with the object id
-			// of the container itself at the end! Otherwise the object id of the last widget in the container would win!
-			return "$.extend(true, {},\n" . implode(",\n", $data_getters) . ",\n{oId: '" . $this->get_widget()->get_meta_object_id() . "'}\n)";
-		} else {
-			return '{}';
-		}
-	}
-	
 	function generate_js(){
 		$widget = $this->get_widget();
 		$output = '';
@@ -108,18 +97,6 @@ class euiDataTable extends euiData {
 			$details_element = $this->get_template()->get_element($widget->get_row_details_container());
 			$details_height = (!$details->get_height()->is_undefined() ? ", height: '" . $details_element->get_height() . "'" : "");
 			
-			// Build som JS to populate filters of the future prefill object (this JS will be used in the query parameters)
-			$detail_filters_js = '
-				var filters = {operator: "AND", conditions: []}
-			';
-			foreach ($widget->get_filters() as $filter){
-				$detail_filters_js .= '
-				if (' . $this->get_template()->get_element($filter)->build_js_value_getter() . '){
-					filters.conditions.push({expression: "' . $filter->get_attribute_alias() . '", comparator: "' . $filter->get_comparator() . '", value: ' . $this->get_template()->get_element($filter)->build_js_value_getter() . ', object_alias: "' . $widget->get_meta_object()->get_alias_with_namespace() . '"});
-				}';
-			}
-			$detail_filters_js = 'function(){' . $detail_filters_js . ' return filters;}()';
-			
 			// Add the needed options to our datagrid
 			$grid_head .= <<<JS
 					, view: detailview
@@ -135,7 +112,13 @@ class euiDataTable extends euiData {
 								action: '{$widget->get_row_details_action()}',
 								resource: '{$this->get_page_id()}',
 								element: '{$details->get_id()}',
-								prefill: {oId: "{$widget->get_meta_object_id()}", rows:[{ {$widget->get_meta_object()->get_uid_alias()} : row.{$widget->get_meta_object()->get_uid_alias()} }], filters: {$detail_filters_js}},
+								prefill: {
+									oId: "{$widget->get_meta_object_id()}", 
+									rows:[
+										{ {$widget->get_meta_object()->get_uid_alias()} : row.{$widget->get_meta_object()->get_uid_alias()} }
+									], 
+									filters: {$this->build_js_data_filters()}
+								},
 								exfrid: row.{$widget->get_meta_object()->get_uid_alias()}
 							},
 							onLoad: function(){
