@@ -104,7 +104,7 @@ class euiData extends euiAbstractElement {
 		// add initial sorters
 		$sort_by = array();
 		$direction = array();
-		if (count($widget->get_sorters()) > 0){
+		if ($widget->get_lazy_loading() && count($widget->get_sorters()) > 0){
 			foreach ($widget->get_sorters() as $sort){
 				$sort_by[] = urlencode($sort->attribute_alias);
 				$direction[] = urlencode($sort->direction);
@@ -229,16 +229,9 @@ class euiData extends euiAbstractElement {
 		// JSON is named by attribute id, not column id. However, when getting the data from the table
 		// via java script, the fields are named by the column id (as configured here).
 		
-		// TODO add tooltips to the column headers. I'v tried this:
-		// title: "<span title=\"' . $this->build_hint_text($col->get_hint(), true) . '\">' . $col->get_caption() . '</span>"'
-		// ...but reverted to this:
-		// title: "' . $col->get_caption() . '"'
-		// ...because it kills the header alignment in Chrome. Don't really know why...
 		// FIXME Make compatible with column groups
 		$colspan = $this->get_column_header_colspan($col->get_id());
 		$rowspan = $this->get_column_header_rowspan($col->get_id());
-		//$colspan = $col->get_colspan();
-		//$rowspan = $col->get_rowspan();
 		$output = '{
 							title: "<span title=\"' . $this->build_hint_text($col->get_hint(), true) . '\">' . $col->get_caption() . '</span>"'
 							. ($col->get_attribute_alias() ? ', field: "' . $col->get_data_column_name() . '"' : '')
