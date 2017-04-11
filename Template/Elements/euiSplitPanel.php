@@ -1,12 +1,29 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+
+use exface\Core\Widgets\SplitPanel;
+
+/**
+ * @method SplitPanel get_widget()
+ * @author aka
+ *
+ */
 class euiSplitPanel extends euiPanel {
 	private $region = null;
 	function generate_html(){
 		switch ($this->get_region()){
-			case 'north': case 'south': $height = $this->get_height(); break;
-			case 'east': case 'west': $width = $this->get_width(); break;
-			case 'center': $width = $this->get_width(); $height = $this->get_height(); break;
+			case 'north': 
+			case 'south': 
+				$height = $this->get_height();
+				break;
+			case 'east': 
+			case 'west': 
+				$width = $this->get_width();
+				break;
+			case 'center':
+				$height = $this->get_height();
+				$width = $this->get_width();
+				break;
 		}
 		
 		if ($height && !$this->get_widget()->get_height()->is_percentual()){
