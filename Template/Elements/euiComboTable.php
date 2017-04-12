@@ -25,7 +25,7 @@ class euiComboTable extends euiInput {
 					$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 					$linked_element->add_on_change_script('
 							if (typeof suppressFilterSetterUpdate == "undefined" || !suppressFilterSetterUpdate) {
-								$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams.jsFilterSetterUpdate = true;
+								$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams._jsFilterSetterUpdate = true;
 								$("#' . $this->get_id() . '").combogrid("grid").datagrid("reload");
 							}');
 				}
@@ -118,25 +118,35 @@ class euiComboTable extends euiInput {
 	
 	function build_js_value_getter($column = null, $row = null){
 		if ($this->get_widget()->get_multi_select() || is_null($column) || $column === ''){
-			$output = '(function() {
-					var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
-					if (' . $this->get_id() . '_cg.data("combogrid")) {
-						return ' . $this->get_id() . '_cg.combogrid("getValues").join();
-					} else {
-						return $("#' . $this->get_id() . '").val();
-					}
-				})()';
+			$value_getter = <<<JS
+						return {$this->get_id()}_cg.combogrid("getValues").join();
+JS;
 		} else {
-			$output = '(function() {
-					var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
-					if (' . $this->get_id() . '_cg.data("combogrid")) {
-						var row = ' . $this->get_id() . '_cg.combogrid("grid").datagrid("getSelected");
-						if (row) { return row["' . $column . '"]; } else { return ""; }
-					} else {
-						return $("#' . $this->get_id() . '").val();
-					}
-				})()';
+			$value_getter = <<<JS
+						var row = {$this->get_id()}_cg.combogrid("grid").datagrid("getSelected");
+						if (row) { 
+							if (row["{$column}"] == undefined){
+								{$this->get_id()}_cg.combogrid("grid").datagrid("reload");
+							}
+							return row["{$column}"]; 
+						} else { 
+							return ""; 
+						}
+JS;
 		}
+		
+		$output = <<<JS
+				(function() {
+					var {$this->get_id()}_cg = $("#{$this->get_id()}");
+					if ({$this->get_id()}_cg.data("combogrid")) {
+						{$value_getter}
+					} else {
+						return $("#{$this->get_id()}").val();
+					}
+				})()
+
+JS;
+		
 		return $output;
 	}
 	
@@ -181,7 +191,7 @@ class euiComboTable extends euiInput {
 		}
 		
 		$output .= '
-										' . $this->get_id() . '_cg.combogrid("grid").datagrid("options").queryParams.jsValueSetterUpdate = true;
+										' . $this->get_id() . '_cg.combogrid("grid").datagrid("options").queryParams._jsValueSetterUpdate = true;
 										' . $this->get_id() . '_cg.combogrid("grid").datagrid("reload");
 									}
 								} else {
@@ -204,15 +214,38 @@ class euiComboTable extends euiInput {
 	function build_js_on_beforeload_live_reference() {
 		$widget = $this->get_widget();
 		
+		// Prevent loading data from backend if the value and value_text are set already or there is
+		// no value and thus no need to search for anything.
+		// The trouble here is, that if the first loading is prevented, the next time the user clicks on the dropdown button,
+		// an empty table will be shown, because the last result is cached. To fix this, we bind a reload of the table to
+		// onShowPanel in case the grid is empty (see below).
+		if (!is_null($this->get_value_with_defaults()) && $this->get_value_with_defaults() !== ''){
+			if ($widget->get_value_text()){
+				// If the text is already known, set it an prevent initial backend request
+				$first_load_script = "$('#" . $this->get_id() ."')." . $this->get_element_type() . '("setText", "' . str_replace('"', '\"', $widget->get_value_text()) . '"); return false;';
+			} else {
+				// If there is a value, but no text, add a filter over the UID column with this value and do not prevent the initial autoload
+				$first_load_script = "param.fltr01_" . $widget->get_value_column()->get_data_column_name() . " = '" . $this->get_value_with_defaults() . "';";
+			}
+		} else {
+			// If no value set, just supress initial autoload
+			$first_load_script = "return false;";
+		}
+		
 		// If the value is set data is loaded from the backend. Same if also value-text is set, because otherwise
 		// live-references don't work at the beginning. If no value is set, loading from the backend is prevented.
 		// The trouble here is, that if the first loading is prevented, the next time the user clicks on the dropdown button,
 		// an empty table will be shown, because the last result is cached. To fix this, we bind a reload of the table to
 		// onShowPanel in case the grid is empty (see above).
 		if (!is_null($this->get_value_with_defaults()) && $this->get_value_with_defaults() !== ''){
-			$first_load_script = '
-						dataUrlParams.jsValueSetterUpdate = true;
+			if ($widget->get_value_text()){
+				// If the text is already known, set it and prevent initial backend request
+				$first_load_script = "$('#" . $this->get_id() ."')." . $this->get_element_type() . '("setText", "' . str_replace('"', '\"', $widget->get_value_text()) . '"); return false;';
+			} else {
+				$first_load_script = '
+						paramGlobal._jsValueSetterUpdate = true;
 						param.fltr01_' . $widget->get_value_column()->get_data_column_name() . ' = "' . $this->get_value_with_defaults() . '";';
+			}
 		} else {
 			// If no value set, just supress initial autoload
 			$first_load_script = '
@@ -242,22 +275,29 @@ class euiComboTable extends euiInput {
 		$value_filters_script = implode("\n\t\t\t\t\t\t", $value_filters);
 		
 		$output = '
-					var dataUrlParams = $("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams;
+					var paramGlobal = $(this).datagrid("options").queryParams;
 					
-					if (param.jsValueSetterUpdate) {
+					if (paramGlobal._firstLoad == undefined){
+						paramGlobal._firstLoad = 1;
+					} else if (parseInt(paramGlobal._firstLoad) == 1) {
+						paramGlobal._firstLoad = 0;
+					}
+					
+					if (paramGlobal._jsValueSetterUpdate) {
 						' . $value_filters_script . '
-					} else if (param.jsFilterSetterUpdate) {
+					} else if (paramGlobal._jsFilterSetterUpdate) {
 						' . $filters_script . '
 						' . $value_filters_script . '
-					} else if (param.firstLoad) {
-						delete dataUrlParams.firstLoad;
+					} else if (paramGlobal._firstLoad) {
+						paramGlobal._firstLoad = 0;
 						' . $first_load_script . '
 					} else {
 						' . $filters_script . '
 						if (!param.q) {
 							param.q = $("#' . $this->get_id() . '").combogrid("getText");
 						}
-					}';
+					}
+					';
 		
 		return $output;
 	}
@@ -284,13 +324,13 @@ class euiComboTable extends euiInput {
 					if (dataUrlParams.q) {
 						delete dataUrlParams.q;
 					}
-					if (dataUrlParams.firstLoad) {
-						delete dataUrlParams.firstLoad;
+					if (dataUrlParams._firstLoad) {
+						dataUrlParams._firstLoad = 0;
 					}
-					if (dataUrlParams.jsFilterSetterUpdate) {
-						delete dataUrlParams.jsFilterSetterUpdate;
+					if (dataUrlParams._jsFilterSetterUpdate) {
+						delete dataUrlParams._jsFilterSetterUpdate;
 					}
-					if (dataUrlParams.jsValueSetterUpdate) {
+					if (dataUrlParams._jsValueSetterUpdate) {
 						// es gibt sonst Konstellationen, in denen nur die Oid angezeigt wird
 						// (Tastatureingabe, dann aber keine Auswahl, anschliessend value-Setter update)
 						// Update: leider wird hierbei zweimal onChange getriggert
@@ -300,7 +340,7 @@ class euiComboTable extends euiInput {
 						
 						' . $this->get_on_change_script() . '
 						
-						delete dataUrlParams.jsValueSetterUpdate;
+						delete dataUrlParams._jsValueSetterUpdate;
 					}';
 		
 		return $output;
@@ -318,13 +358,13 @@ class euiComboTable extends euiInput {
 					if (dataUrlParams.q) {
 						delete dataUrlParams.q;
 					}
-					if (dataUrlParams.firstLoad) {
-						delete dataUrlParams.firstLoad;
+					if (dataUrlParams._firstLoad) {
+						dataUrlParams._firstLoad = 0;
 					}
-					if (dataUrlParams.jsFilterSetterUpdate) {
-						delete dataUrlParams.jsFilterSetterUpdate;
+					if (dataUrlParams._jsFilterSetterUpdate) {
+						delete dataUrlParams._jsFilterSetterUpdate;
 					}
-					if (dataUrlParams.jsValueSetterUpdate) {
+					if (dataUrlParams._jsValueSetterUpdate) {
 						// es gibt sonst Konstellationen, in denen nur die Oid angezeigt wird
 						// (Tastatureingabe, dann aber keine Auswahl, anschliessend value-Setter update)
 						// Update: leider wird hierbei zweimal onChange getriggert
@@ -332,7 +372,7 @@ class euiComboTable extends euiInput {
 						//$("#' . $this->get_id() . '").combogrid("clear");
 						//$("#' . $this->get_id() . '").combogrid("setValues", value);
 						
-						delete dataUrlParams.jsValueSetterUpdate;
+						delete dataUrlParams._jsValueSetterUpdate;
 					}';
 		
 		return $output;
