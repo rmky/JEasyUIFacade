@@ -59,8 +59,7 @@ class euiData extends euiAbstractElement {
 					'resource' => $this->get_page_id(),
 					'element' => $widget->get_id(),
 					'object' => $this->get_widget()->get_meta_object()->get_id(),
-					'action' => $widget->get_lazy_loading_action(),
-					'firstLoad' => true
+					'action' => $widget->get_lazy_loading_action()
 			);
 			foreach($queryParams as $param => $val){
 				$params[] = $param . ': "' . $val . '"';
@@ -238,6 +237,7 @@ class euiData extends euiAbstractElement {
 							. ($colspan ? ', colspan: ' . intval($colspan) : '')
 							. ($rowspan ? ', rowspan: ' . intval($rowspan) : '')
 							. ($col->is_hidden() ? ', hidden: true' :  '')
+							. ($col->get_width()->is_template_specific() ? ', width: "' . $col->get_width()->to_string() . '"' : '')
 							. ($editor ? ', editor: {type: "' . $editor->get_element_type() . '"' . ($editor->build_js_init_options() ? ', options: {' . $editor->build_js_init_options() . '}' : '') . '}' : '')
 							. ($col->get_cell_styler_script() ? ', styler: function(value,row,index){' . $col->get_cell_styler_script() . '}' :  '')
 							. ', align: "' . $col->get_align() . '"'
@@ -302,7 +302,14 @@ class euiData extends euiAbstractElement {
 	}
 	
 	protected function get_on_before_load(){
-		return $this->on_before_load;
+		$script = <<<JS
+				if ($(this).{$this->get_element_type()}('options')._skipNextLoad == true) {
+					$(this).{$this->get_element_type()}('options')._skipNextLoad = false;
+					return false;
+				}
+				{$this->on_before_load}
+JS;
+		return $script;
 	}
 	
 	/**

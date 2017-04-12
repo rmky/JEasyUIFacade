@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\DataTypes\AbstractDataType;
-class euiEditMatrix extends euiDataMatrix {
+class euiEditMatrix extends euiDataMatrixOld {
 	private $label_values = array();
 	
 	protected function init(){
