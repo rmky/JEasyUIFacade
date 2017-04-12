@@ -12,7 +12,7 @@ class euiDialog extends euiForm {
 	function generate_html(){
 		$contents = ($this->get_widget()->get_lazy_loading() ? '' : $this->build_html_for_widgets());
 		$output = <<<HTML
-	<div class="easyui-dialog" id="{$this->get_id()}" data-options="{$this->generate_data_options()}" title="{$this->get_widget()->get_caption()}" style="width: {$this->get_width()}; height: {$this->get_height()};">
+	<div class="easyui-dialog" id="{$this->get_id()}" data-options="{$this->build_js_data_options()}" title="{$this->get_widget()->get_caption()}" style="width: {$this->get_width()}; height: {$this->get_height()};">
 		{$contents}		
 	</div>
 	<div id="{$this->buttons_div_id}">
@@ -35,12 +35,12 @@ HTML;
 	 * Generates the contents of the data-options attribute (e.g. iconCls, collapsible, etc.)
 	 * @return string
 	 */
-	function generate_data_options(){
+	function build_js_data_options(){
 		$this->add_on_load_script("$('#" . $this->get_id() . " .exf_input input').first().next().find('input').focus();");
 		/* @var $widget \exface\Core\Widgets\Dialog */
 		$widget = $this->get_widget();
 		// TODO make the Dialog responsive as in http://www.jeasyui.com/demo/main/index.php?plugin=Dialog&theme=default&dir=ltr&pitem=
-		$output = parent::generate_data_options() .
+		$output = parent::build_js_data_options() .
 				($widget->get_maximizable() ? ', maximizable: true, maximized: ' . ($widget->get_maximized() ? 'true' : 'false') : '') .
 				", cache: false" .
 				", closed: true" .

@@ -21,7 +21,7 @@ class euiPanel extends euiContainer {
 	}
 	
 	public function generate_html(){
-		$children_html = $this->build_html_for_children();
+		$children_html = $this->build_html_for_widgets();
 		
 		// Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
 		if ($this->get_widget()->count_widgets() > 1){
@@ -35,7 +35,7 @@ class euiPanel extends euiContainer {
 		$output = '
 				<div class="easyui-' . $this->get_element_type() . '" 
 					id="' . $this->get_id() . '"
-					data-options="' . $this->generate_data_options() . ', fit: true" 
+					data-options="' . $this->build_js_data_options() . ', fit: true" 
 					title="' . $this->get_widget()->get_caption() . '">
 					' . $children_html . '
 				</div>';
@@ -46,7 +46,7 @@ class euiPanel extends euiContainer {
 	 * Generates the contents of the data-options attribute (e.g. iconCls, collapsible, etc.)
 	 * @return string
 	 */
-	function generate_data_options(){
+	function build_js_data_options(){
 		/* @var $widget \exface\Core\Widgets\Panel */
 		$widget = $this->get_widget();
 		if ($widget->get_column_number() != 1){

@@ -43,17 +43,17 @@ class euiSplitPanel extends euiPanel {
 		}
 		
 		$output = '
-				<div id="' . $this->get_id() . '" data-options="' . $this->generate_data_options() . '"' . ($style ? ' style="' . $style . '"' : '') . '>
+				<div id="' . $this->get_id() . '" data-options="' . $this->build_js_data_options() . '"' . ($style ? ' style="' . $style . '"' : '') . '>
 					' . $children_html . '
 				</div>
 				';
 		return $output;
 	}
 	
-	public function generate_data_options(){
+	public function build_js_data_options(){
 		/* @var $widget \exface\Core\Widgets\LayoutPanel */
 		$widget = $this->get_widget();
-		$output = parent::generate_data_options();
+		$output = parent::build_js_data_options();
 		
 		$output .= ($output ? ',' : '') . 'region:\'' . $this->get_region() . '\'
 					,title:\'' . $widget->get_caption() . '\''
