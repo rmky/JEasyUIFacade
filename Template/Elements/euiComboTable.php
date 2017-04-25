@@ -534,7 +534,7 @@ JS;
 	
 	/**
 	 * Creates javascript-code which is executed after successful loading of autosuggest-
-	 * data. If autoselect_single_result is true, a single return value from autosuggest
+	 * data. If autoselect_single_suggestion is true, a single return value from autosuggest
 	 * is automatically selected.
 	 * 
 	 * @return string
@@ -543,7 +543,7 @@ JS;
 		$widget = $this->get_widget();
 		
 		$output = '';
-		if ($widget->get_autoselect_single_result()) {
+		if ($widget->get_autoselect_single_suggestion()) {
 			$uidColumnName = $widget->get_table()->get_uid_column()->get_data_column_name();
 			$textColumnName = $widget->get_text_column()->get_data_column_name();
 			
