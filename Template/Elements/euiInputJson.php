@@ -41,4 +41,13 @@ JS;
 		$includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/jsoneditor/dist/jsoneditor.min.js"></script>';
 		return $includes;
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_validator()
+	 */
+	function build_js_validator(){
+		return 'true';
+	}
 }
