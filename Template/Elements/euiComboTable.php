@@ -20,8 +20,7 @@ class euiComboTable extends euiInput {
 		$widget = $this->get_widget();
 		if ($widget->get_table()->has_filters()){
 			foreach ($widget->get_table()->get_filters() as $fltr){
-				if ($fltr->get_value_expression() && $fltr->get_value_expression()->is_reference()){
-					$link = $fltr->get_value_expression()->get_widget_link();
+				if ($link = $fltr->get_value_widget_link()){
 					$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 					$linked_element->add_on_change_script('
 							// Ist suppressFilterSetterUpdate == true wird nicht neu geladen. Dadurch
@@ -386,9 +385,8 @@ JS;
 		$filters = [];
 		if ($widget->get_table()->has_filters()){
 			foreach ($widget->get_table()->get_filters() as $fltr){
-				if ($fltr->get_value_expression() && $fltr->get_value_expression()->is_reference()){
+				if ($link = $fltr->get_value_widget_link()){
 					//filter is a live reference
-					$link = $fltr->get_value_expression()->get_widget_link();
 					$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 					$filters[] = 'param.fltr' . str_pad($fltrId++, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ' = "' . $fltr->get_comparator() . '"+' . $linked_element->build_js_value_getter($link->get_column_id()) . ';';
 				} else {

@@ -69,8 +69,7 @@ class euiData extends euiAbstractElement {
 			if ($this->get_widget()->has_filters()){
 				foreach ($this->get_widget()->get_filters() as $fnr => $fltr){
 					// If the filter is a live reference, add the code to use it to the onBeforeLoad event
-					if ($fltr->get_value_expression() && $fltr->get_value_expression()->is_reference()){
-							$link = $fltr->get_value_expression()->get_widget_link();
+					if ($link = $fltr->get_value_widget_link()){
 							$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
 							$live_filter_js .= 'param.fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . '= "' . $fltr->get_comparator() . '"+' . $linked_element->build_js_value_getter() . ';';
 							$this->add_on_before_load($live_filter_js);
