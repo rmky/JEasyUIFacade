@@ -43,15 +43,9 @@ HTML;
 		$output = parent::build_js_data_options() .
 				($widget->get_maximizable() ? ', maximizable: true, maximized: ' . ($widget->get_maximized() ? 'true' : 'false') : '') .
 				", cache: false" .
-				", closed: true" .
+				", closed: false" .
 				", buttons: '#{$this->buttons_div_id}'" .
-				", modal: true" .
-				// TODO this href must return the contents of the dialog. Since draw only takes exactly one widget it will probably be
-				// neccessary to wrap the dialog contents in a container widget if lazy_loading is allowed. 
-				// TODO Make async dialogs prefill-compatible: somehow we need to pass the instance-UID of the dialogs meta_object back to the server... 
-				", href: '" . $this->get_ajax_url() . "&f=draw&resource=" . $this->get_page_id() . "&element=" . $this->get_id() . "'" .
-				", method: 'post'" . 
-				", onLoadError: function(response){ $.parser.parse($(this).panel('clear').panel('body').append(response.responseText)); }"
+				", modal: true"
 				;		
 		return $output;
 	}
@@ -68,6 +62,6 @@ HTML;
 			$this->get_widget()->set_height('80%');
 		}
 		return parent::get_height();
-	}
+	}  
 }
 ?>

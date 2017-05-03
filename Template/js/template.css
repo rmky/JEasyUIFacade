@@ -20,7 +20,8 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 .exf_input_wrapper {width:calc(100% - 167px); display: inline-block; height: 100%;}
 .exf_input textarea {vertical-align:middle;border: 1px solid #c3d9e0; tab-size: 4}
 .numberbox input {text-align: right;}
-.exface_inputgroup {border-width: 1px 0 0 0; padding: 10px 0 20px 0;}
+fieldset.exface_inputgroup {border-color: #95B8E7; border-width: 1px 0 0 0; padding: 10px 0; margin: 15px 0 0 0;}
+fieldset.exface_inputgroup legend {color: #404040; font-weight: bold; padding: 0 6px; margin: 0 10px;}
 
 /* Text & headings */
 .panel-body>h1, .panel-body>h2, .panel-body>h3, .panel-body>h4, .panel-body>h5, .panel-body>p {padding: 0 10px;}

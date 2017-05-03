@@ -36,11 +36,6 @@ class euiButton extends euiAbstractElement {
 			if ($action && $action->implements_interface('iRunTemplateScript')){
 				$output .= $this->get_action()->print_helper_functions();
 			}
-			// See if the action needs some more JS, that is not the click function (e.g. showing another widget)
-			if ($action->implements_interface('iShowDialog')){
-				$dialog_widget = $action->get_dialog_widget();
-				$output .= $this->get_template()->generate_js($dialog_widget);
-			}
 		}
 		
 		return $output;
@@ -50,17 +45,7 @@ class euiButton extends euiAbstractElement {
 	 * @see \exface\JEasyUiTemplate\Template\Elements\abstractWidget::generate_html()
 	 */
 	function generate_html(){
-		$action = $this->get_action();
-		
-		// If the button has an action, make some action specific HTML depending on the action
-		if ($action){
-			if ($action->implements_interface('iShowDialog')){
-				$dialog_widget = $action->get_dialog_widget();
-				$output .= $this->get_template()->generate_html($dialog_widget);
-			} 
-		}
-		
-		// In any case, create a linkbutton
+		// Create a linkbutton
 		$output .= $this->build_html_button();
 		
 		return $output;
@@ -97,6 +82,7 @@ class euiButton extends euiAbstractElement {
 	
 	protected function build_js_click_show_dialog(ActionInterface $action, AbstractJqueryElement $input_element){
 		$widget = $this->get_widget();
+		
 		/* @var $prefill_link \exface\Core\CommonLogic\WidgetLink */
 		$prefill = '';
 		if ($prefill_link = $this->get_action()->get_prefill_with_data_from_widget_link()){
@@ -104,26 +90,62 @@ class euiButton extends euiAbstractElement {
 				$prefill = ", prefill: " . $this->get_template()->get_element($prefill_link->get_widget())->build_js_data_getter($this->get_action());
 			}
 		}
-		return $this->build_js_request_data_collector($action, $input_element) . "
-					$('#" . $this->get_template()->get_element($action->get_dialog_widget())->get_id() . "').dialog({
-							href: '" . $this->get_ajax_url() . "',
-							method: 'post',
-							queryParams: {
-								resource: '".$widget->get_page_id()."',
-								element: '".$widget->get_id()."',
-								action: '".$widget->get_action_alias()."',
+		
+		$output = $this->build_js_request_data_collector($action, $input_element);
+		$output .= <<<JS
+						{$this->build_js_busy_icon_show()}
+						$.ajax({
+							type: 'POST',
+							url: '{$this->get_ajax_url()}',
+							dataType: 'html',
+							data: {
+								action: '{$widget->get_action_alias()}',
+								resource: '{$widget->get_page_id()}',
+								element: '{$widget->get_id()}',
 								data: requestData
-								" . $prefill . "
+								{$prefill}
+							},
+							success: function(data, textStatus, jqXHR) {
+								{$this->build_js_close_dialog($widget, $input_element)}
+		                       	{$this->build_js_busy_icon_hide()}
+		                       	if ($('#ajax-dialogs').length < 1){
+		                       		$('body').append('<div id=\"ajax-dialogs\"></div>');
+                       			}
+								$('#ajax-dialogs').append('<div class=\"ajax-wrapper\">'+data+'</div>');
+								var dialogId = $('#ajax-dialogs').children().last().children('.easyui-dialog').attr('id');
+		                       	$.parser.parse($('#ajax-dialogs').children().last());
+								var onCloseFunc = $('#'+dialogId).panel('options').onClose;
+								$('#'+dialogId).panel('options').onClose = function(){
+									onCloseFunc(); 
+									$(this).dialog('destroy').remove(); 
+									$('#ajax-dialogs').children().last().remove();
+									{$this->build_js_input_refresh($widget, $input_element)}
+								};
+                       			$(document).trigger('{$action->get_alias_with_namespace()}.action.performed', [requestData]);
+							},
+							error: function(jqXHR, textStatus, errorThrown){
+								{$this->build_js_show_error('jqXHR.responseText', 'jqXHR.status + " " + jqXHR.statusText')}
+								{$this->build_js_busy_icon_hide()}
 							}
-							" . ($this->build_js_input_refresh($widget, $input_element) ? ", onBeforeClose: function(){" . $this->build_js_input_refresh($widget, $input_element) . ";}" : "") . "
 						});
-					" . $this->build_js_close_dialog($widget, $input_element) . "
-					$('#" . $this->get_template()->get_element($action->get_dialog_widget())->get_id() . "').dialog('open').dialog('setTitle','" . $widget->get_caption() . "');";
+						{$this->build_js_close_dialog($widget, $input_element)} 
+JS;
+		return $output;
 	}
 	
 	protected function build_js_close_dialog($widget, $input_element){
 		return ($widget instanceof DialogButton && $widget->get_close_dialog_after_action_succeeds() ? "$('#" . $input_element->get_id() . "').dialog('close');" : "" );
-	}
+	}	
 	
+	/**
+	 * In jEasyUI the button does not need any extra headers, as all headers needed for whatever the button loads will
+	 * come with the AJAX-request.
+	 *
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generate_headers()
+	 */
+	public function generate_headers(){
+		return array();
+	}
 }
 ?>
