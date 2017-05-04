@@ -107,7 +107,6 @@ class euiButton extends euiAbstractElement {
 							},
 							success: function(data, textStatus, jqXHR) {
 								{$this->build_js_close_dialog($widget, $input_element)}
-		                       	{$this->build_js_busy_icon_hide()}
 		                       	if ($('#ajax-dialogs').length < 1){
 		                       		$('body').append('<div id=\"ajax-dialogs\"></div>');
                        			}
@@ -116,12 +115,20 @@ class euiButton extends euiAbstractElement {
 		                       	$.parser.parse($('#ajax-dialogs').children().last());
 								var onCloseFunc = $('#'+dialogId).panel('options').onClose;
 								$('#'+dialogId).panel('options').onClose = function(){
-									onCloseFunc(); 
+									onCloseFunc();
+									
+									// MenuButtons manuell zerstoeren, um Ueberbleibsel im body zu verhindern
+									var menubuttons = $('#'+dialogId).parent().find('.easyui-menubutton');
+									for (i = 0; i < menubuttons.length; i++) {
+										$(menubuttons[i]).menubutton('destroy');
+									}
+									
 									$(this).dialog('destroy').remove(); 
 									$('#ajax-dialogs').children().last().remove();
 									{$this->build_js_input_refresh($widget, $input_element)}
 								};
                        			$(document).trigger('{$action->get_alias_with_namespace()}.action.performed', [requestData]);
+                       			{$this->build_js_busy_icon_hide()}
 							},
 							error: function(jqXHR, textStatus, errorThrown){
 								{$this->build_js_show_error('jqXHR.responseText', 'jqXHR.status + " " + jqXHR.statusText')}
