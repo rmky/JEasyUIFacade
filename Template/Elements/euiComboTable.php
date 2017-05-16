@@ -2,6 +2,8 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\ComboTable;
+use exface\Core\Exceptions\Widgets\WidgetConfigurationError;
+use exface\Core\Exceptions\InvalidArgumentException;
 
 /**
  * 
@@ -12,9 +14,37 @@ use exface\Core\Widgets\ComboTable;
  */
 class euiComboTable extends euiInput {
 	
+	/**
+	 * Folgende privaten Variablen sind im data-Objekt des Elements gespeichert und wichtig
+	 * fuer die Funktion desselben:
+	 * _valueSetterUpdate				ist gesetzt wenn der Wert des Objekts durch den Value-Setter
+	 * 									gesetzt wurde
+	 * _filterSetterUpdate				ist gesetzt wenn sich eine Filter-Referenz geaendert hat
+	 * _clearFilterSetterUpdate			ist gesetzt wenn das Objekt durch eine Filter-Referenz geleert
+	 * 									werden soll
+	 * _firstLoad						ist nur beim ersten Laden gesetzt
+	 * _otherSuppressFilterSetterUpdate	ist gesetzt wenn die durch eine Filter-Referenz abhaengigen
+	 * 									Objekte nicht aktualisiert werden sollen
+	 * _otherSupressLazyLoadingGroupUpdate	ist gesetzt wenn die Objekte der gleichen LazyLoadingGroup
+	 * 									nicht aktualisiert werden sollen
+	 * _otherClearFilterSetterUpdate	ist gesetzt wenn die durch eine Filter-Referenz abhaengigen
+	 * 									Objekte geleert werden sollen
+	 * _otherSuppressAllUpdates			ist gesetzt wenn alle abhaengigen Objekte (durch Filter- oder
+	 * 									Value-Referenz) nicht aktualisiert werden sollen
+	 * _suppressReloadOnSelect			ist gesetzt wenn nach dem selektieren eines Eintrags nicht
+	 * 									neu geladen werden soll (bei autoselectsinglesuggestion)
+	 * _currentText						der seit der letzten gueltigen Auswahl eingegebene Text
+	 * _lastValidValue					der letzte gueltige Wert des Objekts
+	 * _lastFilterSet					die beim letzten Laden gesetzten Filter
+	 * _resultSetChanged				ist gesetzt wenn die geladenen Daten veraendert wurden
+	 */
+	
+	private $js_debug_level = 0;
+	
 	protected function init(){
 		parent::init();
 		$this->set_element_type('combogrid');
+		$this->set_js_debug_level($this->get_template()->get_config()->get_option("JAVASCRIPT_DEBUG_LEVEL"));
 		
 		// Register onChange-Handler for Filters with Live-Reference-Values
 		$widget = $this->get_widget();
@@ -22,44 +52,106 @@ class euiComboTable extends euiInput {
 			foreach ($widget->get_table()->get_filters() as $fltr){
 				if ($link = $fltr->get_value_widget_link()){
 					$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
-					$linked_element->add_on_change_script('
-							// Ist suppressFilterSetterUpdate == true wird nicht neu geladen. Dadurch
-							// wird unnoetiges neu Laden verhindert (siehe onChange).
-							if (typeof suppressFilterSetterUpdate == "undefined" || !suppressFilterSetterUpdate) {
-								$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams._jsFilterSetterUpdate = true;
-								$("#' . $this->get_id() . '").combogrid("grid").datagrid("reload");
-							}');
+					
+					$widget_lazy_loading_group_id = $widget->get_lazy_loading_group_id();
+					$linked_element_lazy_loading_group_id = method_exists($linked_element->get_widget(), 'get_lazy_loading_group_id') ? $linked_element->get_widget()->get_lazy_loading_group_id() : '';
+					// Gehoert das Widget einer Lazyloadinggruppe an, so darf es keine Filterreferenzen
+					// zu Widgets außerhalb dieser Gruppe haben.
+					if ($widget_lazy_loading_group_id && ($linked_element_lazy_loading_group_id != $widget_lazy_loading_group_id)) {
+						throw new WidgetConfigurationError($widget, 'Widget "' . $widget->get_id() . '" in lazy-loading-group "' . $widget_lazy_loading_group_id . '" has a filter-reference to widget "' . $linked_element->get_widget()->get_id() . '" in lazy-loading-group "' . $linked_element_lazy_loading_group_id . '". Filter-references to widgets outside the own lazy-loading-group are not allowed.', '6V6C2HY');
+					}
+					
+					$on_change_script = <<<JS
+
+						if (typeof suppressFilterSetterUpdate == "undefined" || !suppressFilterSetterUpdate) {
+							if (typeof clearFilterSetterUpdate == "undefined" || !clearFilterSetterUpdate) {
+								$("#{$this->get_id()}").data("_filterSetterUpdate", true);
+							} else {
+								$("#{$this->get_id()}").data("_clearFilterSetterUpdate", true);
+							}
+							$("#{$this->get_id()}").combogrid("grid").datagrid("reload");
+						}
+JS;
+					
+					if ($widget_lazy_loading_group_id) {
+						$on_change_script = <<<JS
+
+					if (typeof suppressLazyLoadingGroupUpdate == "undefined" || !suppressLazyLoadingGroupUpdate) {
+						{$on_change_script}
+					}
+JS;
+					}
+					
+					$linked_element->add_on_change_script($on_change_script);
 				}
 			}
 		}
 	}
 	
+	protected function register_live_reference_at_linked_element(){
+		$widget = $this->get_widget();
+		
+		if ($linked_element = $this->get_linked_template_element()){
+			// Gehoert das Widget einer Lazyloadinggruppe an, so darf es keine Value-
+			// Referenzen haben.
+			$widget_lazy_loading_group_id = $widget->get_lazy_loading_group_id();
+			if ($widget_lazy_loading_group_id) {
+				throw new WidgetConfigurationError($widget, 'Widget "' . $widget->get_id() . '" in lazy-loading-group "' . $widget_lazy_loading_group_id . '" has a value-reference to widget "' . $linked_element->get_widget()->get_id() . '". Value-references to other widgets are not allowed.', '6V6C3AP');
+			}
+			
+			$linked_element->add_on_change_script($this->build_js_live_reference());
+		}
+		return $this;
+	}
+	
 	function generate_html(){
 		/* @var $widget \exface\Core\Widgets\ComboTable */
 		$widget = $this->get_widget();
+		
 		$value = $this->get_value_with_defaults();
-		$output = '
+		$name_script = $widget->get_attribute_alias() . ($widget->get_multi_select() ? '[]' : '');
+		$required_script = $widget->is_required() ? 'required="true" ' : '';
+		$disabled_script = $widget->is_disabled() ? 'disabled="disabled" ' : '';
+		
+		$output = <<<HTML
+
 				<input style="height:100%;width:100%;"
-					id="' . $this->get_id() . '" 
-					name="' . $widget->get_attribute_alias() . ($widget->get_multi_select() ? '[]' : '') . '" 
-					value="' . $value . '"
-					' . ($widget->is_required() ? 'required="true" ' : '') . '
-					' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . ' />';
+					id="{$this->get_id()}" 
+					name="{$name_script}" 
+					value="{$value}"
+					{$required_script}
+					{$disabled_script} />
+HTML;
 		
 		return $this->build_html_wrapper_div($output);
 	}
 	
 	function generate_js(){
-		$output .= '$("#' . $this->get_id() . '").combogrid({';
-		$output .= $this->build_js_init_options();
-		$output .= '});';
+		$debug_function = ($this->get_js_debug_level() > 0) ? $this->build_js_debug_data_to_string_function() : '';
+		
+		$output = <<<JS
+
+			// Globale Variablen initialisieren.
+			{$this->build_js_init_globals_function()}
+			{$this->get_id()}_initGlobals();
+			// Debug-Funktionen hinzufuegen.
+			{$debug_function}
+			
+			{$this->get_id()}_jquery.combogrid({
+				{$this->build_js_init_options()}
+			});
+			
+JS;
 		
 		// Es werden JavaScript Value-Getter-/Setter- und OnChange-Funktionen fuer die ComboTable erzeugt,
 		// um duplizierten Code zu vermeiden.
-		$output .= '
-				' . $this->build_js_value_getter_function() . '
-				' . $this->build_js_value_setter_function() . '
-				' . $this->build_js_on_change_function();
+		$output .= <<<JS
+
+			{$this->build_js_value_getter_function()}
+			{$this->build_js_value_setter_function()}
+			{$this->build_js_on_change_function()}
+			{$this->build_js_clear_function()}
+JS;
 		
 		// Es werden Dummy-Methoden fuer die Filter der DataTable hinter dieser ComboTable generiert. Diese
 		// Funktionen werden nicht benoetigt, werden aber trotzdem vom verlinkten Element aufgerufen, da
@@ -68,8 +160,10 @@ class euiComboTable extends euiInput {
 		// kommt sonst bei einem Aufruf der Funktion zu einem Fehler. 
 		if ($this->get_widget()->get_table()->has_filters()) {
 			foreach ($this->get_widget()->get_table()->get_filters() as $fltr) {
-				$output .= '
-				function ' . $this->get_template()->get_element($fltr->get_widget())->get_id() . '_valueSetter(value){}';
+				$output .= <<<JS
+
+			function {$this->get_template()->get_element($fltr->get_widget())->get_id()}_valueSetter(value){}
+JS;
 			}
 		}
 		
@@ -97,63 +191,93 @@ class euiComboTable extends euiInput {
 		if ($widget->get_lazy_loading() || (!$widget->get_lazy_loading() && $widget->is_disabled())){
 			$inherited_options = $table->build_js_data_source();
 		}
-		$table->set_on_before_load($this->build_js_on_beforeload_live_reference());
-		$table->add_on_load_success($this->build_js_on_load_sucess_live_reference());
-		$table->add_on_load_error($this->build_js_on_load_error_live_reference());
+		$table->set_on_before_load($this->build_js_on_beforeload());
+		$table->add_on_load_success($this->build_js_on_load_sucess());
+		$table->add_on_load_error($this->build_js_on_load_error());
 		
-		$table->add_on_load_success($this->build_js_on_load_success_autoselect());
 		$inherited_options .= $table->build_js_init_options_head();
-		
 		$inherited_options = trim($inherited_options, "\r\n\t,");
-		$output .= $inherited_options . '
-						, textField:"' . $this->get_widget()->get_text_column()->get_data_column_name() . '"
+		
+		$required_script = $widget->is_required() ? ', required:true' : '';
+		$disabled_script = $widget->is_disabled() ? ', disabled:true' : '';
+		$multi_select_script = $widget->get_multi_select() ? ', multiple: true' : '';
+		
+		// Das entspricht dem urspruenglichen Verhalten. Filter-Referenzen werden beim Loeschen eines
+		// Elements nicht geleert, sondern nur aktualisiert.
+		$filter_setter_update_script = $widget->get_lazy_loading_group_id() ? '
+								// Der eigene Wert wird geloescht.
+								' . $this->get_id() . '_jquery.data("_clearFilterSetterUpdate", true);
+								// Loeschen der verlinkten Elemente wenn der Wert manuell geloescht wird.
+								' . $this->get_id() . '_jquery.data("_otherClearFilterSetterUpdate", true);'
+				: '
+								// Loeschen der verlinkten Elemente wenn der Wert manuell geloescht wird.
+								// Die Updates der Filter-Links werden an dieser Stelle unterdrueckt und
+								// nur einmal nach dem value-Setter update onLoadSuccess ausgefuehrt.
+								' . $this->get_id() . '_jquery.data("_suppressFilterSetterUpdate", true);';
+		
+		$output .= $inherited_options . <<<JS
+
+						, textField:"{$this->get_widget()->get_text_column()->get_data_column_name()}"
 						, mode: "remote"
 						, method: "post"
 						, delay: 600
 						, panelWidth:600
-						' . ($widget->is_required() ? ', required:true' : '') . '
-						' . ($widget->is_disabled() ? ', disabled:true' : '') . '
-						' . ($widget->get_multi_select() ? ', multiple: true' : '') . '
+						{$required_script}
+						{$disabled_script}
+						{$multi_select_script}
 						, onChange: function(newValue, oldValue) {
-							var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
+							// Wird getriggert durch manuelle Eingabe oder durch setValue().
+							{$this->build_js_debug_message('onChange')}
 							// Akualisieren von currentText. Es gibt keine andere gute Moeglichkeit
 							// an den gerade eingegebenen Text zu kommen (combogrid("getText") liefert
 							// keinen aktuellen Wert). Funktion dieses Wertes siehe onHidePanel.
-							' . $this->get_id() . '_cg.data("currentText", newValue);
+							{$this->get_id()}_jquery.data("_currentText", newValue);
 							if (!newValue) {
-								' . $this->get_id() . '_cg.data("lastValidValue", "");
-								// Loeschen der verlinkten Elemente wenn der Wert manuell geloescht wird.
-								// Die Updates der Filter-Links werden an dieser Stelle unterdrueckt und
-								// nur einmal nach dem value-Setter update onLoadSuccess ausgefuehrt.
-								' . $this->get_id() . '_cg.combogrid("grid").datagrid("options").queryParams.suppressFilterSetterUpdate = true;
-								' . $this->get_id() . '_onChange();
+								{$this->get_id()}_jquery.data("_lastValidValue", "");
+								{$filter_setter_update_script}
+								{$this->get_id()}_onChange();
 							}
+							// Anschließend an onChange wird neu geladen -> onBeforeLoad
 						}
 						, onSelect: function(index, row) {
-							var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
+							// Wird getriggert durch manuelle Auswahl einer Zeile oder durch
+							// setSelection().
+							{$this->build_js_debug_message('onSelect')}
 							// Aktualisieren von lastValidValue. Loeschen von currentText. Funktion
 							// dieser Werte siehe onHidePanel.
-							' . $this->get_id() . '_cg.data("lastValidValue", row["' . $widget->get_table()->get_uid_column()->get_data_column_name() . '"]);
-							' . $this->get_id() . '_cg.data("currentText", "");
-							' . $this->get_id() . '_onChange();
+							{$this->get_id()}_jquery.data("_lastValidValue", row["{$widget->get_table()->get_uid_column()->get_data_column_name()}"]);
+							{$this->get_id()}_jquery.data("_currentText", "");
+							
+							if ({$this->get_id()}_jquery.data("_suppressReloadOnSelect")) {
+								// Verhindert das neu Laden onSelect, siehe onLoadSuccess (autoselectsinglesuggestion)
+								{$this->get_id()}_jquery.removeData("_suppressReloadOnSelect");
+							} else {
+								{$this->get_id()}_jquery.data("_filterSetterUpdate", true);
+								{$this->get_id()}_datagrid.datagrid("reload");
+							}
+							
+							//Referenzen werden aktualisiert.
+							{$this->get_id()}_onChange();
 						}
 						, onShowPanel: function() {
 							// Wird firstLoad verhindert, wuerde man eine leere Tabelle sehen. Um das zu
 							// verhindern wird die Tabelle hier neu geladen, falls sie leer ist.
-							// Update: dadurch wird bei anfaenglicher manueller Eingabe eines Wertes doppelt geladen
-							if($(this).combogrid("grid").datagrid("getRows").length == 0) {
-								$(this).combogrid("grid").datagrid("reload");
+							// Update: Wird immer noch doppelt geladen, wenn anfangs eine manuelle Eingabe
+							// gemacht wird -> onChange (-> Laden), onShowPanel (-> Laden)
+							{$this->build_js_debug_message('onShowPanel')}
+							if ({$this->get_id()}_jquery.data("_firstLoad")) {
+								{$this->get_id()}_datagrid.datagrid("reload");
 			                }
 						}
 						, onHidePanel: function() {
-							var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
-							var selectedRow = ' . $this->get_id() . '_cg.combogrid("grid").datagrid("getSelected");
+							{$this->build_js_debug_message('onHidePanel')}
+							var selectedRow = {$this->get_id()}_datagrid.datagrid("getSelected");
 							// lastValidValue enthaelt den letzten validen Wert der ComboTable.
-							var lastValidValue = ' . $this->get_id() . '_cg.data("lastValidValue");
-							var currentValue = ' . $this->get_id() . '_cg.combogrid("getValues").join();
+							var lastValidValue = {$this->get_id()}_jquery.data("_lastValidValue");
+							var currentValue = {$this->get_id()}_jquery.combogrid("getValues").join();
 							// currentText enthaelt den seit der letzten validen Auswahl in die ComboTable eingegebenen Text,
 							// d.h. ist currentText nicht leer wurde Text eingegeben aber noch keine Auswahl getroffen.
-							var currentText =' . $this->get_id() . '_cg.data("currentText");
+							var currentText = {$this->get_id()}_jquery.data("_currentText");
 							
 							// Das Panel wird automatisch versteckt, wenn man das Eingabefeld verlaesst.
 							// Wurde zu diesem Zeitpunkt seit der letzten Auswahl Text eingegeben, aber
@@ -161,17 +285,26 @@ class euiComboTable extends euiInput {
 							// gestellt.
 							if (selectedRow == null && currentText) {
 								if (lastValidValue){
-									' . $this->get_id() . '_cg.data("currentText", "");
-									' . $this->get_id() . '_valueSetter(lastValidValue);
+									{$this->get_id()}_jquery.data("_currentText", "");
+									{$this->get_id()}_valueSetter(lastValidValue);
 								} else {
-									' . $this->get_id() . '_cg.data("currentText", "");
-									' . $this->get_id() . '_cg.combogrid("setText", "");
+									{$this->get_id()}_jquery.data("_currentText", "");
+									{$this->get_id()}_clear(true);
 									if (currentValue != lastValidValue) {
-										' . $this->get_id() . '_cg.combogrid("grid").datagrid("reload");
+										{$this->get_id()}_datagrid.datagrid("reload");
 									}
 								}
 							}
-						}';
+						}
+						, onDestroy: function() {
+							// Wird leider nicht getriggert, sonst waere das eine gute Moeglichkeit
+							// die globalen Variablen nur nach Bedarf zu initialisieren.
+							{$this->build_js_debug_message('onDestroy')}
+							
+							delete {$this->get_id()}_jquery;
+							delete {$this->get_id()}_datagrid;
+						}
+JS;
 		return $output;
 	}
 	
@@ -196,17 +329,17 @@ class euiComboTable extends euiInput {
 		
 		if ($widget->get_multi_select()){
 			$value_getter = <<<JS
-						return {$this->get_id()}_cg.combogrid("getValues").join();
+						return {$this->get_id()}_jquery.combogrid("getValues").join();
 JS;
 		} else {
 			$uidColumnName = $widget->get_table()->get_uid_column()->get_data_column_name();
 			
 			$value_getter = <<<JS
 						if (column){
-							var row = {$this->get_id()}_cg.combogrid("grid").datagrid("getSelected");
+							var row = {$this->get_id()}_datagrid.datagrid("getSelected");
 							if (row) {
-								if (row[column] == undefined){
-									{$this->get_id()}_cg.combogrid("grid").datagrid("reload");
+								if (row[column] == undefined) {
+									if (window.console) { console.warn("The non-existing column \"" + column + "\" was requested from element \"{$this->get_id()}\""); }
 								}
 								return row[column];
 							} else if (column == "{$uidColumnName}") {
@@ -214,12 +347,12 @@ JS;
 								// nichts geladen (daher auch keine Auswahl) dann wird der gesetzte
 								// value zurueckgegeben wenn die OID-Spalte angefragt wird (wichtig
 								// fuer das Funktionieren von Filtern bei initialem Laden).
-								return {$this->get_id()}_cg.combogrid("getValues").join();
+								return {$this->get_id()}_jquery.combogrid("getValues").join();
 							} else {
 								return "";
 							}
 						} else {
-							return {$this->get_id()}_cg.combogrid("getValues").join();
+							return {$this->get_id()}_jquery.combogrid("getValues").join();
 						}
 JS;
 		}
@@ -227,11 +360,16 @@ JS;
 		$output = <<<JS
 				
 				function {$this->get_id()}_valueGetter(column, row){
-					var {$this->get_id()}_cg = $("#{$this->get_id()}");
-					if ({$this->get_id()}_cg.data("combogrid")) {
+					// Der value-Getter wird in manchen Faellen aufgerufen, bevor die globalen
+					// Variablen definiert sind. Daher hier noch einmal initialisieren.
+					{$this->get_id()}_initGlobals();
+					
+					{$this->build_js_debug_message('valueGetter()')}
+					
+					if ({$this->get_id()}_jquery.data("combogrid")) {
 						{$value_getter}
 					} else {
-						return {$this->get_id()}_cg.val();
+						return {$this->get_id()}_jquery.val();
 					}
 				}
 				
@@ -256,24 +394,26 @@ JS;
 	 * @return string
 	 */
 	function build_js_value_setter_function(){
-		if ($this->get_widget()->get_multi_select()) {
+		$widget = $this->get_widget();
+		
+		if ($widget->get_multi_select()) {
 			$value_setter = <<<JS
-							{$this->get_id()}_cg.combogrid("setValues", valueArray);
+							{$this->get_id()}_jquery.combogrid("setValues", valueArray);
 JS;
 		} else {
 			$value_setter = <<<JS
 							if (valueArray.length <= 1) {
-								{$this->get_id()}_cg.combogrid("setValues", valueArray);
+								{$this->get_id()}_jquery.combogrid("setValues", valueArray);
 							}
 JS;
 		}
-		
+								
 		$output = <<<JS
 				
 				function {$this->get_id()}_valueSetter(value){
-					var {$this->get_id()}_cg = $("#{$this->get_id()}");
+					{$this->build_js_debug_message('valueSetter()')}
 					var valueArray;
-					if ({$this->get_id()}_cg.data("combogrid")) {
+					if ({$this->get_id()}_jquery.data("combogrid")) {
 						if (value) {
 							switch ($.type(value)) {
 								case "number":
@@ -288,16 +428,16 @@ JS;
 						} else {
 							valueArray = [];
 						}
-						if (!{$this->get_id()}_cg.combogrid("getValues").equals(valueArray)) {
+						if (!{$this->get_id()}_jquery.combogrid("getValues").equals(valueArray)) {
+							//onChange wird getriggert
 							{$value_setter}
 							
-							{$this->get_id()}_cg.data("lastValidValue", valueArray.join());
-							
-							{$this->get_id()}_cg.combogrid("grid").datagrid("options").queryParams._jsValueSetterUpdate = true;
-							{$this->get_id()}_cg.combogrid("grid").datagrid("reload");
+							{$this->get_id()}_jquery.data("_lastValidValue", valueArray.join());
+							{$this->get_id()}_jquery.data("_valueSetterUpdate", true);
+							{$this->get_id()}_datagrid.datagrid("reload");
 						}
 					} else {
-						{$this->get_id()}_cg.val(value).trigger("change");
+						{$this->get_id()}_jquery.val(value).trigger("change");
 					}
 				}
 				
@@ -312,32 +452,35 @@ JS;
 	 * @return string
 	 */
 	function build_js_on_change_function(){
+		$widget = $this->get_widget();
+		
 		$output = <<<JS
 				
 				function {$this->get_id()}_onChange(){
-					var {$this->get_id()}_cg = $("#{$this->get_id()}");
-					var dataUrlParams = {$this->get_id()}_cg.combogrid("grid").datagrid("options").queryParams;
+					{$this->build_js_debug_message('onChange()')}
 					// Diese Werte koennen gesetzt werden damit, wenn der Wert der ComboTable
-					// geaendert wird, nur ein Teil oder gar keine verlinkten Elemente geupdated
+					// geaendert wird, nur ein Teil oder gar keine verlinkten Elemente aktualisiert
 					// werden.
-					var suppressFilterSetterUpdate, suppressAllUpdates;
-					if (dataUrlParams.suppressFilterSetterUpdate != undefined){
-						if (dataUrlParams.suppressFilterSetterUpdate){
-							// Es werden keine Filter-Links aktualisiert.
-							suppressFilterSetterUpdate = true;
-						} else {
-							suppressFilterSetterUpdate = false;
-						}
-						delete dataUrlParams.suppressFilterSetterUpdate;
+					var suppressFilterSetterUpdate = false, clearFilterSetterUpdate = false, suppressAllUpdates = false, suppressLazyLoadingGroupUpdate = false;
+					if ({$this->get_id()}_jquery.data("_otherSuppressFilterSetterUpdate")){
+						// Es werden keine Filter-Links aktualisiert.
+						{$this->get_id()}_jquery.removeData("_otherSuppressFilterSetterUpdate");
+						suppressFilterSetterUpdate = true;
 					}
-					if (dataUrlParams.suppressAllUpdates != undefined){
-						if (dataUrlParams.suppressAllUpdates){
-							// Weder Werte-Links noch Filter-Links werden aktualisiert.
-							suppressAllUpdates = true;
-						} else {
-							suppressAllUpdates = false;
-						}
-						delete dataUrlParams.suppressAllUpdates;
+					if ({$this->get_id()}_jquery.data("_otherClearFilterSetterUpdate")){
+						// Filter-Links werden geleert.
+						{$this->get_id()}_jquery.removeData("_otherClearFilterSetterUpdate");
+						clearFilterSetterUpdate = true;
+					}
+					if ({$this->get_id()}_jquery.data("_otherSuppressAllUpdates")){
+						// Weder Werte-Links noch Filter-Links werden aktualisiert.
+						{$this->get_id()}_jquery.removeData("_otherSuppressAllUpdates");
+						suppressAllUpdates = true;
+					}
+					if ({$this->get_id()}_jquery.data("_otherSuppressLazyLoadingGroupUpdate")){
+						// Die LazyLoadingGroup wird nicht aktualisiert.
+						{$this->get_id()}_jquery.removeData("_otherSuppressLazyLoadingGroupUpdate");
+						suppressLazyLoadingGroupUpdate = true;
 					}
 					
 					if (!suppressAllUpdates) {
@@ -359,7 +502,7 @@ JS;
 	 *
 	 * @return string
 	 */
-	function build_js_on_beforeload_live_reference() {
+	function build_js_on_beforeload() {
 		$widget = $this->get_widget();
 		
 		// If the value is set data is loaded from the backend. Same if also value-text is set, because otherwise
@@ -370,24 +513,31 @@ JS;
 		if (!is_null($this->get_value_with_defaults()) && $this->get_value_with_defaults() !== ''){
 			if ($widget->get_value_text()){
 				// If the text is already known, set it and prevent initial backend request
-				$first_load_script = '
-						$("#' . $this->get_id() .'").' . $this->get_element_type() . '("setText", "' . str_replace('"', '\"', $widget->get_value_text()) . '");
-						$("#' . $this->get_id() .'").data("lastValidValue", "' . $this->get_value_with_defaults() . '");
-						$("#' . $this->get_id() .'").data("currentText", "");
-						return false;';
+				$widget_value_text = str_replace('"', '\"', $widget->get_value_text());
+				$first_load_script = <<<JS
+
+						{$this->get_id()}_jquery.combogrid("setText", "{$widget_value_text}");
+						{$this->get_id()}_jquery.data("_lastValidValue", "{$this->get_value_with_defaults()}");
+						{$this->get_id()}_jquery.data("_currentText", "");
+						return false;
+JS;
 			} else {
-				$first_load_script = '
-						$("#' . $this->get_id() .'").data("lastValidValue", "' . $this->get_value_with_defaults() . '");
-						$("#' . $this->get_id() .'").data("currentText", "");
-						paramGlobal._jsValueSetterUpdate = true;
-						param.fltr01_' . $widget->get_value_column()->get_data_column_name() . ' = "' . $this->get_value_with_defaults() . '";';
+				$first_load_script = <<<JS
+
+						{$this->get_id()}_jquery.data("_lastValidValue", "{$this->get_value_with_defaults()}");
+						{$this->get_id()}_jquery.data("_currentText", "");
+						{$this->get_id()}_jquery.data("_valueSetterUpdate", true);
+						currentFilterSet.fltr01_{$widget->get_value_column()->get_data_column_name()} = "{$this->get_value_with_defaults()}";
+JS;
 			}
 		} else {
 			// If no value set, just supress initial autoload
-			$first_load_script = '
-						$("#' . $this->get_id() .'").data("lastValidValue", "");
-						$("#' . $this->get_id() .'").data("currentText", "");
-						return false;';
+			$first_load_script = <<<JS
+
+						{$this->get_id()}_jquery.data("_lastValidValue", "");
+						{$this->get_id()}_jquery.data("_currentText", "");
+						return false;
+JS;
 		}
 		
 		$fltrId = 0;
@@ -398,57 +548,89 @@ JS;
 				if ($link = $fltr->get_value_widget_link()){
 					//filter is a live reference
 					$linked_element = $this->get_template()->get_element_by_widget_id($link->get_widget_id(), $this->get_page_id());
-					$filters[] = 'param.fltr' . str_pad($fltrId++, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ' = "' . $fltr->get_comparator() . '"+' . $linked_element->build_js_value_getter($link->get_column_id()) . ';';
+					$filters[] = 'currentFilterSet.fltr' . str_pad($fltrId++, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ' = "' . $fltr->get_comparator() . '"+' . $linked_element->build_js_value_getter($link->get_column_id()) . ';';
 				} else {
 					//filter has a static value
-					$filters[] = 'param.fltr' . str_pad($fltrId++, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ' = "' . $fltr->get_comparator() . urlencode(strpos($fltr->get_value(), '=') === 0 ? '' : $fltr->get_value()) . '";';
+					$filters[] = 'currentFilterSet.fltr' . str_pad($fltrId++, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->get_attribute_alias()) . ' = "' . $fltr->get_comparator() . urlencode(strpos($fltr->get_value(), '=') === 0 ? '' : $fltr->get_value()) . '";';
 				}
 			}
 		}
 		$filters_script = implode("\n\t\t\t\t\t\t", $filters);
+		// Beim Leeren eines Widgets in einer in einer lazy-loading-group wird kein Filter gesetzt,
+		// denn alle Filter sollten leer sein (alle Elemente der Gruppe leer). Beim Leeren eines
+		// Widgets ohne Gruppe werden die normalen Filter gesetzt.
+		$clear_filters_script = $widget->get_lazy_loading_group_id() ? '' : $filters_script;
 		// Add value filter (to show proper label for a set value)
 		$value_filters = [];
-		$value_filters[] = 'param.fltr' . str_pad($fltrId++, 2, 0, STR_PAD_LEFT) . '_' . $widget->get_value_column()->get_data_column_name() . ' = $("#' . $this->get_id() . '").combogrid("getValues").join();';
+		$value_filters[] = 'currentFilterSet.fltr' . str_pad($fltrId++, 2, 0, STR_PAD_LEFT) . '_' . $widget->get_value_column()->get_data_column_name() . ' = ' . $this->get_id() . '_jquery.combogrid("getValues").join();';
 		$value_filters_script = implode("\n\t\t\t\t\t\t", $value_filters);
 		
 		// firstLoadScript:			enthaelt Anweisungen, die nur beim ersten Laden ausgefuehrt
 		// 							werden sollen (Initialisierung)
-		// filters_script:			enthaelt Anweisungen, welche die gesetzten Filter zur Anfrage
-		// 							hinzufuegen
-		// value_filters_script:	enthaelt Anweisungen, welche einen Filter zur Anfrage hinzu-
-		// 							fuegt, welcher auf dem aktuell gesetzten Wert beruht
+		// filters_script:			fuegt die gesetzten Filter zur Anfrage hinzu
+		// value_filters_script:	fuegt einen Filter zur Anfrage hinzu, welcher auf dem
+		// 							aktuell gesetzten Wert beruht
+		// clear_filters_script:	fuegt Filter zur Anfrage hinzu, welche beim Leeren des
+		// 							Objekts gelten sollen
 		
-		// paramGlobal.
-		// _firstLoad:				ist nur beim ersten Laden gesetzt
-		// _jsValueSetterUpdate:	ist gesetzt wenn der Wert durch den Value-Setter gesetzt wurde
-		// 							und der autosuggest-Inhalt neu geladen werden soll
-		// _jsFilterSetterUpdate:	ist gesetzt wenn sich verlinkte Filter geaendert haben und
-		// 							der autosuggest-Inhalt neu geladen werden soll
-		
-		$output = '
-					var paramGlobal = $(this).datagrid("options").queryParams;
+		$output = <<<JS
+
+					// OnBeforeLoad ist das erste Event, das nach der Erzeugung des Objekts getriggert
+					// wird. Daher werden hier globale Variablen initialisiert (_datagrid kann vorher
+					// nicht initialisiert werden, da das combogrid-Objekt noch nicht existiert).
+					{$this->get_id()}_initGlobals();
 					
-					if (paramGlobal._firstLoad == undefined){
-						paramGlobal._firstLoad = true;
-					} else if (paramGlobal._firstLoad == true) {
-						paramGlobal._firstLoad = false;
+					{$this->build_js_debug_message('onBeforeLoad')}
+					
+					// Wird eine Eingabe gemacht, dann aber keine Auswahl getroffen, ist bei der naechsten
+					// Anfrage param.q noch gesetzt (param eigentlich nur Kopie???). Deshalb hier loeschen.
+					delete param.q;
+					
+					if (!{$this->get_id()}_jquery.data("_lastFilterSet")) { {$this->get_id()}_jquery.data("_lastFilterSet", {}); }
+					var currentFilterSet = {};
+					
+					if ({$this->get_id()}_jquery.data("_firstLoad") == undefined){
+						{$this->get_id()}_jquery.data("_firstLoad", true);
+					} else if ({$this->get_id()}_jquery.data("_firstLoad")){
+						{$this->get_id()}_jquery.data("_firstLoad", false);
 					}
 					
-					if (paramGlobal._jsValueSetterUpdate) {
-						' . $value_filters_script . '
-					} else if (paramGlobal._jsFilterSetterUpdate) {
-						' . $filters_script . '
-						' . $value_filters_script . '
-					} else if (paramGlobal._firstLoad) {
-						paramGlobal._firstLoad = false;
-						' . $first_load_script . '
+					if ({$this->get_id()}_jquery.data("_valueSetterUpdate")) {
+						param._valueSetterUpdate = true;
+						{$value_filters_script}
+					} else if ({$this->get_id()}_jquery.data("_clearFilterSetterUpdate")) {
+						param._clearFilterSetterUpdate = true;
+						{$clear_filters_script}
+					} else if ({$this->get_id()}_jquery.data("_filterSetterUpdate")) {
+						param._filterSetterUpdate = true;
+						{$filters_script}
+						{$value_filters_script}
+					} else if ({$this->get_id()}_jquery.data("_firstLoad")) {
+						param._firstLoad = true;
+						{$first_load_script}
 					} else {
-						' . $filters_script . '
 						if (!param.q) {
-							param.q = $("#' . $this->get_id() . '").combogrid("getText");
+							currentFilterSet.q = {$this->get_id()}_jquery.combogrid("getText");
 						}
+						{$filters_script}
 					}
-					';
+					
+					// Die Filter der gegenwaertigen Anfrage werden mit den Filtern der letzten Anfrage
+					// verglichen. Sind sie identisch und wurden die zuletzt geladenen Daten nicht ver-
+					// aendert, wird die Anfrage unterbunden, denn das Resultat waere das gleiche.
+					if ((JSON.stringify(currentFilterSet) === JSON.stringify({$this->get_id()}_jquery.data("_lastFilterSet"))) &&
+							!({$this->get_id()}_jquery.data("_resultSetChanged"))) {
+						// Suchart entfernen, sonst ist sie beim naechsten Mal noch gesetzt
+						{$this->get_id()}_jquery.removeData("_valueSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_clearFilterSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_filterSetterUpdate");
+						
+						return false;
+					} else {
+						{$this->get_id()}_jquery.data("_lastFilterSet", currentFilterSet);
+						Object.assign(param, currentFilterSet);
+					}
+JS;
 		/* FIXME how to make multiselects search for every text in the list separately. The trouble is, 
 		 * the combotable seems to drop _all_ it's values once you continue typing. It will only restore
 		 * them if the returned resultset contains them too. 
@@ -472,80 +654,103 @@ JS;
 	}
 	
 	/**
-	 * Creates the JavaScript-Code which is executed after loading the autosuggest-
-	 * data. All filters are removed as their values can change because of live-
-	 * references (filters are added again before the next loading). The function
-	 * can be modified by passing jsValueSetter- and jsFilterSetter-scripts.
-	 * 
-	 * @param string $jsValueSetterScript javascript-code which is executed after a
-	 * 	value-setter-update.
-	 * @param string $jsFilterSetterScript javascript-code which is executed after a
-	 * 	filter-setter-update.
-	 * @return string
-	 */
-	private function build_js_on_load_live_reference($jsValueSetterScript = null, $jsFilterSetterScript = null) {
-		$output = '
-					var dataUrlParams = $("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams;
-					
-					for (key in dataUrlParams) {
-						if (key.substring(0, 4) == "fltr") {
-							delete dataUrlParams[key];
-						}
-					}
-					if (dataUrlParams.q) {
-						delete dataUrlParams.q;
-					}
-					if (dataUrlParams._firstLoad) {
-						dataUrlParams._firstLoad = false;
-					}
-					if (dataUrlParams._jsFilterSetterUpdate) {
-						delete dataUrlParams._jsFilterSetterUpdate;
-						
-						' . $jsFilterSetterScript . '
-					}
-					if (dataUrlParams._jsValueSetterUpdate) {
-						delete dataUrlParams._jsValueSetterUpdate;
-						
-						' . $jsValueSetterScript . '
-					}';
-		
-		return $output;
-	}
-	
-	/**
 	 * Creates javascript-code which is executed after the successful loading of auto-
-	 * suggest-data.
+	 * suggest-data. If autoselect_single_suggestion is true, a single return value
+	 * from autosuggest is automatically selected.
 	 * 
 	 * @return string
 	 */
-	function build_js_on_load_sucess_live_reference() {
-		$textColumnName = $this->get_widget()->get_text_column()->get_data_column_name();
+	function build_js_on_load_sucess() {
+		$widget = $this->get_widget();
 		
-		// Nach einem Value-Setter-Update wird der Text neu gesetzt um das Label ordentlich
-		// anzuzeigen und das onChange-Skript wird ausgefuehrt.
-		$jsValueSetterScript = '
-						var selectedrow = $("#' . $this->get_id() .'").combogrid("grid").datagrid("getSelected");
+		$uidColumnName = $widget->get_table()->get_uid_column()->get_data_column_name();
+		$textColumnName = $widget->get_text_column()->get_data_column_name();
+		
+		$suppressLazyLoadingGroupUpdateScript = $widget->get_lazy_loading_group_id() ? $this->get_id() . '_jquery.data("_otherSuppressLazyLoadingGroupUpdate", true);' : '';
+		
+		$output = <<<JS
+
+					{$this->build_js_debug_message('onLoadSuccess')}
+					var suppressAutoSelectSingleSuggestion = false;
+					
+					if ({$this->get_id()}_jquery.data("_valueSetterUpdate")) {
+						// Update durch eine value-Referenz.
+						
+						{$this->get_id()}_jquery.removeData("_valueSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_clearFilterSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_filterSetterUpdate");
+						
+						// Nach einem Value-Setter-Update wird der Text neu gesetzt um das Label ordentlich
+						// anzuzeigen und das onChange-Skript wird ausgefuehrt.
+						var selectedrow = {$this->get_id()}_datagrid.datagrid("getSelected");
 						if (selectedrow != null) {
-							$("#' . $this->get_id() . '").combogrid("setText", selectedrow["' . $textColumnName . '"]);
+							{$this->get_id()}_jquery.combogrid("setText", selectedrow["{$textColumnName}"]);
 						}
 						
-						' . $this->get_id() . '_onChange();';
-		
-		// Nach einem Filter-Setter-Update wird geprueft ob sich die gesetzten Filter und der
-		// gesetzte Wert widersprechen.
-		$jsFilterSetterScript = '
-						var rows = $("#' . $this->get_id() . '").combogrid("grid").datagrid("getData");
+						{$this->get_id()}_onChange();
+					} else if ({$this->get_id()}_jquery.data("_clearFilterSetterUpdate")) {
+						// Leeren durch eine filter-Referenz.
+						
+						{$this->get_id()}_jquery.removeData("_valueSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_clearFilterSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_filterSetterUpdate");
+						
+						{$this->get_id()}_clear(false);
+						
+						// Neu geladen werden muss nicht, denn die Filter waren beim vorangegangenen Laden schon
+						// entsprechend gesetzt.
+						
+						// Wurde das Widget manuell geloescht, soll nicht wieder automatisch der einzige Suchvorschlag
+						// ausgewaehlt werden.
+						suppressAutoSelectSingleSuggestion = true;
+					} else if ({$this->get_id()}_jquery.data("_filterSetterUpdate")) {
+						// Update durch eine filter-Referenz.
+						
 						// Ergibt die Anfrage bei einem FilterSetterUpdate keine Ergebnisse ist wahrscheinlich
 						// ein Wert gesetzt, welcher den gesetzten Filtern widerspricht. Deshalb wird der Wert
 						// der ComboTable geloescht und anschliessend neu geladen.
+						var rows = {$this->get_id()}_datagrid.datagrid("getData");
 						if (rows["total"] == 0) {
-							// Bei diesem Leeren der ComboTable werden keine Referenzen aktualisiert.
-							$("#' . $this->get_id() . '").combogrid("grid").datagrid("options").queryParams.suppressAllUpdates = true;
-							$("#' . $this->get_id() . '").combogrid("clear");
-							$("#' . $this->get_id() . '").combogrid("grid").datagrid("reload");
-						}';
+							{$this->get_id()}_clear(true);
+							{$this->get_id()}_datagrid.datagrid("reload");
+						}
+						
+						{$this->get_id()}_jquery.removeData("_valueSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_clearFilterSetterUpdate");
+						{$this->get_id()}_jquery.removeData("_filterSetterUpdate");
+					}
+					
+					// Das resultSet wurde neu geladen und ist daher unveraendert. Ein erneutes Laden mit
+					// identischem filterSet kann unterbunden werden (siehe onBeforeLoad).
+					{$this->get_id()}_jquery.data("_resultSetChanged", false);
+JS;
 		
-		return $this->build_js_on_load_live_reference($jsValueSetterScript, $jsFilterSetterScript);
+		if ($widget->get_autoselect_single_suggestion()) {
+			$output .= <<<JS
+
+					if (!suppressAutoSelectSingleSuggestion) {
+						// Automatisches Auswaehlen des einzigen Suchvorschlags.
+						var rows = {$this->get_id()}_datagrid.datagrid("getData");
+						if (rows["total"] == 1) {
+							var selectedrow = {$this->get_id()}_datagrid.datagrid("getSelected");
+							if (selectedrow == null || selectedrow["{$uidColumnName}"] != rows["rows"][0]["{$uidColumnName}"]) {
+								// Ist das Widget in einer lazy-loading-group, werden keine Filter-Referenzen aktualisiert,
+								// denn alle Elemente der Gruppe werden vom Orginalobjekt bedient.
+								{$suppressLazyLoadingGroupUpdateScript}
+								// Beim Autoselect wurde ja zuvor schon geladen und es gibt nur noch einen Vorschlag
+								// im Resultat (im Gegensatz zur manuellen Auswahl eines Ergebnisses aus einer Liste).
+								{$this->get_id()}_jquery.data("_suppressReloadOnSelect", true);
+								// onSelect wird getriggert
+								{$this->get_id()}_datagrid.datagrid("selectRow", 0);
+								{$this->get_id()}_jquery.combogrid("setText", rows["rows"][0]["{$textColumnName}"]);
+								{$this->get_id()}_jquery.combogrid("hidePanel");
+							}
+						}
+					}
+JS;
+		}
+		
+		return $output;
 	}
 	
 	/**
@@ -554,38 +759,153 @@ JS;
 	 * 
 	 * @return string
 	 */
-	function build_js_on_load_error_live_reference() {
-		return $this->build_js_on_load_live_reference();
+	function build_js_on_load_error() {
+		$widget = $this->get_widget();
+		
+		$output = <<<JS
+
+					{$this->build_js_debug_message('onLoadError')}
+					
+					{$this->get_id()}_jquery.removeData("_valueSetterUpdate");
+					{$this->get_id()}_jquery.removeData("_clearFilterSetterUpdate");
+					{$this->get_id()}_jquery.removeData("_filterSetterUpdate");
+JS;
+		
+		return $output;
 	}
 	
 	/**
-	 * Creates javascript-code which is executed after successful loading of autosuggest-
-	 * data. If autoselect_single_suggestion is true, a single return value from autosuggest
-	 * is automatically selected.
+	 * Creates a javascript-function which empties the object. If the object had a value
+	 * before, onChange is triggered by clearing it. If suppressAllUpdates = true is
+	 * passed to the function, linked elements are not updated by clearing the object.
+	 * This behavior is usefull, if the object should really just be cleared.
 	 * 
 	 * @return string
 	 */
-	function build_js_on_load_success_autoselect() {
+	function build_js_clear_function() {
 		$widget = $this->get_widget();
 		
-		$output = '';
-		if ($widget->get_autoselect_single_suggestion()) {
-			$uidColumnName = $widget->get_table()->get_uid_column()->get_data_column_name();
-			$textColumnName = $widget->get_text_column()->get_data_column_name();
-			
-			$output = '
-					var ' . $this->get_id() . '_cg = $("#' . $this->get_id() . '");
-					var rows = ' . $this->get_id() . '_cg.combogrid("grid").datagrid("getData");
-					if (rows["total"] == 1) {
-						var selectedrow = ' . $this->get_id() . '_cg.combogrid("grid").datagrid("getSelected");
-						if (selectedrow == null || selectedrow["' . $uidColumnName . '"] != rows["rows"][0]["' . $uidColumnName . '"]) {
-							' . $this->get_id() . '_cg.combogrid("grid").datagrid("selectRow", 0);
-							' . $this->get_id() . '_cg.combogrid("setText", rows["rows"][0]["' . $textColumnName . '"]);
-							' . $this->get_id() . '_cg.combogrid("hidePanel");
-						}
-					}';
+		$output = <<<JS
+
+				function {$this->get_id()}_clear(suppressAllUpdates) {
+					{$this->build_js_debug_message('clear()')}
+					
+					// Bestimmt ob durch das Leeren andere verlinkte Elemente aktualisiert werden sollen. 
+					{$this->get_id()}_jquery.data("_otherSuppressAllUpdates", suppressAllUpdates);
+					// Beim Leeren wird die LazyLoadingGroup (wenn es eine gibt) nicht aktualisiert.
+					{$this->get_id()}_jquery.data("_otherSuppressLazyLoadingGroupUpdate", true);
+					// Durch das Leeren aendert sich das resultSet und es sollte das naechste Mal neu geladen
+					// werden, auch wenn sich das Filterset nicht geaendert hat (siehe onBeforeLoad).
+					{$this->get_id()}_jquery.data("_resultSetChanged", true);
+					// Triggert onChange, wenn vorher ein Element ausgewaehlt war.
+					{$this->get_id()}_jquery.combogrid("clear");
+					// Wurde das Widget bereits manuell geleert, wird mit clear kein onChange getriggert und
+					// _otherSuppressAllUpdates nicht entfernt. Wird clear mit _otherSuppressAllUpdates
+					// gestartet, dann ist hinterher _clearFilterSetterUpdate gesetzt. Daher werden hier
+					// vorsichtshalber _otherSuppressAllUpdates und _clearFilterSetterUpdate manuell geloescht.
+					{$this->get_id()}_jquery.removeData("_otherSuppressAllUpdates");
+					{$this->get_id()}_jquery.removeData("_otherSuppressLazyLoadingGroupUpdate");
+					{$this->get_id()}_jquery.removeData("_clearFilterSetterUpdate");
+				}
+JS;
+		return $output;
+	}
+	
+	function get_js_debug_level() {
+		return $this->js_debug_level;
+	}
+	
+	/**
+	 * Determines the detail-level of the debug-messages which are written to the browser-
+	 * console.
+	 * 0 = off, 1 = low, 2 = medium, 3 = high detail-level (default: 0)
+	 * 
+	 * @param integer|string $value
+	 * @return \exface\JEasyUiTemplate\Template\Elements\euiComboTable
+	 */
+	function set_js_debug_level($value) {
+		if (is_int($value)) {
+			$this->js_debug_level = $value;
+		} else if (is_string($value)) {
+			$this->js_debug_level = intval($value);
+		} else {
+			throw new InvalidArgumentException('Can not set js_debug_level for "' . $this->get_id() . '": the argument passed to set_js_debug_level() is neither an integer nor a string!');
 		}
+		return $this;
+	}
+	
+	/**
+	 * Creates javascript-code that writes a debug-message to the browser-console.
+	 * 
+	 * @param string $source
+	 * @return string
+	 */
+	function build_js_debug_message($source) {
+		switch ($this->get_js_debug_level()) {
+			case 0:
+				$output = '';
+				break;
+			case 1:
+			case 2:
+				$output = <<<JS
+				if (window.console) { console.debug(Date.now() + "|{$this->get_id()}.{$source}"); }
+JS;
+				break;
+			case 3:
+				$output = <<<JS
+				if (window.console) { console.debug(Date.now() + "|{$this->get_id()}.{$source}|" + {$this->get_id()}_debugDataToString()); }
+JS;
+				break;
+			default:
+				$output = '';
+		}
+		return $output;
+	}
+	
+	/**
+	 * Creates a javascript-function, which returns a string representation of the content
+	 * of private variables which are stored in the data-object of the element and which
+	 * are important for the function of the object. It is required for debug-messages with
+	 * a high detail-level. 
+	 * 
+	 * @return string
+	 */
+	function build_js_debug_data_to_string_function() {
+		$output = <<<JS
 		
+				function {$this->get_id()}_debugDataToString() {
+					var currentValue = {$this->get_id()}_jquery.data("combogrid") ? {$this->get_id()}_jquery.combogrid("getValues").join() : {$this->get_id()}_jquery.val();;
+					var output =
+						"_valueSetterUpdate: " + {$this->get_id()}_jquery.data("_valueSetterUpdate") + ", " +
+						"_filterSetterUpdate: " + {$this->get_id()}_jquery.data("_filterSetterUpdate") + ", " +
+						"_clearFilterSetterUpdate: " + {$this->get_id()}_jquery.data("_clearFilterSetterUpdate") + ", " +
+						"_firstLoad: " + {$this->get_id()}_jquery.data("_firstLoad") + ", " +
+						"_otherSuppressFilterSetterUpdate: " + {$this->get_id()}_jquery.data("_otherSuppressFilterSetterUpdate") + ", " +
+						"_otherClearFilterSetterUpdate: " + {$this->get_id()}_jquery.data("_otherClearFilterSetterUpdate") + ", " +
+						"_otherSuppressAllUpdates: " + {$this->get_id()}_jquery.data("_otherSuppressAllUpdates") + ", " +
+						"_otherSuppressLazyLoadingGroupUpdate: " + {$this->get_id()}_jquery.data("_otherSuppressLazyLoadingGroupUpdate") + ", " +
+						"_suppressReloadOnSelect: " + {$this->get_id()}_jquery.data("_suppressReloadOnSelect") + ", " +
+						"_currentText: " + {$this->get_id()}_jquery.data("_currentText") + ", " +
+						"_lastValidValue: " + {$this->get_id()}_jquery.data("_lastValidValue") + ", " +
+						"currentValue: " + currentValue + ", " +
+						"_lastFilterSet: "+ JSON.stringify({$this->get_id()}_jquery.data("_lastFilterSet")) + ", " +
+						"_resultSetChanged: " + {$this->get_id()}_jquery.data("_resultSetChanged");
+					return output;
+				}
+JS;
+		return $output;
+	}
+	
+	function build_js_init_globals_function() {
+		$output = <<<JS
+
+				function {$this->get_id()}_initGlobals() {
+					window.{$this->get_id()}_jquery = $("#{$this->get_id()}");
+					if ({$this->get_id()}_jquery.data("combogrid")) {
+						window.{$this->get_id()}_datagrid = {$this->get_id()}_jquery.combogrid("grid");
+					}
+				}
+JS;
 		return $output;
 	}
 }
