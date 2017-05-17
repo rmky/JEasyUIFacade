@@ -369,7 +369,15 @@ JS;
 					if ({$this->get_id()}_jquery.data("combogrid")) {
 						{$value_getter}
 					} else {
-						return {$this->get_id()}_jquery.val();
+						if (column) {
+							if (column == "{$uidColumnName}") {
+								return {$this->get_id()}_jquery.val();
+							} else {
+								return "";
+							}
+						} else {
+							return {$this->get_id()}_jquery.val();
+						}
 					}
 				}
 				
@@ -706,11 +714,11 @@ JS;
 					} else if ({$this->get_id()}_jquery.data("_filterSetterUpdate")) {
 						// Update durch eine filter-Referenz.
 						
-						// Ergibt die Anfrage bei einem FilterSetterUpdate keine Ergebnisse ist wahrscheinlich
-						// ein Wert gesetzt, welcher den gesetzten Filtern widerspricht. Deshalb wird der Wert
-						// der ComboTable geloescht und anschliessend neu geladen.
+						// Ergibt die Anfrage bei einem FilterSetterUpdate keine Ergebnisse waehrend ein Wert
+						// gesetzt ist, widerspricht der gesetzte Wert wahrscheinlich den gesetzten Filtern.
+						// Deshalb wird der Wert der ComboTable geloescht und anschliessend neu geladen.
 						var rows = {$this->get_id()}_datagrid.datagrid("getData");
-						if (rows["total"] == 0) {
+						if (rows["total"] == 0 && {$this->get_id()}_valueGetter()) {
 							{$this->get_id()}_clear(true);
 							{$this->get_id()}_datagrid.datagrid("reload");
 						}
