@@ -4,7 +4,16 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
+use exface\Core\Factories\WidgetFactory;
+use exface\Core\Widgets\DataButton;
 
+/**
+ * 
+ * @author Andrej Kabachnik
+ * 
+ * @method DataTable get_widget()
+ *
+ */
 class euiDataTable extends euiData {
 	
 	use JqueryDataTableTrait;
@@ -12,21 +21,14 @@ class euiDataTable extends euiData {
 	protected function init(){
 		parent::init();
 		$this->set_element_type('datagrid');
-		if ($refresh_link = $this->get_widget()->get_refresh_with_widget()){
+		$widget = $this->get_widget();
+		
+		// Take care of refresh links
+		if ($refresh_link = $widget->get_refresh_with_widget()){
 			if ($refresh_link_element = $this->get_template()->get_element($refresh_link->get_widget())){
 				$refresh_link_element->add_on_change_script($this->build_js_refresh());
 			}
 		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::get_widget()
-	 * @return DataTable
-	 */
-	public function get_widget(){
-		return parent::get_widget();
 	}
 	
 	function generate_html(){
@@ -45,6 +47,7 @@ class euiDataTable extends euiData {
 		// add buttons
 		if ($widget->has_buttons()){
 			foreach ($widget->get_buttons() as $button){
+				if ($button->is_hidden()) continue;
 				$button_html .= $this->get_template()->generate_html($button);
 				$context_menu_html .= $this->get_template()->get_element($button)->build_html_button();
 			}
@@ -281,35 +284,47 @@ JS;
 							$("#' . $this->get_id() . '").' . $this->get_element_type() . '("load",{' . (count($fltrs)>0 ? implode(', ', $fltrs) . ',' : '') . 'action: "' . $widget->get_lazy_loading_action() . '", resource: "' . $this->get_page_id() . '", element: "' .  $this->get_widget()->get_id() . '"});
 						}';
 				
-		// build JS for the action functions
+		// build JS for the button actions
 		foreach ($widget->get_buttons() as $button){
 			$output .= $this->get_template()->generate_js($button);
 		}
 		
+		// Add buttons to the pager at the bottom of the datagrid
+		$bottom_buttons = array();
+		
 		// If the top toolbar is hidden, add actions to the bottom toolbar
 		if ($widget->get_hide_toolbar_top() && !$widget->get_hide_toolbar_bottom() && $widget->has_buttons()){
-			$bottom_buttons = array();
 			foreach ($widget->get_buttons() as $button){
+				if ($button->is_hidden()) continue;
 				if ($button->get_action()->get_input_rows_min() == 0){
 					$bottom_buttons[] = '{
 						iconCls:  "' . $this->build_css_icon_class($button->get_icon_name()) . '",
 						title: "' . $button->get_caption() . '",
 						handler: ' . $this->get_template()->get_element($button)->build_js_click_function_name() . '
-					}'
-					;
+					}';
 				}
 			}
-			
-			if (count($bottom_buttons) > 0){
-				$output .= '
-						
+		}
+		
+		// Add the help button in the bottom toolbar
+		if (!$widget->get_hide_help_button()){
+			$output .= $this->get_template()->generate_js($widget->get_help_button());
+			$bottom_buttons[] = '{
+						iconCls:  "icon-help",
+						title: "' . $this->translate('HELP') . '",
+						handler: ' . $this->get_template()->get_element($widget->get_help_button())->build_js_click_function_name() . '
+					}';
+		}
+		
+		if (count($bottom_buttons) > 0){
+			$output .= '
+					
 							var pager = $("#' . $this->get_id() . '").datagrid("getPager");
 	            			pager.pagination({
 								buttons: [' . implode(', ' , $bottom_buttons) . ']
 							});
-						
+										
 					';
-			}
 		}
 		
 		return $output;
