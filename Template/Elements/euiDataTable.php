@@ -49,7 +49,7 @@ class euiDataTable extends euiData {
 			foreach ($widget->get_buttons() as $button){
 				if ($button->is_hidden()) continue;
 				$button_html .= $this->get_template()->generate_html($button);
-				$context_menu_html .= $this->get_template()->get_element($button)->build_html_button();
+				$context_menu_html .= str_replace('<a id=', '<a style="width: 500px; text-align: left;" id=', $this->get_template()->get_element($button)->build_html_button());
 			}
 		}
 
@@ -72,7 +72,7 @@ class euiDataTable extends euiData {
 		
 		// Create a context menu if any items were found
 		if ($context_menu_html && $widget->get_context_menu_enabled()){
-			$output .= '<div id="' . $this->get_id() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
+			$output .= '<div id="' . $this->get_id() . '_cmenu" class="easyui-menu" style="width: 200px">' . $context_menu_html . '</div>';
 			$output .= $button_html;
 		}
 		
