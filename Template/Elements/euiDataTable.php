@@ -263,7 +263,7 @@ JS;
 		$grid_head .= ', fit: true
 				, onResize: function(){' . $resize_function . '}'
 				. ($this->get_on_change_script() ? ', onSelect: function(index, row){' . $this->get_on_change_script() . '}' : '')
-				. ($widget->get_caption() ? ', title: "' . $widget->get_caption() . '"' : '')
+				. ($widget->get_caption() ? ', title: "' . str_replace('"', '\"', $widget->get_caption()) . '"' : '')
 				;
 		
 		// instantiate the data grid
@@ -299,7 +299,7 @@ JS;
 				if ($button->get_action()->get_input_rows_min() == 0){
 					$bottom_buttons[] = '{
 						iconCls:  "' . $this->build_css_icon_class($button->get_icon_name()) . '",
-						title: "' . $button->get_caption() . '",
+						title: "' . str_replace('"', '\"', $button->get_caption()) . '",
 						handler: ' . $this->get_template()->get_element($button)->build_js_click_function_name() . '
 					}';
 				}

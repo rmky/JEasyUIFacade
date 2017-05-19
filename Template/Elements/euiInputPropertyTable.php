@@ -33,6 +33,8 @@ class euiInputPropertyTable extends euiInput {
 		/* @var $widget \exface\Core\Widgets\InputPropertyTable */
 		$widget = $this->get_widget();
 		
+		$title = str_replace('"', '\"', $widget->get_caption());
+		
 		// FIXME The ...Sync() JS-method does not really work, because it does not get automatically called after values change. In former times,
 		// it got called right before the parent form was submitted. After we stopped using forms, this does not happen anymore. Instead the
 		// custom value getter was introduced. The question is, if we still need the textarea and the (now only partially working) synchronisation.
@@ -42,7 +44,7 @@ $('#{$this->build_js_grid_id()}').{$this->get_element_type()}({
 	data: JSON.parse($('#{$this->get_id()}').val()),
 	showGroup: false,
 	showHeader: false,
-	title: "{$widget->get_caption()}",	
+	title: "{$title}",	
 	scrollbarSize: 0,
 	tools: "#{$this->get_id()}_tools",	
 	loadFilter: function(input){
