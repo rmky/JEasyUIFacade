@@ -45,12 +45,38 @@ class euiInputSelect extends euiInput {
 		return $output;
 	}
 	
+	/**
+	 * Diese Funktion prueft zunaechst ob das JEasyUi-Element auch vorhanden ist. Wenn
+	 * ja wird es aufgerufen um den momentanen Wert zurueckzugeben, wenn nein wird die
+	 * jquery-Funktion .val() verwendet um einen Wert zurueckzugeben. Wird der value-
+	 * Getter aufgerufen bevor das Element initialisiert ist entsteht sonst ein Fehler. 
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_value_getter()
+	 */
 	public function build_js_value_getter(){
-		if ($this->get_widget()->get_multi_select()){
-			return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getValues').join()";
-		} else {
-			return "$('#" . $this->get_id() . "')." . $this->get_element_type() . "('getValue')";
-		}
+ 		if ($this->get_widget()->get_multi_select()){
+ 			$value_getter = <<<JS
+return $("#{$this->get_id()}").{$this->get_element_type()}("getValues").join();
+JS;
+ 		} else {
+ 			$value_getter = <<<JS
+return $("#{$this->get_id()}").{$this->get_element_type()}("getValue");
+JS;
+ 		}
+ 		
+		$output = <<<JS
+
+(function(){
+	{$this->get_id()}_jquery = $("#{$this->get_id()}");
+	if ({$this->get_id()}_jquery.data("{$this->get_element_type()}")) {
+		{$value_getter}
+	} else {
+		return {$this->get_id()}_jquery.val();
+	}
+})()
+JS;
+		return $output;
 	}
 	
 	public function build_js_data_options(){

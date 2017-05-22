@@ -7,5 +7,7 @@
 	"MESSAGE.SELECT_X_TO_Y_ROWS": "Please select %min% to %max% rows first!",
 	"MESSAGE.ERROR_TITLE": "Error",
 	"MESSAGE.SUCCESS_TITLE": "Success",
-	"MESSAGE.FILL_REQUIRED_ATTRIBUTES": "Please fill in the required fields: "
+	"MESSAGE.FILL_REQUIRED_ATTRIBUTES": "Please fill in the required fields: ",
+	
+	"WIDGET.SEARCH": "Search"
 }

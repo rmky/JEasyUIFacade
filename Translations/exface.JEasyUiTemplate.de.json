@@ -5,5 +5,7 @@
 	"MESSAGE.SELECT_X_TO_Y_ROWS": "Bitte %min% bis %max% Zeilen auswählen!",
 	"MESSAGE.ERROR_TITLE": "Fehler",
 	"MESSAGE.SUCCESS_TITLE": "Erfolg",
-	"MESSAGE.FILL_REQUIRED_ATTRIBUTES": "Bitte füllen Sie die benötigten Felder aus: "
+	"MESSAGE.FILL_REQUIRED_ATTRIBUTES": "Bitte füllen Sie die benötigten Felder aus: ",
+	
+	"WIDGET.SEARCH": "Suchen"
 }
