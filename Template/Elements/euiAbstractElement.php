@@ -86,7 +86,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement {
 	public function build_js_show_message_success($message_body_js, $title = null){
 		$title = !is_null($title) ? $title : "'" . $this->translate('MESSAGE.SUCCESS_TITLE') . "'";
 		return "$.messager.show({
-					title: " . $title . ",
+					title: " . str_replace('"', '\"', $title) . ",
 	                msg: " . $message_body_js . ",
 	                timeout:5000,
 	                showType:'slide'

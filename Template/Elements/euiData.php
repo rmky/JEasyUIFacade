@@ -85,8 +85,10 @@ class euiData extends euiAbstractElement {
 				, queryParams: {' . implode("\n\t\t\t\t\t, ", $params) . '}';
 		} else {
 			// Data embedded in the code of the DataGrid
-			$data = $widget->prepare_data_sheet_to_read();
-			$data->data_read();
+			$data = $widget->prepare_data_sheet_to_read($widget->get_values_data_sheet());
+			if (!$data->is_fresh()){
+				$data->data_read();
+			}
 			$result = '
 				remoteSort: false
 				, loader: function(param, success, error) {' . $this->build_js_data_loader_without_ajax($data) . '}';
@@ -128,8 +130,8 @@ class euiData extends euiAbstractElement {
 				, pagination: ' . ($widget->get_paginate() ? 'true' : 'false') . '
 				, pageList: ' . json_encode($this->get_template()->get_app()->get_config()->get_option('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')) . '
 				, pageSize: ' . $widget->get_paginate_default_page_size() . '
-				, striped: "' . ($widget->get_striped() ? 'true' : 'false') . '"
-				, nowrap: "' . ($widget->get_nowrap() ? 'true' : 'false') . '"
+				, striped: ' . ($widget->get_striped() ? 'true' : 'false') . '
+				, nowrap: ' . ($widget->get_nowrap() ? 'true' : 'false') . '
 				, toolbar: "#' . $this->get_toolbar_id() . '"
 				' . ($this->get_on_before_load() ? ', onBeforeLoad: function(param) {
 					' . $this->get_on_before_load() . '
@@ -179,7 +181,7 @@ class euiData extends euiAbstractElement {
 		// Now loop through all column groups again and built the header definition
 		foreach ($column_groups as $column_group){
 			if ($column_group->get_caption()){
-				$header_rows[0][] = '{title: "' . $column_group->get_caption() . '", colspan: ' . $column_group->count_columns_visible() . '}';
+				$header_rows[0][] = '{title: "' . str_replace('"', '\"', $column_group->get_caption()) . '", colspan: ' . $column_group->count_columns_visible() . '}';
 				$put_into_header_row = 1;
 			} else {
 				$put_into_header_row = 0;

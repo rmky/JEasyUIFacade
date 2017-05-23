@@ -104,7 +104,7 @@ class euiEditMatrix extends euiDataMatrixOld {
 				. ($widget->get_show_row_numbers() ? ', rowHeaders: true' : '')
 				. ($widget->get_formulas_enabled() ? ', formulas: true' : '')
 				. ($this->get_width() ? ', width: ' . $this->get_width() : '')
-				. ($widget->get_caption() ? ', title: "' . $widget->get_caption() . '"' : '')
+				. ($widget->get_caption() ? ', title: "' . str_replace('"', '\"', $widget->get_caption()) . '"' : '')
 				. ', ' . $this->build_js_init_options_columns()
 		;
 		return $output;

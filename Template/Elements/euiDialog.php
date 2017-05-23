@@ -11,12 +11,22 @@ class euiDialog extends euiForm {
 	
 	function generate_html(){
 		$contents = ($this->get_widget()->get_lazy_loading() ? '' : $this->build_html_for_widgets());
+		
+		if (!$this->get_widget()->get_hide_help_button()){
+			$window_tools = '<a href="javascript:' . $this->get_template()->get_element($this->get_widget()->get_help_button())->build_js_click_function_name() . '()" class="icon-help"></a>';
+		}
+		
+		$dialog_title = str_replace('"', '\"', $this->get_widget()->get_caption());
+		
 		$output = <<<HTML
-	<div class="easyui-dialog" id="{$this->get_id()}" data-options="{$this->build_js_data_options()}" title="{$this->get_widget()->get_caption()}" style="width: {$this->get_width()}; height: {$this->get_height()};">
+	<div class="easyui-dialog" id="{$this->get_id()}" data-options="{$this->build_js_data_options()}" title="{$dialog_title}" style="width: {$this->get_width()}; height: {$this->get_height()};">
 		{$contents}		
 	</div>
 	<div id="{$this->buttons_div_id}">
 		{$this->build_html_buttons()}
+	</div>
+	<div id="{$this->get_id()}_window_tools">
+		{$window_tools}
 	</div>
 HTML;
 		return $output;
@@ -28,6 +38,12 @@ HTML;
 			$output .= $this->build_js_for_widgets();
 		}
 		$output .= $this->build_js_buttons();
+		
+		// Add the help button in the bottom toolbar
+		if (!$this->get_widget()->get_hide_help_button()){
+			$output .= $this->get_template()->generate_js($this->get_widget()->get_help_button());
+		}
+		
 		return $output;
 	}
 	
@@ -45,6 +61,7 @@ HTML;
 				", cache: false" .
 				", closed: false" .
 				", buttons: '#{$this->buttons_div_id}'" .
+				", tools: '#{$this->get_id()}_window_tools'" .
 				", modal: true"
 				;		
 		return $output;

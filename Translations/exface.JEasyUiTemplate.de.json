@@ -1,4 +1,7 @@
 {
+	"REFRESH": "Aktualisieren",
+	"HELP": "Hilfe",
+	
 	"MESSAGE.SELECT_EXACTLY_X_ROWS": "Bitte %number% Zeile auswählen!|Bitte %number% Zeilen auswählen!",
 	"MESSAGE.SELECT_AT_MOST_X_ROWS": "Bitte maximal %number% Zeile auswählen!|Bitte maximal %number% Zeilen auswählen!",
 	"MESSAGE.SELECT_AT_LEAST_X_ROWS": "Bitte mindestens %number% Zeile auswählen!|Bitte mindestens %number% Zeilen auswählen!",
