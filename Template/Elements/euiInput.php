@@ -22,6 +22,9 @@ class euiInput extends euiAbstractElement {
 		// change the input's value every time it changes itself. This needs to be done on init() to make sure, the other element
 		// has not generated it's JS code yet!
 		$this->register_live_reference_at_linked_element();
+		
+		// Register an onChange-Script on the element linked by a disable condition.
+		$this->register_disable_condition_at_linked_element();
 	}
 	
 	function generate_html(){
@@ -73,6 +76,10 @@ class euiInput extends euiAbstractElement {
 				";
 		$output .= $this->build_js_live_reference();
 		$output .= $this->build_js_on_change_handler();
+		
+		// Initialize the disabled state of the widget if a disabled condition is set.
+		$output .= $this->build_js_disable_condition_initializer();
+		
 		return $output;
 	}
 	
@@ -125,6 +132,24 @@ class euiInput extends euiAbstractElement {
 		}
 		
 		return $output; 
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_enabler()
+	 */
+	function build_js_enabler(){
+		return '$("#' . $this->get_id() . '").' . $this->get_element_type() . '("enable")';
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_disabler()
+	 */
+	function build_js_disabler(){
+		return '$("#' . $this->get_id() . '").' . $this->get_element_type() . '("disable")';
 	}
 }
 ?>

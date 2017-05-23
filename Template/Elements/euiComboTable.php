@@ -4,6 +4,7 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\ComboTable;
 use exface\Core\Exceptions\Widgets\WidgetConfigurationError;
 use exface\Core\Exceptions\InvalidArgumentException;
+use exface\Core\Factories\WidgetLinkFactory;
 
 /**
  * 
@@ -86,6 +87,9 @@ JS;
 				}
 			}
 		}
+		
+		// Register an onChange-Script on the element linked by a disable condition.
+		$this->register_disable_condition_at_linked_element();
 	}
 	
 	protected function register_live_reference_at_linked_element(){
@@ -166,6 +170,9 @@ JS;
 JS;
 			}
 		}
+		
+		// Initialize the disabled state of the widget if a disabled condition is set.
+		$output .= $this->build_js_disable_condition_initializer();
 		
 		// Add a clear icon to each combo grid - a small cross to the right, that resets the value
 		// TODO The addClearBtn extension seems to break the setText method, so that it also sets the value. Perhaps we can find a better way some time
@@ -340,6 +347,7 @@ JS;
 							if (row) {
 								if (row[column] == undefined) {
 									if (window.console) { console.warn("The non-existing column \"" + column + "\" was requested from element \"{$this->get_id()}\""); }
+									return "";
 								}
 								return row[column];
 							} else if (column == "{$uidColumnName}") {
@@ -369,7 +377,15 @@ JS;
 					if ({$this->get_id()}_jquery.data("combogrid")) {
 						{$value_getter}
 					} else {
-						return {$this->get_id()}_jquery.val();
+						if (column) {
+							if (column == "{$uidColumnName}") {
+								return {$this->get_id()}_jquery.val();
+							} else {
+								return "";
+							}
+						} else {
+							return {$this->get_id()}_jquery.val();
+						}
 					}
 				}
 				
@@ -511,9 +527,9 @@ JS;
 		// an empty table will be shown, because the last result is cached. To fix this, we bind a reload of the table to
 		// onShowPanel in case the grid is empty (see above).
 		if (!is_null($this->get_value_with_defaults()) && $this->get_value_with_defaults() !== ''){
-			if ($widget->get_value_text()){
+			if (trim($widget->get_value_text())){
 				// If the text is already known, set it and prevent initial backend request
-				$widget_value_text = str_replace('"', '\"', $widget->get_value_text());
+				$widget_value_text = str_replace('"', '\"', trim($widget->get_value_text()));
 				$first_load_script = <<<JS
 
 						{$this->get_id()}_jquery.combogrid("setText", "{$widget_value_text}");
@@ -587,7 +603,7 @@ JS;
 					delete param.q;
 					
 					if (!{$this->get_id()}_jquery.data("_lastFilterSet")) { {$this->get_id()}_jquery.data("_lastFilterSet", {}); }
-					var currentFilterSet = {};
+					var currentFilterSet = {page: param.page, rows: param.rows};
 					
 					if ({$this->get_id()}_jquery.data("_firstLoad") == undefined){
 						{$this->get_id()}_jquery.data("_firstLoad", true);
@@ -706,11 +722,11 @@ JS;
 					} else if ({$this->get_id()}_jquery.data("_filterSetterUpdate")) {
 						// Update durch eine filter-Referenz.
 						
-						// Ergibt die Anfrage bei einem FilterSetterUpdate keine Ergebnisse ist wahrscheinlich
-						// ein Wert gesetzt, welcher den gesetzten Filtern widerspricht. Deshalb wird der Wert
-						// der ComboTable geloescht und anschliessend neu geladen.
+						// Ergibt die Anfrage bei einem FilterSetterUpdate keine Ergebnisse waehrend ein Wert
+						// gesetzt ist, widerspricht der gesetzte Wert wahrscheinlich den gesetzten Filtern.
+						// Deshalb wird der Wert der ComboTable geloescht und anschliessend neu geladen.
 						var rows = {$this->get_id()}_datagrid.datagrid("getData");
-						if (rows["total"] == 0) {
+						if (rows["total"] == 0 && {$this->get_id()}_valueGetter()) {
 							{$this->get_id()}_clear(true);
 							{$this->get_id()}_datagrid.datagrid("reload");
 						}
