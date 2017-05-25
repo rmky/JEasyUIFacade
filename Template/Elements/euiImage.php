@@ -16,14 +16,10 @@ class euiImage extends euiText
     function generateHtml()
     {
         $style = '';
-        if (! $this->getWidget()
-            ->getWidth()
-            ->isUndefined()) {
+        if (! $this->getWidget()->getWidth()->isUndefined()) {
             $width = ' width="' . $this->getWidth() . '"';
         }
-        if (! $this->getWidget()
-            ->getHeight()
-            ->isUndefined()) {
+        if (! $this->getWidget()->getHeight()->isUndefined()) {
             $height = ' height="' . $this->getHeight() . '"';
         }
         

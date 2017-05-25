@@ -112,22 +112,16 @@ HTML;
 					var ' . $series_id . ' = [];';
             
             if ($series->getChartType() == ChartSeries::CHART_TYPE_PIE) {
-                $series_data = $series_id . '[i] = { label: ds.rows[i]["' . $series->getAxisX()
-                    ->getDataColumn()
-                    ->getDataColumnName() . '"], data: ds.rows[i]["' . $series->getDataColumn()->getDataColumnName() . '"] }';
+                $series_data = $series_id . '[i] = { label: ds.rows[i]["' . $series->getAxisX()->getDataColumn()->getDataColumnName() . '"], data: ds.rows[i]["' . $series->getDataColumn()->getDataColumnName() . '"] }';
             } else {
                 // Prepare the code to transform the ajax data to flot data. It will later run in a for loop.
                 switch ($series->getChartType()) {
                     case ChartSeries::CHART_TYPE_BARS:
                         $data_key = $series->getDataColumn()->getDataColumnName();
-                        $data_value = $series->getAxisY()
-                            ->getDataColumn()
-                            ->getDataColumnName();
+                        $data_value = $series->getAxisY()->getDataColumn()->getDataColumnName();
                         break;
                     default:
-                        $data_key = $series->getAxisX()
-                            ->getDataColumn()
-                            ->getDataColumnName();
+                        $data_key = $series->getAxisX()->getDataColumn()->getDataColumnName();
                         $data_value = $series->getDataColumn()->getDataColumnName();
                 }
                 $series_data .= '
@@ -240,7 +234,7 @@ HTML;
     /**
      * Returns the definition of the function elementId_load(urlParams) which is used to fethc the data via AJAX
      * if the chart is not bound to another data widget (in that case, the data should be provided by that widget).
-     * 
+     *
      * @return string
      */
     protected function buildJsAjaxLoaderFunction()

@@ -1,5 +1,4 @@
 <?php
-
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\DialogButton;
@@ -9,7 +8,7 @@ use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 
 /**
  * generates jEasyUI-Buttons for ExFace
- * 
+ *
  * @author Andrej Kabachnik
  *        
  */
@@ -100,9 +99,7 @@ class euiButton extends euiAbstractElement
         $prefill = '';
         if ($prefill_link = $this->getAction()->getPrefillWithDataFromWidgetLink()) {
             if ($prefill_link->getPageId() == $widget->getPageId()) {
-                $prefill = ", prefill: " . $this->getTemplate()
-                    ->getElement($prefill_link->getWidget())
-                    ->buildJsDataGetter($this->getAction());
+                $prefill = ", prefill: " . $this->getTemplate()->getElement($prefill_link->getWidget())->buildJsDataGetter($this->getAction());
             }
         }
         

@@ -46,9 +46,7 @@ class euiComboTable extends euiInput
     {
         parent::init();
         $this->setElementType('combogrid');
-        $this->setJsDebugLevel($this->getTemplate()
-            ->getConfig()
-            ->getOption("JAVASCRIPT_DEBUG_LEVEL"));
+        $this->setJsDebugLevel($this->getTemplate()->getConfig()->getOption("JAVASCRIPT_DEBUG_LEVEL"));
         
         // Register onChange-Handler for Filters with Live-Reference-Values
         $widget = $this->getWidget();
@@ -168,12 +166,8 @@ JS;
         // dieses nicht entscheiden kann, ob das Filter-Input-Widget existiert oder nicht. Fuer diese Filter
         // existiert kein Input-Widget, daher existiert fuer sie weder HTML- noch JavaScript-Code und es
         // kommt sonst bei einem Aufruf der Funktion zu einem Fehler.
-        if ($this->getWidget()
-            ->getTable()
-            ->hasFilters()) {
-            foreach ($this->getWidget()
-                ->getTable()
-                ->getFilters() as $fltr) {
+        if ($this->getWidget()->getTable()->hasFilters()) {
+            foreach ($this->getWidget()->getTable()->getFilters() as $fltr) {
                 $output .= <<<JS
 
 			function {$this->getTemplate()->getElement($fltr->getWidget())->getId()}_valueSetter(value){}
@@ -202,10 +196,7 @@ JS;
         foreach ($widget->getSelectableOptions() as $key => $value) {
             if ($key === '' || is_null($key))
                 continue;
-            $table->addLoadFilterScript('data.rows.unshift({' . $widget->getTable()
-                ->getUidColumn()
-                ->getDataColumnName() . ': "' . $key . '", ' . $widget->getTextColumn()
-                ->getDataColumnName() . ': "' . $value . '"});');
+            $table->addLoadFilterScript('data.rows.unshift({' . $widget->getTable()->getUidColumn()->getDataColumnName() . ': "' . $key . '", ' . $widget->getTextColumn()->getDataColumnName() . ': "' . $value . '"});');
         }
         
         // Init the combogrid itself
@@ -356,9 +347,7 @@ JS;
 						return {$this->getId()}_jquery.combogrid("getValues").join();
 JS;
         } else {
-            $uidColumnName = $widget->getTable()
-                ->getUidColumn()
-                ->getDataColumnName();
+            $uidColumnName = $widget->getTable()->getUidColumn()->getDataColumnName();
             
             $value_getter = <<<JS
 						if (column){
@@ -708,9 +697,7 @@ JS;
     {
         $widget = $this->getWidget();
         
-        $uidColumnName = $widget->getTable()
-            ->getUidColumn()
-            ->getDataColumnName();
+        $uidColumnName = $widget->getTable()->getUidColumn()->getDataColumnName();
         $textColumnName = $widget->getTextColumn()->getDataColumnName();
         
         $suppressLazyLoadingGroupUpdateScript = $widget->getLazyLoadingGroupId() ? $this->getId() . '_jquery.data("_otherSuppressLazyLoadingGroupUpdate", true);' : '';

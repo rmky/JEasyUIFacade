@@ -1,5 +1,4 @@
 <?php
-
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
@@ -7,7 +6,7 @@ use exface\Core\Widgets\Dialog;
 
 /**
  * generates jEasyUI-Buttons for ExFace
- * 
+ *
  * @author Andrej Kabachnik
  *        
  */
@@ -54,8 +53,7 @@ class euiMenuButton extends euiAbstractElement
 				';
         }
         
-        $icon = $this->getWidget()->getIconName() ? ',iconCls:\'' . $this->buildCssIconClass($this->getWidget()
-            ->getIconName()) . '\'' : '';
+        $icon = $this->getWidget()->getIconName() ? ',iconCls:\'' . $this->buildCssIconClass($this->getWidget()->getIconName()) . '\'' : '';
         switch ($this->getWidget()->getAlign()) {
             case EXF_ALIGN_LEFT:
                 $align_style = 'float: left;';
@@ -118,9 +116,7 @@ class euiMenuButton extends euiAbstractElement
         
         foreach ($this->getWidget()->getButtons() as $b) {
             $output .= 'case "' . $b->getCaption() . '":
-							' . $this->getTemplate()
-                ->getElement($b)
-                ->buildJsClickFunction() . '
+							' . $this->getTemplate()->getElement($b)->buildJsClickFunction() . '
 							break;
 						';
         }

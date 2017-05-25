@@ -18,10 +18,7 @@ class euiDialog extends euiForm
         $contents = ($this->getWidget()->getLazyLoading() ? '' : $this->buildHtmlForWidgets());
         
         if (! $this->getWidget()->getHideHelpButton()) {
-            $window_tools = '<a href="javascript:' . $this->getTemplate()
-                ->getElement($this->getWidget()
-                ->getHelpButton())
-                ->buildJsClickFunctionName() . '()" class="icon-help"></a>';
+            $window_tools = '<a href="javascript:' . $this->getTemplate()->getElement($this->getWidget()->getHelpButton())->buildJsClickFunctionName() . '()" class="icon-help"></a>';
         }
         
         $dialog_title = str_replace('"', '\"', $this->getWidget()->getCaption());
@@ -50,8 +47,7 @@ HTML;
         
         // Add the help button in the bottom toolbar
         if (! $this->getWidget()->getHideHelpButton()) {
-            $output .= $this->getTemplate()->generateJs($this->getWidget()
-                ->getHelpButton());
+            $output .= $this->getTemplate()->generateJs($this->getWidget()->getHelpButton());
         }
         
         return $output;
@@ -60,7 +56,7 @@ HTML;
     /**
      * Generates the contents of the data-options attribute (e.g.
      * iconCls, collapsible, etc.)
-     * 
+     *
      * @return string
      */
     function buildJsDataOptions()
@@ -75,9 +71,7 @@ HTML;
 
     function getWidth()
     {
-        if ($this->getWidget()
-            ->getWidth()
-            ->isUndefined()) {
+        if ($this->getWidget()->getWidth()->isUndefined()) {
             $this->getWidget()->setWidth((2 * $this->getWidthRelativeUnit() + 35) . 'px');
         }
         return parent::getWidth();
@@ -85,9 +79,7 @@ HTML;
 
     function getHeight()
     {
-        if ($this->getWidget()
-            ->getHeight()
-            ->isUndefined()) {
+        if ($this->getWidget()->getHeight()->isUndefined()) {
             $this->getWidget()->setHeight('80%');
         }
         return parent::getHeight();

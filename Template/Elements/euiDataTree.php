@@ -17,20 +17,14 @@ class euiDataTree extends euiDataTable
         if ($this->isEditable()) {
             $this->addOnExpand('
 					if (row){
-						var rows = $(this).' . $this->getElementType() . '("getChildren", row.' . $this->getWidget()
-                ->getUidColumn()
-                ->getDataColumnName() . ');
+						var rows = $(this).' . $this->getElementType() . '("getChildren", row.' . $this->getWidget()->getUidColumn()->getDataColumnName() . ');
 						for (var i=0; i<rows.length; i++){
-							$(this).' . $this->getElementType() . '("beginEdit", rows[i].' . $this->getWidget()
-                ->getUidColumn()
-                ->getDataColumnName() . ');
+							$(this).' . $this->getElementType() . '("beginEdit", rows[i].' . $this->getWidget()->getUidColumn()->getDataColumnName() . ');
 						}
 					}
 					');
         }
-        $grid_head = parent::buildJsInitOptionsHead() . ', treeField: "' . $this->getWidget()
-            ->getTreeColumn()
-            ->getDataColumnName() . '"' . ($this->getOnExpand() ? ', onExpand: function(row){' . $this->getOnExpand() . '}' : '');
+        $grid_head = parent::buildJsInitOptionsHead() . ', treeField: "' . $this->getWidget()->getTreeColumn()->getDataColumnName() . '"' . ($this->getOnExpand() ? ', onExpand: function(row){' . $this->getOnExpand() . '}' : '');
         return $grid_head;
     }
 
@@ -67,9 +61,7 @@ class euiDataTree extends euiDataTable
         return '
 					var rows = $(this).' . $this->getElementType() . '("getRoots");
 					for (var i=0; i<rows.length; i++){
-						$(this).' . $this->getElementType() . '("beginEdit", rows[i].' . $this->getWidget()
-            ->getUidColumn()
-            ->getDataColumnName() . ');
+						$(this).' . $this->getElementType() . '("beginEdit", rows[i].' . $this->getWidget()->getUidColumn()->getDataColumnName() . ');
 					}
 				';
     }

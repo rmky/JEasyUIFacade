@@ -49,7 +49,7 @@ class euiPanel extends euiContainer
     /**
      * Generates the contents of the data-options attribute (e.g.
      * iconCls, collapsible, etc.)
-     * 
+     *
      * @return string
      */
     function buildJsDataOptions()

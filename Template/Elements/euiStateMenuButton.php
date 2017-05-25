@@ -25,9 +25,7 @@ class euiStateMenuButton extends euiMenuButton
             $b->setCaption($widget->getCaption());
             $b->setAlign($widget->getAlign());
             $b->setVisibility($widget->getVisibility());
-            $output = $this->getTemplate()
-                ->getElement($b)
-                ->generateHtml();
+            $output = $this->getTemplate()->getElement($b)->generateHtml();
         } elseif ($button_no > 1) {
             $output = parent::generateHtml();
         }
@@ -48,9 +46,7 @@ class euiStateMenuButton extends euiMenuButton
         $output = '';
         
         if ($button_no == 1) {
-            $output = $this->getTemplate()
-                ->getElement($widget->getButtons()[0])
-                ->generateJs();
+            $output = $this->getTemplate()->getElement($widget->getButtons()[0])->generateJs();
         } elseif ($button_no > 1) {
             $output = parent::generateJs();
         }

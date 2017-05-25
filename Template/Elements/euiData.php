@@ -62,7 +62,7 @@ class euiData extends euiAbstractElement
     /**
      * Generates config-elements for the js grid instatiator, that define the data source for the grid.
      * By default the data source is remote and will be fetched via AJAX. Override this method for local data sources.
-     * 
+     *
      * @return string
      */
     public function buildJsDataSource()
@@ -75,9 +75,7 @@ class euiData extends euiAbstractElement
             $queryParams = array(
                 'resource' => $this->getPageId(),
                 'element' => $widget->getId(),
-                'object' => $this->getWidget()
-                    ->getMetaObject()
-                    ->getId(),
+                'object' => $this->getWidget()->getMetaObject()->getId(),
                 'action' => $widget->getLazyLoadingAction()
             );
             foreach ($queryParams as $param => $val) {
@@ -92,8 +90,8 @@ class euiData extends euiAbstractElement
                         $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
                         $live_filter_js .= 'param.fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '= "' . $fltr->getComparator() . '"+' . $linked_element->buildJsValueGetter() . ';';
                         $this->addOnBeforeLoad($live_filter_js);
-                    }                    // If the filter has a static value, just set it here
-                    else {
+                    } // If the filter has a static value, just set it here
+else {
                         $params[] = 'fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . ': "' . $fltr->getComparator() . urlencode(strpos($fltr->getValue(), '=') === 0 ? '' : $fltr->getValue()) . '"';
                     }
                 }
@@ -147,10 +145,7 @@ class euiData extends euiAbstractElement
 				' . (! $widget->getMultiSelect() ? ', singleSelect: true' : '') . '
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
-				, pageList: ' . json_encode($this->getTemplate()
-            ->getApp()
-            ->getConfig()
-            ->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')) . '
+				, pageList: ' . json_encode($this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')) . '
 				, pageSize: ' . $widget->getPaginateDefaultPageSize() . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
@@ -283,9 +278,7 @@ class euiData extends euiAbstractElement
     public function getShowFooter()
     {
         if (is_null($this->show_footer)) {
-            $this->show_footer = ($this->getTemplate()
-                ->getConfig()
-                ->getOption('DATAGRID_SHOW_FOOTER_BY_DEFAULT') ? true : false);
+            $this->show_footer = ($this->getTemplate()->getConfig()->getOption('DATAGRID_SHOW_FOOTER_BY_DEFAULT') ? true : false);
         }
         return $this->show_footer;
     }
@@ -348,7 +341,7 @@ JS;
 
     /**
      * Binds a script to the onLoadSuccess event.
-     * 
+     *
      * @param string $script            
      */
     public function addOnLoadSuccess($script)
@@ -363,7 +356,7 @@ JS;
 
     /**
      * Binds a script to the onLoadError event.
-     * 
+     *
      * @param string $script            
      */
     public function addOnLoadError($script)

@@ -6,9 +6,7 @@ class euiMessage extends euiText
 
     function generateHtml()
     {
-        if ($this->getWidget()
-            ->getWidth()
-            ->toString()) {
+        if ($this->getWidget()->getWidth()->toString()) {
             $width = $this->getWidth();
         } else {
             $width = 'calc(100% - 20px)';

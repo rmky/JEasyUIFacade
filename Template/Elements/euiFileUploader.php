@@ -145,7 +145,7 @@ JS;
     /**
      * Generates the acceptedFileTypes option with a corresponding regular expressions if allowed_extensions is set
      * for the widget
-     * 
+     *
      * @return string
      */
     public function generateFileFilter()

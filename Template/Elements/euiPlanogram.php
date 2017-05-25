@@ -1,5 +1,4 @@
 <?php
-
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\Planogram;
@@ -13,12 +12,8 @@ class euiPlanogram extends euiDiagram
         $button_html = "";
         foreach ($this->getWidget()->getShapes() as $shape) {
             foreach ($shape->getData()->getButtons() as $button) {
-                $button_html .= $this->getTemplate()
-                    ->getElement($button)
-                    ->generateHtml() . "\n";
-                $menu_html .= $this->getTemplate()
-                    ->getElement($button)
-                    ->buildHtmlButton();
+                $button_html .= $this->getTemplate()->getElement($button)->generateHtml() . "\n";
+                $menu_html .= $this->getTemplate()->getElement($button)->buildHtmlButton();
             }
             // Create a context menu if any items were found
             if (count($shape->getData()->getButtons()) > 1 && $menu_html) {
@@ -96,22 +91,13 @@ HTML;
         
         /* @var $relation_to_diagram \exface\Core\CommonLogic\Model\RelationPath */
         $relation_to_diagram = $shape->getRelationPathToDiagramObject();
-        $relation_from_data_to_diagram = $shape->getData()
-            ->getMetaObject()
-            ->findRelationPath($widget->getMetaObject())
-            ->toString();
-        $filter_shape_options = 'data.fltr01_' . RelationPath::relationPathAdd($relation_to_diagram->toString(), $relation_to_diagram->getEndObject()->getUidAlias()) . ' = ' . $this->getTemplate()
-            ->getElement($widget->getDiagramObjectSelectorWidget())
-            ->buildJsValueGetter() . ';';
-        $filter_shape_data = 'data.fltr01_' . $relation_from_data_to_diagram . ' = ' . $this->getTemplate()
-            ->getElement($widget->getDiagramObjectSelectorWidget())
-            ->buildJsValueGetter() . ';';
+        $relation_from_data_to_diagram = $shape->getData()->getMetaObject()->findRelationPath($widget->getMetaObject())->toString();
+        $filter_shape_options = 'data.fltr01_' . RelationPath::relationPathAdd($relation_to_diagram->toString(), $relation_to_diagram->getEndObject()->getUidAlias()) . ' = ' . $this->getTemplate()->getElement($widget->getDiagramObjectSelectorWidget())->buildJsValueGetter() . ';';
+        $filter_shape_data = 'data.fltr01_' . $relation_from_data_to_diagram . ' = ' . $this->getTemplate()->getElement($widget->getDiagramObjectSelectorWidget())->buildJsValueGetter() . ';';
         
         $bg_image = $widget->getPrefillData()->getCellValue($widget->getBackgroundImageAttributeAlias(), 0);
         if ($bg_image) {
-            $bg_image_size = getimagesize($widget->getWorkbench()
-                ->filemanager()
-                ->getPathToBaseFolder() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $bg_image);
+            $bg_image_size = getimagesize($widget->getWorkbench()->filemanager()->getPathToBaseFolder() . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $bg_image);
         } else {
             $bg_image_size = array(
                 0,
@@ -127,9 +113,7 @@ HTML;
         }
         
         if ($widget->getAddRowLinkButtonId()) {
-            $add_row_function = $this->getTemplate()
-                ->getElementByWidgetId($widget->getAddRowLinkButtonId(), $this->getPageId())
-                ->buildJsClickFunction();
+            $add_row_function = $this->getTemplate()->getElementByWidgetId($widget->getAddRowLinkButtonId(), $this->getPageId())->buildJsClickFunction();
             $add_row_function = preg_replace([
                 '/var requestData = {.*?};\r?\n/',
                 '/, prefill: {.*?}\r?\n/'
@@ -137,10 +121,7 @@ HTML;
                 '',
                 ''
             ], $add_row_function);
-            $vm_shelf_oid = $this->getTemplate()
-                ->getElement($this->getWidget()
-                ->getDiagramObjectSelectorWidget())
-                ->buildJsValueGetter();
+            $vm_shelf_oid = $this->getTemplate()->getElement($this->getWidget()->getDiagramObjectSelectorWidget())->buildJsValueGetter();
         }
         
         $output = <<<JS

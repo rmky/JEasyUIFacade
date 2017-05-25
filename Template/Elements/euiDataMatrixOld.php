@@ -52,7 +52,7 @@ class euiDataMatrixOld extends euiDataTable
      * This special data source renderer fetches data according to the filters an reorganizes the rows and column to fit the matrix.
      * It basically transposes the data column (data_column_id) using values of the label column (label_column_id) as new column headers.
      * The other columns remain untouched.
-     * 
+     *
      * @see \exface\JEasyUiTemplate\Template\Elements\grid::buildJsDataSource()
      */
     public function buildJsDataSource()
@@ -64,10 +64,7 @@ class euiDataMatrixOld extends euiDataTable
         $result = array();
         
         // create data sheet to fetch data
-        $ds = $this->getTemplate()
-            ->getWorkbench()
-            ->data()
-            ->createDataSheet($this->getMetaObject());
+        $ds = $this->getTemplate()->getWorkbench()->data()->createDataSheet($this->getMetaObject());
         // add columns
         foreach ($widget->getColumns() as $col) {
             $ds->getColumns()->addFromExpression($col->getAttributeAlias(), $col->getDataColumnName(), $col->isHidden());
@@ -136,7 +133,7 @@ class euiDataMatrixOld extends euiDataTable
      * This special column renderer for the matrix replaces the column specified by label_column_id with a set of new columns for
      * every unique value in the column specified by data_column_id.
      * The new columns retain most properties of the replaced label column.
-     * 
+     *
      * @see \exface\JEasyUiTemplate\Template\Elements\grid::buildJsInitOptionsColumns()
      */
     public function buildJsInitOptionsColumns(array $column_groups = null)

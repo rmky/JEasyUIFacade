@@ -48,9 +48,7 @@ class euiInput extends euiAbstractElement
 
     public function getValueWithDefaults()
     {
-        if ($this->getWidget()->getValueExpression() && $this->getWidget()
-            ->getValueExpression()
-            ->isReference()) {
+        if ($this->getWidget()->getValueExpression() && $this->getWidget()->getValueExpression()->isReference()) {
             $value = '';
         } else {
             $value = $this->getWidget()->getValue();

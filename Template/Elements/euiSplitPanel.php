@@ -31,14 +31,10 @@ class euiSplitPanel extends euiPanel
                 break;
         }
         
-        if ($height && ! $this->getWidget()
-            ->getHeight()
-            ->isPercentual()) {
+        if ($height && ! $this->getWidget()->getHeight()->isPercentual()) {
             $height = 'calc( ' . $height . ' + 7px)';
         }
-        if ($width && ! $this->getWidget()
-            ->getWidth()
-            ->isPercentual()) {
+        if ($width && ! $this->getWidget()->getWidth()->isPercentual()) {
             $width = 'calc( ' . $width . ' + 7px)';
         }
         

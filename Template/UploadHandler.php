@@ -71,8 +71,8 @@ class UploadHandler
             ),
             // By default, allow redirects to the referer protocol+host:
             'redirect_allow_target' => '/^' . preg_quote(parse_url($this->getServerVar('HTTP_REFERER'), PHP_URL_SCHEME) . '://' . parse_url($this->getServerVar('HTTP_REFERER'), PHP_URL_HOST) . '/', // Trailing slash to not match subdomains by mistake
-'/') // preg_quote delimiter param
- . '/',
+'/') . // preg_quote delimiter param
+'/',
             // Enable to provide file downloads via GET requests to the PHP script:
             // 1. Set to 1 to download files via readfile method through PHP
             // 2. Set to 2 to send a X-Sendfile header for lighttpd/Apache
@@ -823,8 +823,8 @@ class UploadHandler
                 $y = ($img_height / ($img_width / $max_width) - $max_height) / 2;
             }
         }
-        $success = $image->resizeImage($new_width, $new_height, isset($options['filter']) ? $options['filter'] : \imagick::FILTER_LANCZOS, isset($options['blur']) ? $options['blur'] : 1, $new_width && $new_height) // fit image into constraints if not to be cropped
-;
+        $success = $image->resizeImage($new_width, $new_height, isset($options['filter']) ? $options['filter'] : \imagick::FILTER_LANCZOS, isset($options['blur']) ? $options['blur'] : 1, $new_width && $new_height); // fit image into constraints if not to be cropped
+
         if ($success && $crop) {
             $success = $image->cropImage($max_width, $max_height, $x, $y);
             if ($success) {

@@ -67,7 +67,7 @@ class euiPivotTable extends euiDataTable
     /**
      * A pivotGrid expects data in a different format: [ {field: value, ...}, {...}, ...
      * ]
-     * 
+     *
      * @see \exface\JEasyUiTemplate\Template\Elements\jeasyuiAbstractWidget::prepareData()
      */
     public function prepareData(\exface\Core\Interfaces\DataSheets\DataSheetInterface $data_sheet)

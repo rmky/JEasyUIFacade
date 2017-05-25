@@ -53,9 +53,7 @@ class euiDataTable extends euiData
                 if ($button->isHidden())
                     continue;
                 $button_html .= $this->getTemplate()->generateHtml($button);
-                $context_menu_html .= str_replace('<a id=', '<a style="width: 500px; text-align: left;" id=', $this->getTemplate()
-                    ->getElement($button)
-                    ->buildHtmlButton());
+                $context_menu_html .= str_replace('<a id=', '<a style="width: 500px; text-align: left;" id=', $this->getTemplate()->getElement($button)->buildHtmlButton());
             }
         }
         
@@ -72,10 +70,7 @@ class euiDataTable extends euiData
             if ($button_html) {
                 $output .= $button_html;
             }
-            $output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search">' . $this->getTemplate()
-                ->getApp()
-                ->getTranslator()
-                ->translate('WIDGET.SEARCH') . '</button></div>';
+            $output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search">' . $this->getTemplate()->getApp()->getTranslator()->translate('WIDGET.SEARCH') . '</button></div>';
             $output .= '</form>';
         }
         
@@ -163,9 +158,7 @@ JS;
         // Double click actions. Currently only supports one double click action - the first one in the list of buttons
         if ($dblclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_DOUBLE_CLICK)[0]) {
             
-            $grid_head .= ', onDblClickRow: function(index, row) {' . $this->getTemplate()
-                ->getElement($dblclick_button)
-                ->buildJsClickFunction() . '}';
+            $grid_head .= ', onDblClickRow: function(index, row) {' . $this->getTemplate()->getElement($dblclick_button)->buildJsClickFunction() . '}';
         }
         
         // Context menu
@@ -206,9 +199,7 @@ JS;
                 // is the same, even if it is shown in multiple rows at all times!
                 $rel_path = $col->getAttribute()->getRelationPath();
                 if ($rel_path && ! $rel_path->isEmpty()) {
-                    $col_obj_uid = $rel_path->getRelationLast()
-                        ->getRelatedObjectKeyAttribute()
-                        ->getAliasWithRelationPath();
+                    $col_obj_uid = $rel_path->getRelationLast()->getRelatedObjectKeyAttribute()->getAliasWithRelationPath();
                     $this->addOnLoadSuccess("$('td[field=\'" . $col->getDataColumnName() . "\'] input').change(function(){
 						var rows = $('#" . $this->getId() . "')." . $this->getElementType() . "('getRows');
 						var thisRowIdx = $(this).parents('tr.datagrid-row').attr('datagrid-row-index');
@@ -311,9 +302,7 @@ JS;
                     $bottom_buttons[] = '{
 						iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
 						title: "' . str_replace('"', '\"', $button->getCaption()) . '",
-						handler: ' . $this->getTemplate()
-                        ->getElement($button)
-                        ->buildJsClickFunctionName() . '
+						handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
 					}';
                 }
             }
@@ -325,9 +314,7 @@ JS;
             $bottom_buttons[] = '{
 						iconCls:  "icon-help",
 						title: "' . $this->translate('HELP') . '",
-						handler: ' . $this->getTemplate()
-                ->getElement($widget->getHelpButton())
-                ->buildJsClickFunctionName() . '
+						handler: ' . $this->getTemplate()->getElement($widget->getHelpButton())->buildJsClickFunctionName() . '
 					}';
         }
         
@@ -362,7 +349,7 @@ JS;
      * the value of that column in the specified row or (if row is not set) the selected row.
      * IDEA perhaps it should return an entire row as an array if the column is not specified. Just have a feeling, it
      * might be better...
-     * 
+     *
      * @see \exface\JEasyUiTemplate\Template\Elements\jeasyuiAbstractWidget::buildJsValueGetter()
      */
     public function buildJsValueGetter($column = null, $row = null)
@@ -372,9 +359,7 @@ JS;
             $output .= "." . $this->getElementType() . "('getSelected')";
         }
         if (is_null($column)) {
-            $column = $this->getWidget()
-                ->getMetaObject()
-                ->getUidAlias();
+            $column = $this->getWidget()->getMetaObject()->getUidAlias();
         }
         return "(" . $output . " ? " . $output . "['" . $column . "'] : '')";
     }
