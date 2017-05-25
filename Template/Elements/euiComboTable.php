@@ -8,7 +8,7 @@ use exface\Core\Factories\WidgetLinkFactory;
 
 /**
  *
- * @method ComboTable get_widget()
+ * @method ComboTable getWidget()
  *        
  * @author Andrej Kabachnik
  *        
@@ -56,7 +56,7 @@ class euiComboTable extends euiInput
                     $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
                     
                     $widget_lazy_loading_group_id = $widget->getLazyLoadingGroupId();
-                    $linked_element_lazy_loading_group_id = method_exists($linked_element->getWidget(), 'get_lazy_loading_group_id') ? $linked_element->getWidget()->getLazyLoadingGroupId() : '';
+                    $linked_element_lazy_loading_group_id = method_exists($linked_element->getWidget(), 'getLazyLoadingGroupId') ? $linked_element->getWidget()->getLazyLoadingGroupId() : '';
                     // Gehoert das Widget einer Lazyloadinggruppe an, so darf es keine Filterreferenzen
                     // zu Widgets außerhalb dieser Gruppe haben.
                     if ($widget_lazy_loading_group_id && ($linked_element_lazy_loading_group_id != $widget_lazy_loading_group_id)) {

@@ -11,7 +11,7 @@ use exface\Core\Widgets\DataButton;
  *
  * @author Andrej Kabachnik
  *        
- * @method DataTable get_widget()
+ * @method DataTable getWidget()
  *        
  */
 class euiDataTable extends euiData

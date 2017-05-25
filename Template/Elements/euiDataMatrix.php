@@ -6,7 +6,7 @@ use exface\Core\Widgets\DataMatrix;
 
 /**
  *
- * @method DataMatrix get_widget()
+ * @method DataMatrix getWidget()
  *        
  * @author aka
  *        

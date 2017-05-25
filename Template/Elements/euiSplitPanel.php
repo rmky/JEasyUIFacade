@@ -5,7 +5,7 @@ use exface\Core\Widgets\SplitPanel;
 
 /**
  *
- * @method SplitPanel get_widget()
+ * @method SplitPanel getWidget()
  * @author aka
  *        
  */

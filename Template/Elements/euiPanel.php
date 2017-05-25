@@ -8,7 +8,7 @@ use exface\Core\Widgets\Panel;
  *
  * @author Andrej Kabachnik
  *        
- * @method Panel get_widget()
+ * @method Panel getWidget()
  */
 class euiPanel extends euiContainer
 {

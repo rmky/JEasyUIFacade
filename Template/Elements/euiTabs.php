@@ -7,7 +7,7 @@ use exface\Core\Widgets\Tabs;
  *
  * @author Andrej Kabachnik
  *        
- * @method Tabs get_widget()
+ * @method Tabs getWidget()
  *        
  */
 class euiTabs extends euiContainer

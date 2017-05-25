@@ -7,7 +7,7 @@ use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
 
 /**
  *
- * @method Input get_widget()
+ * @method Input getWidget()
  *        
  * @author Andrej Kabachnik
  *        

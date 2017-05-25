@@ -6,7 +6,7 @@ use exface\Core\Widgets\InputSelect;
 /**
  * The InputSelect widget will be rendered into a combobox in jEasyUI.
  *
- * @method InputSelect get_widget()
+ * @method InputSelect getWidget()
  *        
  * @author Andrej Kabachnik
  *        

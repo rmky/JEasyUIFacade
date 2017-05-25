@@ -7,7 +7,7 @@ use exface\Core\Widgets\Tab;
  *
  * @author Andrej Kabachnik
  *        
- * @method Tab get_widget()
+ * @method Tab getWidget()
  */
 class euiTab extends euiPanel
 {

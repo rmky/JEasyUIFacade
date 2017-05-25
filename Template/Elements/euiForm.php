@@ -9,7 +9,7 @@ use exface\Core\Widgets\Form;
  * The HTML form cannot be used here, because form widgets can contain
  * tabs and the tabs implementation in jEasyUI is using HTML forms, so it does not work within a <form> element.
  *
- * @method Form get_widget()
+ * @method Form getWidget()
  *        
  * @author Andrej Kabachnik
  *        

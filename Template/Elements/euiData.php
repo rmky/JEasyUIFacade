@@ -8,7 +8,7 @@ use exface\Core\CommonLogic\DataSheets\DataSheet;
 /**
  * Implementation of a basic grid.
  *
- * @method Data get_widget()
+ * @method Data getWidget()
  *        
  * @author Andrej Kabachnik
  *        

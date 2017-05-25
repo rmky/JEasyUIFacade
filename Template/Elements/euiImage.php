@@ -5,7 +5,7 @@ use exface\Core\Widgets\Image;
 
 /**
  *
- * @method Image get_widget()
+ * @method Image getWidget()
  *        
  * @author Andrej Kabachnik
  *        
