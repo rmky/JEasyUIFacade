@@ -1,13 +1,17 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
-class euiInputDateTime extends euiInputDate {
-	
-	protected function init(){
-		parent::init();
-		$this->set_element_type('datetimebox');
-	}
-	
-	protected function build_js_date_format(){
-		return 'yyyy-MM-dd HH:mm:ss';
-	}
+
+class euiInputDateTime extends euiInputDate
+{
+
+    protected function init()
+    {
+        parent::init();
+        $this->setElementType('datetimebox');
+    }
+
+    protected function buildJsDateFormat()
+    {
+        return 'yyyy-MM-dd HH:mm:ss';
+    }
 }

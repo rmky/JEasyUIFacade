@@ -1,12 +1,14 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
-class euiTextHeading extends euiText {
-	
-	function generate_html(){
-		$output = '';
-		$output .= '<h' . $this->get_widget()->get_heading_level() . ' id="' . $this->get_id() . '">' . $this->get_widget()->get_text() . '</h' . $this->get_widget()->get_heading_level() . '>';
-		return $output;
-	}
-	
+
+class euiTextHeading extends euiText
+{
+
+    function generateHtml()
+    {
+        $output = '';
+        $output .= '<h' . $this->getWidget()->getHeadingLevel() . ' id="' . $this->getId() . '">' . $this->getWidget()->getText() . '</h' . $this->getWidget()->getHeadingLevel() . '>';
+        return $output;
+    }
 }
 ?>

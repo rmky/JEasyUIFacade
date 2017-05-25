@@ -1,88 +1,95 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+
 use exface\Core\Widgets\InputSelect;
 
 /**
  * The InputSelect widget will be rendered into a combobox in jEasyUI.
- * 
- * @method InputSelect get_widget()
- * 
- * @author Andrej Kabachnik
  *
+ * @method InputSelect get_widget()
+ *        
+ * @author Andrej Kabachnik
+ *        
  */
-class euiInputSelect extends euiInput {
-	
-	protected function init(){
-		parent::init();
-		$this->set_element_type('combobox');
-	}
-	
-	function generate_html(){
-		$widget = $this->get_widget();
-		$options = '';
-		foreach ($widget->get_selectable_options() as $value => $text){
-			if (!($this->get_widget()->get_multi_select() && count($this->get_widget()->get_values()) > 1)){
-				$selected = strcasecmp($this->get_value_with_defaults(), $value) == 0 ? true : false;
-			}
-			$options .= '
-					<option value="' . $value . '"' . ($selected ? ' selected="selected"' : '') . '>' . $text . '</option>';
-		}
+class euiInputSelect extends euiInput
+{
 
-		$output = '	<select style="height: 100%; width: 100%;" class="easyui-' . $this->get_element_type() . '" 
-						name="' . $widget->get_attribute_alias() . '"  
-						id="' . $this->get_id() . '"  
-						' . ($widget->is_required() ? 'required="true" ' : '') . '
-						' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . '
-						' . ($this->build_js_data_options() ? 'data-options="' . $this->build_js_data_options() . '" ' : '') . '>
+    protected function init()
+    {
+        parent::init();
+        $this->setElementType('combobox');
+    }
+
+    function generateHtml()
+    {
+        $widget = $this->getWidget();
+        $options = '';
+        foreach ($widget->getSelectableOptions() as $value => $text) {
+            if (! ($this->getWidget()->getMultiSelect() && count($this->getWidget()->getValues()) > 1)) {
+                $selected = strcasecmp($this->getValueWithDefaults(), $value) == 0 ? true : false;
+            }
+            $options .= '
+					<option value="' . $value . '"' . ($selected ? ' selected="selected"' : '') . '>' . $text . '</option>';
+        }
+        
+        $output = '	<select style="height: 100%; width: 100%;" class="easyui-' . $this->getElementType() . '" 
+						name="' . $widget->getAttributeAlias() . '"  
+						id="' . $this->getId() . '"  
+						' . ($widget->isRequired() ? 'required="true" ' : '') . '
+						' . ($widget->isDisabled() ? 'disabled="disabled" ' : '') . '
+						' . ($this->buildJsDataOptions() ? 'data-options="' . $this->buildJsDataOptions() . '" ' : '') . '>
 						' . $options . '
 					</select>
 					';
-		return $this->build_html_wrapper_div($output);
-	}
-	
-	function generate_js(){
-		$output = '';
-		return $output;
-	}
-	
-	/**
-	 * Diese Funktion prueft zunaechst ob das JEasyUi-Element auch vorhanden ist. Wenn
-	 * ja wird es aufgerufen um den momentanen Wert zurueckzugeben, wenn nein wird die
-	 * jquery-Funktion .val() verwendet um einen Wert zurueckzugeben. Wird der value-
-	 * Getter aufgerufen bevor das Element initialisiert ist entsteht sonst ein Fehler. 
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_value_getter()
-	 */
-	public function build_js_value_getter(){
- 		if ($this->get_widget()->get_multi_select()){
- 			$value_getter = <<<JS
-return $("#{$this->get_id()}").{$this->get_element_type()}("getValues").join();
+        return $this->buildHtmlWrapperDiv($output);
+    }
+
+    function generateJs()
+    {
+        $output = '';
+        return $output;
+    }
+
+    /**
+     * Diese Funktion prueft zunaechst ob das JEasyUi-Element auch vorhanden ist.
+     * Wenn
+     * ja wird es aufgerufen um den momentanen Wert zurueckzugeben, wenn nein wird die
+     * jquery-Funktion .val() verwendet um einen Wert zurueckzugeben. Wird der value-
+     * Getter aufgerufen bevor das Element initialisiert ist entsteht sonst ein Fehler.
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsValueGetter()
+     */
+    public function buildJsValueGetter()
+    {
+        if ($this->getWidget()->getMultiSelect()) {
+            $value_getter = <<<JS
+return $("#{$this->getId()}").{$this->getElementType()}("getValues").join();
 JS;
- 		} else {
- 			$value_getter = <<<JS
-return $("#{$this->get_id()}").{$this->get_element_type()}("getValue");
+        } else {
+            $value_getter = <<<JS
+return $("#{$this->getId()}").{$this->getElementType()}("getValue");
 JS;
- 		}
- 		
-		$output = <<<JS
+        }
+        
+        $output = <<<JS
 
 (function(){
-	{$this->get_id()}_jquery = $("#{$this->get_id()}");
-	if ({$this->get_id()}_jquery.data("{$this->get_element_type()}")) {
+	{$this->getId()}_jquery = $("#{$this->getId()}");
+	if ({$this->getId()}_jquery.data("{$this->getElementType()}")) {
 		{$value_getter}
 	} else {
-		return {$this->get_id()}_jquery.val();
+		return {$this->getId()}_jquery.val();
 	}
 })()
 JS;
-		return $output;
-	}
-	
-	public function build_js_data_options(){
-		return "panelHeight: 'auto'"
-				. ($this->get_widget()->get_multi_select() ? ", multiple:true" : '')
-				. ($this->get_widget()->get_multi_select() && count($this->get_widget()->get_values()) > 1 ? ", value:['" . implode("'" . $this->get_widget()->get_multi_select_value_delimiter() . "'", $this->get_widget()->get_values()) . "']" : '');
-	}
+        return $output;
+    }
+
+    public function buildJsDataOptions()
+    {
+        return "panelHeight: 'auto'" . ($this->getWidget()->getMultiSelect() ? ", multiple:true" : '') . ($this->getWidget()->getMultiSelect() && count($this->getWidget()->getValues()) > 1 ? ", value:['" . implode("'" . $this->getWidget()->getMultiSelectValueDelimiter() . "'", $this->getWidget()->getValues()) . "']" : '');
+    }
 }
 ?>

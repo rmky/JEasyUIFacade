@@ -4,23 +4,24 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\Tab;
 
 /**
- * 
- * @author Andrej Kabachnik
  *
+ * @author Andrej Kabachnik
+ *        
  * @method Tab get_widget()
  */
-class euiTab extends euiPanel {
-	
-	function generate_html(){
-		
-		$options = $this->get_widget()->is_hidden() || $this->get_widget()->is_disabled() ? 'disabled:true' : '';
-		
-		$output = <<<HTML
-	<div title="{$this->get_widget()->get_caption()}" data-options="{$options}" class="grid">
-		{$this->build_html_for_children()}
+class euiTab extends euiPanel
+{
+
+    function generateHtml()
+    {
+        $options = $this->getWidget()->isHidden() || $this->getWidget()->isDisabled() ? 'disabled:true' : '';
+        
+        $output = <<<HTML
+	<div title="{$this->getWidget()->getCaption()}" data-options="{$options}" class="grid">
+		{$this->buildHtmlForChildren()}
 	</div>
 HTML;
-		return $output;
-	}
+        return $output;
+    }
 }
 ?>

@@ -1,12 +1,17 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
-class euiBasicElement extends euiAbstractElement {
-	function generate_html(){
-		return '';
-	}
-	
-	function generate_js(){
-		return '';
-	}
+
+class euiBasicElement extends euiAbstractElement
+{
+
+    function generateHtml()
+    {
+        return '';
+    }
+
+    function generateJs()
+    {
+        return '';
+    }
 }
 ?>

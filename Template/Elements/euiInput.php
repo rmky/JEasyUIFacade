@@ -1,155 +1,176 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
+
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\Core\Widgets\Input;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
 
 /**
- * 
- * @method Input get_widget()
- * 
- * @author Andrej Kabachnik
  *
+ * @method Input get_widget()
+ *        
+ * @author Andrej Kabachnik
+ *        
  */
-class euiInput extends euiAbstractElement {
-	
-	use JqueryLiveReferenceTrait;
-	
-	protected function init(){
-		parent::init();
-		$this->set_element_type('textbox');
-		// If the input's value is bound to another element via an expression, we need to make sure, that other element will
-		// change the input's value every time it changes itself. This needs to be done on init() to make sure, the other element
-		// has not generated it's JS code yet!
-		$this->register_live_reference_at_linked_element();
-		
-		// Register an onChange-Script on the element linked by a disable condition.
-		$this->register_disable_condition_at_linked_element();
-	}
-	
-	function generate_html(){
-		/* @var $widget \exface\Core\Widgets\Input */
-		$widget = $this->get_widget();
-		
-		$output = '	<input style="height: 100%; width: 100%;"
-						name="' . $widget->get_attribute_alias() . '" 
-						value="' . $this->get_value_with_defaults() . '" 
-						id="' . $this->get_id() . '"  
-						' . ($widget->is_required() ? 'required="true" ' : '') . '
-						' . ($widget->is_disabled() ? 'disabled="disabled" ' : '') . '
+class euiInput extends euiAbstractElement
+{
+    
+    use JqueryLiveReferenceTrait;
+
+    protected function init()
+    {
+        parent::init();
+        $this->setElementType('textbox');
+        // If the input's value is bound to another element via an expression, we need to make sure, that other element will
+        // change the input's value every time it changes itself. This needs to be done on init() to make sure, the other element
+        // has not generated it's JS code yet!
+        $this->registerLiveReferenceAtLinkedElement();
+        
+        // Register an onChange-Script on the element linked by a disable condition.
+        $this->registerDisableConditionAtLinkedElement();
+    }
+
+    function generateHtml()
+    {
+        /* @var $widget \exface\Core\Widgets\Input */
+        $widget = $this->getWidget();
+        
+        $output = '	<input style="height: 100%; width: 100%;"
+						name="' . $widget->getAttributeAlias() . '" 
+						value="' . $this->getValueWithDefaults() . '" 
+						id="' . $this->getId() . '"  
+						' . ($widget->isRequired() ? 'required="true" ' : '') . '
+						' . ($widget->isDisabled() ? 'disabled="disabled" ' : '') . '
 						/>
 					';
-		return $this->build_html_wrapper_div($output);
-	}
-	
-	public function get_value_with_defaults(){
-		if ($this->get_widget()->get_value_expression() && $this->get_widget()->get_value_expression()->is_reference()){
-			$value = '';
-		} else {
-			$value = $this->get_widget()->get_value();
-		}
-		if (is_null($value) || $value === ''){
-			$value = $this->get_widget()->get_default_value();
-		} 
-		return $this->escape_string($value);
-	}
-	
-	protected function build_html_wrapper_div($html){
-		if ($this->get_widget()->get_caption() && !$this->get_widget()->get_hide_caption()){
-			$input = '
-						<label>' . $this->get_widget()->get_caption() . '</label>
+        return $this->buildHtmlWrapperDiv($output);
+    }
+
+    public function getValueWithDefaults()
+    {
+        if ($this->getWidget()->getValueExpression() && $this->getWidget()
+            ->getValueExpression()
+            ->isReference()) {
+            $value = '';
+        } else {
+            $value = $this->getWidget()->getValue();
+        }
+        if (is_null($value) || $value === '') {
+            $value = $this->getWidget()->getDefaultValue();
+        }
+        return $this->escapeString($value);
+    }
+
+    protected function buildHtmlWrapperDiv($html)
+    {
+        if ($this->getWidget()->getCaption() && ! $this->getWidget()->getHideCaption()) {
+            $input = '
+						<label>' . $this->getWidget()->getCaption() . '</label>
 						<div class="exf_input_wrapper">' . $html . '</div>';
-		} else {
-			$input = $html;
-		}
-		
-		$output = '	<div class="fitem exf_input" title="' . trim($this->build_hint_text()) . '" style="width: ' . $this->get_width() . '; height: ' . $this->get_height() . ';">
+        } else {
+            $input = $html;
+        }
+        
+        $output = '	<div class="fitem exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; height: ' . $this->getHeight() . ';">
 						' . $input . '
 					</div>';
-		return $output;
-	}
-	
-	function generate_js(){
-		$output = '';
-		$output .= "
-				$('#" . $this->get_id() . "')." . $this->get_element_type() . "(" . ($this->build_js_data_options() ? '{' . $this->build_js_data_options() . '}' : '') . ");//.textbox('addClearBtn', 'icon-clear');
+        return $output;
+    }
+
+    function generateJs()
+    {
+        $output = '';
+        $output .= "
+				$('#" . $this->getId() . "')." . $this->getElementType() . "(" . ($this->buildJsDataOptions() ? '{' . $this->buildJsDataOptions() . '}' : '') . ");//.textbox('addClearBtn', 'icon-clear');
 				";
-		$output .= $this->build_js_live_reference();
-		$output .= $this->build_js_on_change_handler();
-		
-		// Initialize the disabled state of the widget if a disabled condition is set.
-		$output .= $this->build_js_disable_condition_initializer();
-		
-		return $output;
-	}
-	
-	function build_js_init_options(){
-		return $this->build_js_data_options();
-	}
-	
-	protected function build_js_data_options(){
-		return '';
-	}
-	
-	function build_js_value_setter_method($value){
-		return  $this->get_element_type() . '("setValue", ' . $value . ')';
-	}
-	
-	protected function build_js_on_change_handler(){
-		if ($this->get_on_change_script()){
-			return "$('#" . $this->get_id() . "').change(function(event){" . $this->get_on_change_script() . "});";
-		} else {
-			return '';
-		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_data_getter($action, $custom_body_js)
-	 */
-	public function build_js_data_getter(ActionInterface $action = null){
-		if ($this->get_widget()->is_display_only()){
-			return '{}';
-		} else {
-			return parent::build_js_data_getter($action);
-		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_validator()
-	 */
-	function build_js_validator(){
-		$widget = $this->get_widget();
-		
-		$must_be_validated = !($widget->is_hidden() || $widget->is_readonly() || $widget->is_disabled() || $widget->is_display_only());
-		if ($must_be_validated) {
-			$output = '$("#' . $this->get_id() . '").' . $this->get_element_type() . '("isValid")';
-		} else {
-			$output = 'true';
-		}
-		
-		return $output; 
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_enabler()
-	 */
-	function build_js_enabler(){
-		return '$("#' . $this->get_id() . '").' . $this->get_element_type() . '("enable")';
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::build_js_disabler()
-	 */
-	function build_js_disabler(){
-		return '$("#' . $this->get_id() . '").' . $this->get_element_type() . '("disable")';
-	}
+        $output .= $this->buildJsLiveReference();
+        $output .= $this->buildJsOnChangeHandler();
+        
+        // Initialize the disabled state of the widget if a disabled condition is set.
+        $output .= $this->buildJsDisableConditionInitializer();
+        
+        return $output;
+    }
+
+    function buildJsInitOptions()
+    {
+        return $this->buildJsDataOptions();
+    }
+
+    protected function buildJsDataOptions()
+    {
+        return '';
+    }
+
+    function buildJsValueSetterMethod($value)
+    {
+        return $this->getElementType() . '("setValue", ' . $value . ')';
+    }
+
+    protected function buildJsOnChangeHandler()
+    {
+        if ($this->getOnChangeScript()) {
+            return "$('#" . $this->getId() . "').change(function(event){" . $this->getOnChangeScript() . "});";
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsDataGetter($action, $custom_body_js)
+     */
+    public function buildJsDataGetter(ActionInterface $action = null)
+    {
+        if ($this->getWidget()->isDisplayOnly()) {
+            return '{}';
+        } else {
+            return parent::buildJsDataGetter($action);
+        }
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsValidator()
+     */
+    function buildJsValidator()
+    {
+        $widget = $this->getWidget();
+        
+        $must_be_validated = ! ($widget->isHidden() || $widget->isReadonly() || $widget->isDisabled() || $widget->isDisplayOnly());
+        if ($must_be_validated) {
+            $output = '$("#' . $this->getId() . '").' . $this->getElementType() . '("isValid")';
+        } else {
+            $output = 'true';
+        }
+        
+        return $output;
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsEnabler()
+     */
+    function buildJsEnabler()
+    {
+        return '$("#' . $this->getId() . '").' . $this->getElementType() . '("enable")';
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsDisabler()
+     */
+    function buildJsDisabler()
+    {
+        return '$("#' . $this->getId() . '").' . $this->getElementType() . '("disable")';
+    }
 }
 ?>

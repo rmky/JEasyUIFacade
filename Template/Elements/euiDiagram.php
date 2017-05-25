@@ -1,6 +1,8 @@
-<?php namespace exface\JEasyUiTemplate\Template\Elements;
+<?php
 
-class euiDiagram extends euiContainer {
-	
+namespace exface\JEasyUiTemplate\Template\Elements;
+
+class euiDiagram extends euiContainer
+{
 }
 ?>

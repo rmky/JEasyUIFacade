@@ -5,43 +5,48 @@ use exface\Core\Widgets\DataColumnTransposed;
 use exface\Core\Widgets\DataMatrix;
 
 /**
- * @method DataMatrix get_widget()
- * 
- * @author aka
  *
+ * @method DataMatrix get_widget()
+ *        
+ * @author aka
+ *        
  */
-class euiDataMatrix extends euiDataTable {
-	private $label_values = array();
-	
-	protected function init(){
-		parent::init();
-		$this->set_element_type('datagrid');
-		$this->build_js_transposer();	
-		$this->add_on_load_success($this->build_js_cell_merger());
-	}
-	
-	protected function build_js_transposer(){
-		$visible_cols = array();
-		$data_cols = array();
-		$data_cols_totlas = array();
-		$label_cols = array();
-		foreach ($this->get_widget()->get_columns() as $col){
-			if ($col instanceof DataColumnTransposed){
-				$data_cols[] = $col->get_data_column_name();
-				$label_cols[$col->get_label_attribute_alias()][] = $col->get_data_column_name();
-				if ($col->get_footer()){
-					$data_cols_totlas[$col->get_data_column_name()] = $col->get_footer();
-				}
-			} elseif (!$col->is_hidden()){
-				$visible_cols[] = $col->get_data_column_name();
-			}
-		}
-		$visible_cols= "'" . implode("','", $visible_cols) . "'";
-		$data_cols= "'" . implode("','", $data_cols) . "'";
-		$label_cols= json_encode($label_cols);
-		$data_cols_totlas = json_encode($data_cols_totlas);
-		
-		$transpose_js = <<<JS
+class euiDataMatrix extends euiDataTable
+{
+
+    private $label_values = array();
+
+    protected function init()
+    {
+        parent::init();
+        $this->setElementType('datagrid');
+        $this->buildJsTransposer();
+        $this->addOnLoadSuccess($this->buildJsCellMerger());
+    }
+
+    protected function buildJsTransposer()
+    {
+        $visible_cols = array();
+        $data_cols = array();
+        $data_cols_totlas = array();
+        $label_cols = array();
+        foreach ($this->getWidget()->getColumns() as $col) {
+            if ($col instanceof DataColumnTransposed) {
+                $data_cols[] = $col->getDataColumnName();
+                $label_cols[$col->getLabelAttributeAlias()][] = $col->getDataColumnName();
+                if ($col->getFooter()) {
+                    $data_cols_totlas[$col->getDataColumnName()] = $col->getFooter();
+                }
+            } elseif (! $col->isHidden()) {
+                $visible_cols[] = $col->getDataColumnName();
+            }
+        }
+        $visible_cols = "'" . implode("','", $visible_cols) . "'";
+        $data_cols = "'" . implode("','", $data_cols) . "'";
+        $label_cols = json_encode($label_cols);
+        $data_cols_totlas = json_encode($data_cols_totlas);
+        
+        $transpose_js = <<<JS
 
 $(this).datagrid('options')._skipNextLoad = true;
 
@@ -201,18 +206,19 @@ if (data.transposed === 0){
 return data;
 				
 JS;
-		$this->add_load_filter_script($transpose_js);
-	}
-	
-	protected function build_js_cell_merger(){
-		$fields_to_merge = array();
-		foreach ($this->get_widget()->get_columns_regular() as $col){
-			$fields_to_merge[] = $col->get_data_column_name();
-		}
-		$fields_to_merge = json_encode($fields_to_merge);
-		$rowspan = count($this->get_widget()->get_columns_transposed());
-		
-		$output = <<<JS
+        $this->addLoadFilterScript($transpose_js);
+    }
+
+    protected function buildJsCellMerger()
+    {
+        $fields_to_merge = array();
+        foreach ($this->getWidget()->getColumnsRegular() as $col) {
+            $fields_to_merge[] = $col->getDataColumnName();
+        }
+        $fields_to_merge = json_encode($fields_to_merge);
+        $rowspan = count($this->getWidget()->getColumnsTransposed());
+        
+        $output = <<<JS
 
 			var fields = {$fields_to_merge};
 			for (var i=0; i<fields.length; i++){
@@ -227,20 +233,21 @@ JS;
 			}
 
 JS;
-		return $output;
-	}
-	
-	public function build_js_init_options_head(){
-		$options = parent::build_js_init_options_head();
-		
-		// If we have multiple transposed columns, we must sort on the client to make sure, the transposed columns
-		// are attached to their spanning columns and stay in exactly the same order. So we add a custom sorter to
-		// the event fired when a user is about to sort a column.
-		// NOTE: we can't switch to sorting on the client generally, because this won't work if the initial sorting
-		// is done over a transposed column or a label column. And sorting over label column is what you mostly will
-		// need to do to ensure a meaningfull order of the transposed values.
-		if (count($this->get_widget()->get_columns_transposed()) > 1) {
-			$options .= <<<JS
+        return $output;
+    }
+
+    public function buildJsInitOptionsHead()
+    {
+        $options = parent::buildJsInitOptionsHead();
+        
+        // If we have multiple transposed columns, we must sort on the client to make sure, the transposed columns
+        // are attached to their spanning columns and stay in exactly the same order. So we add a custom sorter to
+        // the event fired when a user is about to sort a column.
+        // NOTE: we can't switch to sorting on the client generally, because this won't work if the initial sorting
+        // is done over a transposed column or a label column. And sorting over label column is what you mostly will
+        // need to do to ensure a meaningfull order of the transposed values.
+        if (count($this->getWidget()->getColumnsTransposed()) > 1) {
+            $options .= <<<JS
 				, onBeforeSortColumn: function(sort, order){
 					var remoteSortSetting = $(this).datagrid('options').remoteSort;
 					$(this).datagrid('options').remoteSort = false;
@@ -256,28 +263,27 @@ JS;
 					$(this).datagrid('options').remoteSort = remoteSortSetting;
 				}
 JS;
-		}
-		return $options;
-	}
-	
-	public function build_js_edit_mode_enabler(){
-		$editable_transposed_cols = array();
-		foreach ($this->get_widget()->get_columns_transposed() as $pos => $col){
-			if ($col->get_editor()){
-				$editable_transposed_cols[] = $pos;
-			}
-		}
-		$editable_transposed_cols = json_encode($editable_transposed_cols);
-		return <<<JS
-					var rows = $(this).{$this->get_element_type()}("getRows");
+        }
+        return $options;
+    }
+
+    public function buildJsEditModeEnabler()
+    {
+        $editable_transposed_cols = array();
+        foreach ($this->getWidget()->getColumnsTransposed() as $pos => $col) {
+            if ($col->getEditor()) {
+                $editable_transposed_cols[] = $pos;
+            }
+        }
+        $editable_transposed_cols = json_encode($editable_transposed_cols);
+        return <<<JS
+					var rows = $(this).{$this->getElementType()}("getRows");
 					for (var i=0; i<rows.length; i++){
 						if ({$editable_transposed_cols}.indexOf(rows[i]._subRowIndex) > -1){
-							$(this).{$this->get_element_type()}("beginEdit", i);
+							$(this).{$this->getElementType()}("beginEdit", i);
 						}
 					}
 JS;
-	}
-	
-		
+    }
 }
 ?>

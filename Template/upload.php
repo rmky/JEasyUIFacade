@@ -10,9 +10,9 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-//error_reporting(E_ALL | E_STRICT);
-require('UploadHandler.php');
+// error_reporting(E_ALL | E_STRICT);
+require ('UploadHandler.php');
 $upload_handler = new UploadHandler(array(
-		'user_dirs' => true,
-		'upload_dir' => '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'UserData' . DIRECTORY_SEPARATOR . 'Uploads' . DIRECTORY_SEPARATOR
+    'user_dirs' => true,
+    'upload_dir' => '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'UserData' . DIRECTORY_SEPARATOR . 'Uploads' . DIRECTORY_SEPARATOR
 ));
