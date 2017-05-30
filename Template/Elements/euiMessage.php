@@ -12,7 +12,7 @@ class euiMessage extends euiText
             $width = 'calc(100% - 20px)';
         }
         $output = '
-				<div class="messager-body fitem" style="width:' . $width . '">
+				<div class="messager-body" style="width:' . $width . '">
 					<div class="messager-icon ' . $this->getCssMessageType() . '"></div>
 					<div>' . $this->getWidget()->getText() . '</div>
 				</div>';
