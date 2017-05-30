@@ -44,7 +44,7 @@ HTML;
     {
         return array(
             '<script type="text/javascript" src="exface/vendor/npm-asset/jquery-prettytextdiff/jquery.pretty-text-diff.min.js"></script>',
-            '<script type="text/javascript" src="exface/vendor/npm-asset/diff-match-patch/index.js"></script>'
+            '<script type="text/javascript" src="exface/vendor/bower-asset/google-diff-match-patch-js/diff_match_patch.js"></script>'
         );
     }
 
