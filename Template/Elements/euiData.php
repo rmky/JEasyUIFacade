@@ -132,7 +132,10 @@ else {
         
         // Make sure, all selections are cleared, when the data is loaded from the backend. This ensures, the selected rows are always visible to the user!
         if ($widget->getMultiSelect()) {
-            $this->addOnLoadSuccess('$(this).' . $this->getElementType() . '("clearSelections");');
+            // Gibt Probleme im Context einer ComboTable. Dort muesste die Zeile folgendermassen
+            // aussehen: $(this).combogrid("grid").' . $this->getElementType() . '("clearSelections");
+            // Aber ist es fuer eine ComboTable sinnvoll nach jedem Laden ihre Auswahl zu verlieren???
+            //$this->addOnLoadSuccess('$(this).' . $this->getElementType() . '("clearSelections");');
         }
         
         $output = '
