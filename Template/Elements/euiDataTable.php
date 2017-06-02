@@ -70,7 +70,7 @@ class euiDataTable extends euiData
             if ($button_html) {
                 $output .= $button_html;
             }
-            $output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search">' . $this->getTemplate()->getApp()->getTranslator()->translate('WIDGET.SEARCH') . '</button></div>';
+            $output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search">' . $this->translate('WIDGET.SEARCH') . '</button></div>';
             $output .= '</form>';
         }
         

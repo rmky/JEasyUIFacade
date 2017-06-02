@@ -4,6 +4,7 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\Core\Widgets\Input;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
+use exface\Core\Factories\WidgetLinkFactory;
 
 /**
  *
@@ -146,6 +147,52 @@ class euiInput extends euiAbstractElement
             $output = 'true';
         }
         
+        return $output;
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait::buildJsDisableCondition()
+     */
+    public function buildJsDisableCondition()
+    {
+        $output = '';
+        if (($condition = $this->getWidget()->getDisableCondition()) && $condition->widget_link) {
+            $link = WidgetLinkFactory::createFromAnything($this->getWorkbench(), $condition->widget_link);
+            $link->setWidgetIdSpace($this->getWidget()->getIdSpace());
+            $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
+            if ($linked_element) {
+                switch ($condition->comparator) {
+                    case EXF_COMPARATOR_IS_NOT: // !=
+                    case EXF_COMPARATOR_EQUALS: // ==
+                    case EXF_COMPARATOR_EQUALS_NOT: // !==
+                    case EXF_COMPARATOR_LESS_THAN: // <
+                    case EXF_COMPARATOR_LESS_THAN_OR_EQUALS: // <=
+                    case EXF_COMPARATOR_GREATER_THAN: // >
+                    case EXF_COMPARATOR_GREATER_THAN_OR_EQUALS: // >=
+                        $enable_widget_script = $this->getWidget()->isDisabled() ? '' : $this->buildJsEnabler() . ';
+							// Sonst wird ein leeres required Widget nicht als invalide angezeigt
+							$("#' . $this->getId() . '").' . $this->getElementType() . '("validate");';
+                        
+                        $output = <<<JS
+
+						if ({$linked_element->buildJsValueGetter($link->getColumnId())} {$condition->comparator} "{$condition->value}") {
+							{$this->buildJsDisabler()};
+						} else {
+							{$enable_widget_script}
+						}
+JS;
+                        break;
+                    case EXF_COMPARATOR_IN: // [
+                    case EXF_COMPARATOR_NOT_IN: // ![
+                    case EXF_COMPARATOR_IS: // =
+                    default:
+                    // TODO fuer diese Comparatoren muss noch der JavaScript generiert werden
+                }
+            }
+        }
         return $output;
     }
 
