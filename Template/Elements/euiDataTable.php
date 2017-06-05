@@ -389,12 +389,26 @@ JS;
         }
         return "{oId: '" . $this->getWidget()->getMetaObjectId() . "', rows: " . $rows . "}";
     }
-
-    public function buildJsRefresh()
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsRefresh()
+     */
+    public function buildJsRefresh($keep_pagination_position = false)
     {
-        return $this->buildJsFunctionPrefix() . 'doSearch()';
+        if ($keep_pagination_position){
+            return '$("#' . $this->getId() . '").' . $this->getElementType() . '("reload")';
+        } else {
+            return $this->buildJsFunctionPrefix() . 'doSearch()';
+        }
     }
-
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateHeaders()
+     */
     public function generateHeaders()
     {
         $includes = parent::generateHeaders();
