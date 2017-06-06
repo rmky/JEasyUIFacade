@@ -56,19 +56,19 @@ class euiPanel extends euiContainer
     {
         /* @var $widget \exface\Core\Widgets\Panel */
         $widget = $this->getWidget();
-        if ($widget->getColumnNumber() != 1) {
+        if ($widget->getNumberOfColumns() != 1) {
             $this->addOnLoadScript($this->buildJsLayouter());
             $this->addOnResizeScript($this->buildJsLayouter());
         }
         
-        $output = "collapsible: " . ($widget->getCollapsible() ? 'true' : 'false') . ($widget->getIconName() ? ", iconCls:'" . $this->buildCssIconClass($widget->getIconName()) . "'" : '') . ($this->getOnLoadScript() ? ", onLoad: function(){" . $this->getOnLoadScript() . "}" : '') . ($this->getOnResizeScript() ? ", onResize: function(){" . $this->getOnResizeScript() . "}" : '');
+        $output = "collapsible: " . ($widget->isCollapsible() ? 'true' : 'false') . ($widget->getIconName() ? ", iconCls:'" . $this->buildCssIconClass($widget->getIconName()) . "'" : '') . ($this->getOnLoadScript() ? ", onLoad: function(){" . $this->getOnLoadScript() . "}" : '') . ($this->getOnResizeScript() ? ", onResize: function(){" . $this->getOnResizeScript() . "}" : '');
         return $output;
     }
 
     public function generateHeaders()
     {
         $includes = parent::generateHeaders();
-        if ($this->getWidget()->getColumnNumber() != 1) {
+        if ($this->getWidget()->getNumberOfColumns() != 1) {
             $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
         }
         return $includes;

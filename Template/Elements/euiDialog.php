@@ -5,15 +5,25 @@ class euiDialog extends euiForm
 {
 
     private $buttons_div_id = '';
-
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiPanel::init()
+     */
     protected function init()
     {
         parent::init();
         $this->buttons_div_id = $this->getId() . '-buttons';
         $this->setElementType('dialog');
     }
-
-    function generateHtml()
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiForm::generateHtml()
+     */
+    public function generateHtml()
     {
         $contents = ($this->getWidget()->getLazyLoading() ? '' : $this->buildHtmlForWidgets());
         
@@ -36,8 +46,13 @@ class euiDialog extends euiForm
 HTML;
         return $output;
     }
-
-    function generateJs()
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateJs()
+     */
+    public function generateJs()
     {
         $output = '';
         if (! $this->getWidget()->getLazyLoading()) {
@@ -59,25 +74,40 @@ HTML;
      *
      * @return string
      */
-    function buildJsDataOptions()
+    public function buildJsDataOptions()
     {
         $this->addOnLoadScript("$('#" . $this->getId() . " .exf_input input').first().next().find('input').focus();");
         /* @var $widget \exface\Core\Widgets\Dialog */
         $widget = $this->getWidget();
         // TODO make the Dialog responsive as in http://www.jeasyui.com/demo/main/index.php?plugin=Dialog&theme=default&dir=ltr&pitem=
-        $output = parent::buildJsDataOptions() . ($widget->getMaximizable() ? ', maximizable: true, maximized: ' . ($widget->getMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true";
+        $output = parent::buildJsDataOptions() . ($widget->isMaximizable() ? ', maximizable: true, maximized: ' . ($widget->isMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true";
         return $output;
     }
-
-    function getWidth()
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getWidth()
+     */
+    public function getWidth()
     {
         if ($this->getWidget()->getWidth()->isUndefined()) {
-            $this->getWidget()->setWidth((2 * $this->getWidthRelativeUnit() + 35) . 'px');
+            if (!is_null($this->getWidget()->getNumberOfColumns())){
+                $number_of_columns = $this->getWidget()->getNumberOfColumns();
+            } else {
+                $number_of_columns = $this->getTemplate()->getConfig()->getOption('WIDGET.DIALOG.COLUMNS_BY_DEFAULT');
+            }
+            $this->getWidget()->setWidth(($number_of_columns * $this->getWidthRelativeUnit() + 35) . 'px');
         }
         return parent::getWidth();
     }
-
-    function getHeight()
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getHeight()
+     */
+    public function getHeight()
     {
         if ($this->getWidget()->getHeight()->isUndefined()) {
             $this->getWidget()->setHeight('80%');
