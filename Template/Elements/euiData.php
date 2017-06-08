@@ -4,6 +4,7 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\DataColumnGroup;
 use exface\Core\Widgets\Data;
 use exface\Core\CommonLogic\DataSheets\DataSheet;
+use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
 
 /**
  * Implementation of a basic grid.
@@ -130,6 +131,16 @@ else {
             $sortOrder = ", sortOrder: '" . implode(',', $direction) . "'";
         }
         
+        if (!is_null($widget->getPaginatePageSize())){
+            $default_page_size = $widget->getPaginatePageSize();
+        } else {
+            try {
+                $default_page_size = $this->getTemplate()->getConfig()->getOption('WIDGET.' . $widget->getWidgetType() . '.PAGE_SIZE');
+            } catch (ConfigOptionNotFoundError $e){
+                $default_page_size = $this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZE');
+            }
+        }
+        
         // Make sure, all selections are cleared, when the data is loaded from the backend. This ensures, the selected rows are always visible to the user!
         if ($widget->getMultiSelect()) {
             // TODO: Gibt Probleme im Context einer ComboTable. Dort muesste die Zeile folgendermassen
@@ -149,7 +160,7 @@ else {
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
 				, pageList: ' . json_encode($this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')) . '
-				, pageSize: ' . $widget->getPaginateDefaultPageSize() . '
+				, pageSize: ' . $default_page_size . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
 				, toolbar: "#' . $this->getToolbarId() . '"
