@@ -22,7 +22,7 @@ class euiDashboard extends euiPanel
             
             $children_html .= <<<HTML
 
-                        <div class="fitem {$this->getId()}_masonry_fitem" style="width:{$this->getWidgetWidth($subw)};min-width:{$minWidth}px;height:{$this->getWidgetHeight($subw)};-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:{$padding}px">
+                        <div class="fitem {$this->getId()}_masonry_db_fitem" style="width:{$this->getWidgetWidth($subw)};min-width:{$minWidth}px;height:{$this->getWidgetHeight($subw)};-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:{$padding}px">
                             {$this->getTemplate()->generateHtml($subw)}
                         </div>
 HTML;
@@ -51,33 +51,16 @@ HTML;
         return $output;
     }
 
-    public function generateJs()
-    {
-        $output = parent::generateJs();
-        
-        $output .= <<<JS
-
-        {$this->buildJsLayouterFunction()}
-JS;
-        
-        return $output;
-    }
-
-    public function buildJsLayouter()
-    {
-        return $this->getId() . '_layouter()';
-    }
-
     public function buildJsLayouterFunction()
     {
         $output = <<<JS
 
     function {$this->getId()}_layouter() {
         if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
-            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
+            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_db_fitem").length > 0) {
                 $("#{$this->getId()}_masonry_grid").masonry({
                     columnWidth: '#{$this->getId()}_sizer',
-                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                    itemSelector: ".{$this->getId()}_masonry_db_fitem"
                 });
             }
         } else {
@@ -118,7 +101,8 @@ JS;
         } elseif ($dimension->isTemplateSpecific() || $dimension->isPercentual()) {
             $width = $dimension->getValue();
         } else {
-            $width = ($this->getWidthRelativeUnit() * $this->getWidthDefault()) . 'px';
+            // "Grosse" oder "kleine" Widgets ohne angegebene Breite.
+            $width = 'calc(100% / 3)';
         }
         return $width;
     }

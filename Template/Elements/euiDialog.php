@@ -65,6 +65,8 @@ HTML;
             $output .= $this->getTemplate()->generateJs($this->getWidget()->getHelpButton());
         }
         
+        $output .= $this->buildJsLayouterFunction();
+        
         return $output;
     }
 

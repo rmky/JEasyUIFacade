@@ -80,6 +80,13 @@ class euiDataTable extends euiData
             $output .= $button_html;
         }
         
+        $output = <<<HTML
+
+                <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+                    {$output}
+                </div>
+HTML;
+        
         return $output;
     }
 
@@ -260,7 +267,7 @@ JS;
         $resize_function = '';
         if ($widget->hasFilters()) {
             $resize_function .= '
-					$("#' . $this->getToolbarId() . ' .datagrid-filters").masonry({itemSelector: \'.fitem\', columnWidth: ' . $this->getWidthRelativeUnit() . '});';
+					$("#' . $this->getToolbarId() . ' .datagrid-filters").masonry({itemSelector: \'.' . $this->getId() . '_masonry_fitem\', columnWidth: ' . $this->getWidthRelativeUnit() . '});';
         }
         $resize_function .= '
 					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';

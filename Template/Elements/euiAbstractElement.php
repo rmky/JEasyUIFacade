@@ -3,9 +3,19 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
+use exface\Core\Interfaces\Widgets\iLayoutWidgets;
+use exface\Core\Interfaces\Widgets\iFillEntireContainer;
 
 abstract class euiAbstractElement extends AbstractJqueryElement
 {
+
+    // px
+    private $spacing = 8;
+    // px
+    private $borderWidth = 1;
+    // relative units
+    private $largeWidgetDefaultHeight = 10;
+    
 
     public function buildJsInitOptions()
     {
@@ -105,6 +115,130 @@ abstract class euiAbstractElement extends AbstractJqueryElement
 	                timeout:5000,
 	                showType:'slide'
 	            });";
+    }
+
+    public function getMasonryItemClass()
+    {
+        $output = '';
+        $layoutWidget = $this->getWidget()->getLayoutWidget();
+        if ($layoutWidget) {
+            $output = $this->getTemplate()->getElement($layoutWidget)->getId() . '_masonry_fitem';
+        }
+        
+        return $output;
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getWidth()
+     */
+    public function getWidth()
+    {
+        $widget = $this->getWidget();
+        
+        $columnNumber = null;
+        if ($layoutWidget = $widget->getLayoutWidget()) {
+            $columnNumber = $layoutWidget->getNumberOfColumns();
+        }
+        if (is_null($columnNumber)) {
+            $columnNumber = $this->getTemplate()->getConfig()->getOption("DEFAULT_COLUMN_NUMBER");
+        }
+        
+        $dimension = $widget->getWidth();
+        if ($dimension->isRelative()) {
+            $cols = $dimension->getValue();
+            if ($cols === 'max') {
+                $cols = $columnNumber;
+            }
+            if (is_numeric($cols)) {
+                if ($cols < 1) {
+                    $cols = 1;
+                } else if ($cols > $columnNumber) {
+                    $cols = $columnNumber;
+                }
+                
+                if ($cols == $columnNumber) {
+                    $output = '100%';
+                } else {
+                    $output = 'calc(100% * ' . $cols . '/' . $columnNumber . ')';
+                }
+            } else {
+                $output = 'calc(100% / ' . $columnNumber . ')';
+            }
+        } elseif ($dimension->isTemplateSpecific() || $dimension->isPercentual()) {
+            $output = $dimension->getValue();
+        } elseif ($widget instanceof iFillEntireContainer) {
+            // Ein "grosses" Widget ohne angegebene Breite.
+            $output = '100%';
+        } else {
+            // Ein "kleines" Widget ohne angegebene Breite.
+            $output = 'calc(100% / ' . $columnNumber . ')';
+        }
+        return $output;
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getHeight()
+     */
+    public function getHeight()
+    {
+        $widget = $this->getWidget();
+        $layoutWidget = $widget->getLayoutWidget();
+        
+        $dimension = $widget->getHeight();
+        if ($dimension->isRelative()) {
+            $output = $this->getHeightRelativeUnit() * $dimension->getValue() . 'px';
+        } elseif ($dimension->isTemplateSpecific() || $dimension->isPercentual()) {
+            $output = $dimension->getValue();
+        } elseif ($widget instanceof iFillEntireContainer) {
+            // Ein "grosses" Widget ohne angegebene Hoehe.
+            // $height = ($this->getHeightRelativeUnit() * $this->getContainerDefaultHeight()) . 'px';
+            $output = '100%';
+            if ($layoutWidget && ($layoutWidget->countWidgets() > 1)) {
+                $output = ($this->getHeightRelativeUnit() * $this->getLargeWidgetDefaultHeight()) . 'px';
+            }
+        } else {
+            // Ein "kleines" Widget ohne angegebene Hoehe.
+            $output = ($this->getHeightRelativeUnit() * $this->getHeightDefault()) . 'px';
+        }
+        return $output;
+    }
+
+    public function getMinWidth()
+    {
+        if ($this->getWidget() instanceof iLayoutWidgets) {
+            // z.B. die Filter-Widgets der DataTables sind genau getWidthRelativeUnits breit und
+            // wuerden sonst vom Rand teilweise verdeckt werden.
+            $output = ($this->getWidthRelativeUnit() + $this->getSpacing() + 2 * $this->getBorderWidth()) . 'px';
+        } else {
+            $output = $this->getWidthRelativeUnit() . 'px';
+        }
+        return $output;
+    }
+
+    public function getSpacing()
+    {
+        return $this->spacing;
+    }
+
+    public function getPadding()
+    {
+        return round($this->getSpacing() / 2) . 'px';
+    }
+
+    public function getBorderWidth()
+    {
+        return $this->borderWidth;
+    }
+    
+    public function getLargeWidgetDefaultHeight()
+    {
+        return $this->largeWidgetDefaultHeight;
     }
 }
 ?>

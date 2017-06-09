@@ -10,11 +10,11 @@ class euiInputGroup extends euiPanel
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
         if ($this->getWidget()->countWidgets() > 1) {
-            $children_html = '<div class="grid">' . $children_html . '</div>';
+            $children_html = '<div class="grid" id="' . $this->getId() . '_masonry_grid">' . $children_html . '</div>';
         }
         
         $output = '
-				<fieldset class="exface_inputgroup 
+				<fieldset class="exface_inputgroup"
 						id="' . $this->getId() . '" 
 						data-options="' . $this->buildJsDataOptions() . '">
 					<legend>' . $this->getWidget()->getCaption() . '</legend>

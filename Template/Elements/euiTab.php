@@ -17,7 +17,7 @@ class euiTab extends euiPanel
         $options = $this->getWidget()->isHidden() || $this->getWidget()->isDisabled() ? 'disabled:true' : '';
         
         $output = <<<HTML
-	<div title="{$this->getWidget()->getCaption()}" data-options="{$options}" class="grid">
+	<div title="{$this->getWidget()->getCaption()}" data-options="{$options}" class="grid" id="{$this->getId()}_masonry_grid">
 		{$this->buildHtmlForChildren()}
 	</div>
 HTML;

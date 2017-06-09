@@ -95,7 +95,7 @@ class euiEditMatrix extends euiDataMatrixOld
         }
         
         // align the filters
-        $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '.fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});";
+        $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});";
         
         return $output;
     }

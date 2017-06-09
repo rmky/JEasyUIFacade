@@ -39,7 +39,7 @@ class euiChart extends euiAbstractElement
                 foreach ($widget->getData()->getFilters() as $fltr) {
                     $fltr_html .= $this->getTemplate()->generateHtml($fltr);
                 }
-                $this->addOnResizeScript("$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '.fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});");
+                $this->addOnResizeScript("$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});");
                 $fltr_html = '<div class="datagrid-filters">' . $fltr_html . '</div>';
             }
             
@@ -76,13 +76,14 @@ HTML;
         // Create the panel for the chart
         $output = <<<HTML
 
+<div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
 <div class="easyui-layout" id="{$this->getId()}_wrapper" data-options="fit: true">
 	{$toolbar}
 	<div style="height: auto;" data-options="region: 'center' {$chart_panel_options}">
 		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px;"></div>
 	</div>
 </div>
-
+</div>
 HTML;
         
         return $output;
@@ -308,7 +309,7 @@ HTML;
             }
             
             // align the filters
-            $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '.fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});";
+            $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});";
             
             // Call the data loader to populate the Chart initially
             $output .= $this->buildJsFunctionPrefix() . 'load();';
