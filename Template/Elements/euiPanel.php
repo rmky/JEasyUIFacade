@@ -17,6 +17,8 @@ class euiPanel extends euiContainer
 
     private $on_resize_script = '';
     
+    private $on_open_script = '';
+    
     protected function init()
     {
         parent::init();
@@ -44,12 +46,17 @@ HTML;
         // other widgets based on a panel may not do so. Thus, the fit data-option is added
         // here, in the generate_html() method, which is verly likely to be overridden in
         // extending classes!
+        
+        // Wrapper wird gebraucht, denn es wird von easyui neben dem .easyui-panel div
+        // ein .panel-header div erzeugt, welches sonst von masonry nicht beachtet wird
+        // (beide divs .panel-header und .easyui-panel/.panel-body werden unter einem
+        // .panel div zusammengefasst).
         $output = <<<HTML
 
                 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
                     <div class="easyui-{$this->getElementType()}"
                             id="{$this->getId()}"
-                            data-options="{$this->buildJsDataOptions()}, fit:true"
+                            data-options="{$this->buildJsDataOptions()},fit:true"
                             title="{$this->getWidget()->getCaption()}">
                         {$children_html}
                     </div>
@@ -66,6 +73,14 @@ HTML;
         $output .= <<<JS
 
         {$this->buildJsLayouterFunction()}
+        
+        $("#{$this->getId()}_masonry_grid").on("layoutComplete", function( event, laidOutItems ) {
+            if (event.target.id == "{$this->getId()}_masonry_grid") {
+                //komischer Nebeneffekt: das Panel war nicht mehr scrollbar
+                $("#{$this->getId()}").parent().parent().removeClass("panel-noscroll");
+                $("#{$this->getId()}").height($("#{$this->getId()}_masonry_grid").height());
+            }
+        });
 JS;
         
         return $output;
@@ -85,13 +100,15 @@ JS;
         if ($widget->getNumberOfColumns() != 1) {
             $this->addOnLoadScript($this->buildJsLayouter() . ';');
             $this->addOnResizeScript($this->buildJsLayouter() . ';');
+            $this->addOnOpenScript($this->buildJsLayouter() . ';');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
         $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
         $onLoadScript = $this->getOnLoadScript() ? ', onLoad: function(){' . $this->getOnLoadScript() . '}' : '';
         $onResizeScript = $this->getOnResizeScript() ? ', onResize: function(){' . $this->getOnResizeScript() . '}' : '';
+        $onOpenScript = $this->getOnOpenScript() ? ', onOpen: function(){' . $this->getOnOpenScript() . '}' : '';
         
-        return $collapsibleScript . $iconClassScript . $onLoadScript . $onResizeScript;
+        return $collapsibleScript . $iconClassScript . $onLoadScript . $onResizeScript . $onOpenScript;
     }
 
     public function generateHeaders()
@@ -122,6 +139,17 @@ JS;
     public function addOnResizeScript($value)
     {
         $this->on_resize_script .= $value;
+        return $this;
+    }
+    
+    public function getOnOpenScript()
+    {
+        return $this->on_open_script;
+    }
+    
+    public function addOnOpenScript($value)
+    {
+        $this->on_open_script .= $value;
         return $this;
     }
 

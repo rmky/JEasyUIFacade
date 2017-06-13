@@ -33,9 +33,11 @@ class euiDialog extends euiForm
         if (! $widget->getLazyLoading()) {
             $children_html = $this->buildHtmlForWidgets();
             if ($widget->countWidgets() > 1) {
+                // Masonry-wrapper wird benoetigt, da sonst die Groesse des Dialogs selbst
+                // veraendert wird -> kein Scrollbalken.
                 $children_html = <<<HTML
 
-        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:auto;">
+        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
             {$children_html}
             <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
         </div>
@@ -99,7 +101,7 @@ HTML;
         /* @var $widget \exface\Core\Widgets\Dialog */
         $widget = $this->getWidget();
         // TODO make the Dialog responsive as in http://www.jeasyui.com/demo/main/index.php?plugin=Dialog&theme=default&dir=ltr&pitem=
-        $output = parent::buildJsDataOptions() . ($widget->isMaximizable() ? ', maximizable: true, maximized: ' . ($widget->isMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true" . ", onOpen: function() {" . $this->buildJsLayouter() . ";}";
+        $output = parent::buildJsDataOptions() . ($widget->isMaximizable() ? ', maximizable: true, maximized: ' . ($widget->isMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true" /*. ", onOpen: function() {" . $this->buildJsLayouter() . ";}"*/;
         return $output;
     }
 
@@ -113,11 +115,6 @@ HTML;
     {
         if ($this->getWidget()->getWidth()->isUndefined()) {
             $number_of_columns = $this->getNumberOfColumns();
-            /*if (! is_null($this->getWidget()->getNumberOfColumns())) {
-                $number_of_columns = $this->getWidget()->getNumberOfColumns();
-            } else {
-                $number_of_columns = $this->getTemplate()->getConfig()->getOption('WIDGET.DIALOG.COLUMNS_BY_DEFAULT');
-            }*/
             $this->getWidget()->setWidth(($number_of_columns * $this->getWidthRelativeUnit() + 35) . 'px');
         }
         return parent::getWidth();
