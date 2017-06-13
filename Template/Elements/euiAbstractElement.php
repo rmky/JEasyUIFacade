@@ -5,17 +5,24 @@ use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
 use exface\Core\Interfaces\Widgets\iLayoutWidgets;
 use exface\Core\Interfaces\Widgets\iFillEntireContainer;
+use exface\Core\Widgets\Panel;
+use exface\Core\Widgets\Dialog;
+use exface\Core\Widgets\DataTable;
+use exface\Core\Widgets\Chart;
 
 abstract class euiAbstractElement extends AbstractJqueryElement
 {
-
+    
     // px
     private $spacing = 8;
     // px
     private $borderWidth = 1;
     // relative units
     private $largeWidgetDefaultHeight = 10;
-    
+
+    private $number_of_columns = null;
+
+    private $searchedForNumberOfColumns = false;
 
     public function buildJsInitOptions()
     {
@@ -120,11 +127,9 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     public function getMasonryItemClass()
     {
         $output = '';
-        $layoutWidget = $this->getWidget()->getLayoutWidget();
-        if ($layoutWidget) {
+        if ($layoutWidget = $this->getWidget()->getLayoutWidget()) {
             $output = $this->getTemplate()->getElement($layoutWidget)->getId() . '_masonry_fitem';
         }
-        
         return $output;
     }
 
@@ -138,12 +143,10 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     {
         $widget = $this->getWidget();
         
-        $columnNumber = null;
         if ($layoutWidget = $widget->getLayoutWidget()) {
-            $columnNumber = $layoutWidget->getNumberOfColumns();
-        }
-        if (is_null($columnNumber)) {
-            $columnNumber = $this->getTemplate()->getConfig()->getOption("DEFAULT_COLUMN_NUMBER");
+            $columnNumber = $this->getTemplate()->getElement($layoutWidget)->getNumberOfColumns();
+        } else {
+            $columnNumber = $this->getTemplate()->getConfig()->getOption("COLUMNS_BY_DEFAULT");
         }
         
         $dimension = $widget->getWidth();
@@ -197,9 +200,9 @@ abstract class euiAbstractElement extends AbstractJqueryElement
             $output = $dimension->getValue();
         } elseif ($widget instanceof iFillEntireContainer) {
             // Ein "grosses" Widget ohne angegebene Hoehe.
-            // $height = ($this->getHeightRelativeUnit() * $this->getContainerDefaultHeight()) . 'px';
             $output = '100%';
             if ($layoutWidget && ($layoutWidget->countWidgets() > 1)) {
+                //$output = 'auto';
                 $output = ($this->getHeightRelativeUnit() * $this->getLargeWidgetDefaultHeight()) . 'px';
             }
         } else {
@@ -214,11 +217,47 @@ abstract class euiAbstractElement extends AbstractJqueryElement
         if ($this->getWidget() instanceof iLayoutWidgets) {
             // z.B. die Filter-Widgets der DataTables sind genau getWidthRelativeUnits breit und
             // wuerden sonst vom Rand teilweise verdeckt werden.
-            $output = ($this->getWidthRelativeUnit() + $this->getSpacing() + 2 * $this->getBorderWidth()) . 'px';
+            $output = ($this->getWidthMinimum() + $this->getSpacing() + 2 * $this->getBorderWidth()) . 'px';
         } else {
-            $output = $this->getWidthRelativeUnit() . 'px';
+            $output = $this->getWidthMinimum() . 'px';
         }
         return $output;
+    }
+
+    public function getNumberOfColumns()
+    {
+        if (! $this->searchedForNumberOfColumns) {
+            $widget = $this->getWidget();
+            if ($widget instanceof iLayoutWidgets) {
+                if (! is_null($widget->getNumberOfColumns())) {
+                    $this->number_of_columns = $widget->getNumberOfColumns();
+                } else {
+                    if ($layoutWidget = $widget->getLayoutWidget()) {
+                        $parentColumnNumber = $this->getTemplate()->getElement($layoutWidget)->getNumberOfColumns();
+                    }
+                    switch (true) {
+                        case $widget instanceof Dialog:
+                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.DIALOG.COLUMNS_BY_DEFAULT");
+                            break;
+                        case $widget instanceof Panel:
+                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.PANEL.COLUMNS_BY_DEFAULT");
+                            break;
+                        case $widget instanceof DataTable:
+                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.DATATABLE.COLUMNS_BY_DEFAULT");
+                            break;
+                        case $widget instanceof Chart:
+                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.CHART.COLUMNS_BY_DEFAULT");
+                    }
+                    if (is_null($parentColumnNumber) || $defaultColumnNumber < $parentColumnNumber) {
+                        $this->number_of_columns = $defaultColumnNumber;
+                    } else {
+                        $this->number_of_columns = $parentColumnNumber;
+                    }
+                }
+            }
+            $this->searchedForNumberOfColumns = true;
+        }
+        return $this->number_of_columns;
     }
 
     public function getSpacing()
@@ -228,14 +267,18 @@ abstract class euiAbstractElement extends AbstractJqueryElement
 
     public function getPadding()
     {
-        return round($this->getSpacing() / 2) . 'px';
+        $output = '0';
+        if (($layoutWidget = $this->getWidget()->getLayoutWidget()) && ($layoutWidget->countWidgets() > 1)) {
+            $output = round($this->getSpacing() / 2) . 'px';
+        }
+        return $output;
     }
 
     public function getBorderWidth()
     {
         return $this->borderWidth;
     }
-    
+
     public function getLargeWidgetDefaultHeight()
     {
         return $this->largeWidgetDefaultHeight;

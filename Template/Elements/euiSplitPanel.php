@@ -44,7 +44,7 @@ class euiSplitPanel extends euiPanel
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
         if ($this->getWidget()->countWidgets() > 1) {
-            $children_html = '<div class="grid" id="' . $this->getId() . '_masonry_grid">' . $children_html . '</div>';
+            $children_html = '<div class="grid" id="' . $this->getId() . '_masonry_grid" style="width:100%;height:100%;">' . $children_html . '</div>';
         }
         
         $output = '

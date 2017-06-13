@@ -31,12 +31,11 @@ class euiPanel extends euiContainer
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
         if ($widget->countWidgets() > 1) {
-            $columnWidth = 'calc(100% / ' . $widget->getNumberOfColumns() . ')';
             $children_html = <<<HTML
 
-                        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%">
+                        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
                             {$children_html}
-                            <div id="{$this->getId()}_sizer" style="width:{$columnWidth};min-width:{$this->getMinWidth()};"></div>
+                            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
                         </div>
 HTML;
         }
@@ -50,7 +49,7 @@ HTML;
                 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
                     <div class="easyui-{$this->getElementType()}"
                             id="{$this->getId()}"
-                            data-options="{$this->buildJsDataOptions()}, fit: true"
+                            data-options="{$this->buildJsDataOptions()}, fit:true"
                             title="{$this->getWidget()->getCaption()}">
                         {$children_html}
                     </div>
@@ -84,11 +83,11 @@ JS;
         $widget = $this->getWidget();
         
         if ($widget->getNumberOfColumns() != 1) {
-            $this->addOnLoadScript($this->buildJsLayouter());
-            $this->addOnResizeScript($this->buildJsLayouter());
+            $this->addOnLoadScript($this->buildJsLayouter() . ';');
+            $this->addOnResizeScript($this->buildJsLayouter() . ';');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
-        $iconClassScript = $widget->getIconName() ? ', iconCls:"' . $this->buildCssIconClass($widget->getIconName()) . '"' : '';
+        $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
         $onLoadScript = $this->getOnLoadScript() ? ', onLoad: function(){' . $this->getOnLoadScript() . '}' : '';
         $onResizeScript = $this->getOnResizeScript() ? ', onResize: function(){' . $this->getOnResizeScript() . '}' : '';
         

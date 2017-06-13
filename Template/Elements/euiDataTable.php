@@ -45,6 +45,12 @@ class euiDataTable extends euiData
             foreach ($widget->getFilters() as $fltr) {
                 $fltr_html .= $this->getTemplate()->generateHtml($fltr);
             }
+            
+            $columnWidth = 'calc(100% / ' . $this->getNumberOfColumns() . ')';
+            $fltr_html .= <<<HTML
+
+<div id="{$this->getId()}_sizer" style="width:{$columnWidth};min-width:{$this->getWidthMinimum()}px;"></div>
+HTML;
         }
         
         // add buttons
@@ -267,7 +273,7 @@ JS;
         $resize_function = '';
         if ($widget->hasFilters()) {
             $resize_function .= '
-					$("#' . $this->getToolbarId() . ' .datagrid-filters").masonry({itemSelector: \'.' . $this->getId() . '_masonry_fitem\', columnWidth: ' . $this->getWidthRelativeUnit() . '});';
+					$("#' . $this->getToolbarId() . ' .datagrid-filters").masonry({itemSelector: \'.' . $this->getId() . '_masonry_fitem\', columnWidth: \'#' . $this->getId() . '_sizer\'});';
         }
         $resize_function .= '
 					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';

@@ -39,7 +39,7 @@ class euiChart extends euiAbstractElement
                 foreach ($widget->getData()->getFilters() as $fltr) {
                     $fltr_html .= $this->getTemplate()->generateHtml($fltr);
                 }
-                $this->addOnResizeScript("$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});");
+                $this->addOnResizeScript("$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthMinimum() . "});");
                 $fltr_html = '<div class="datagrid-filters">' . $fltr_html . '</div>';
             }
             
@@ -60,15 +60,16 @@ class euiChart extends euiAbstractElement
             // create a container for the toolbar
             if (($widget->getData()->hasFilters() || $widget->hasButtons())) {
                 $toolbar = <<<HTML
-<div data-options="region: 'north', onResize: function(){{$this->getOnResizeScript()}}{$toolbar_panel_options}">
-	<div id="{$this->getToolbarId()}" class="datagrid-toolbar">
-		{$fltr_html}
-		<div style="min-height: 30px;">
-			{$button_html}
-			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">Search</a>
-		</div>
-	</div>
-</div>
+
+        <div data-options="region: 'north', onResize: function(){{$this->getOnResizeScript()}}{$toolbar_panel_options}">
+        	<div id="{$this->getToolbarId()}" class="datagrid-toolbar">
+        		{$fltr_html}
+        		<div style="min-height: 30px;">
+        			{$button_html}
+        			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">Search</a>
+        		</div>
+        	</div>
+        </div>
 HTML;
             }
         }
@@ -77,12 +78,12 @@ HTML;
         $output = <<<HTML
 
 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
-<div class="easyui-layout" id="{$this->getId()}_wrapper" data-options="fit: true">
-	{$toolbar}
-	<div style="height: auto;" data-options="region: 'center' {$chart_panel_options}">
-		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px;"></div>
-	</div>
-</div>
+    <div class="easyui-layout" id="{$this->getId()}_wrapper" data-options="fit: true">
+    	{$toolbar}
+    	<div style="height: auto;" data-options="region: 'center' {$chart_panel_options}">
+    		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px;"></div>
+    	</div>
+    </div>
 </div>
 HTML;
         
@@ -309,7 +310,7 @@ HTML;
             }
             
             // align the filters
-            $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});";
+            $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthMinimum() . "});";
             
             // Call the data loader to populate the Chart initially
             $output .= $this->buildJsFunctionPrefix() . 'load();';
