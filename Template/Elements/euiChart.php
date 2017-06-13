@@ -264,7 +264,7 @@ HTML;
             // send pagination/limit information. Charts currently do not support real pagination, but just a TOP-X display.
             if ($widget->getData()->getPaginate()) {
                 $url_params .= '&page=1';
-                $url_params .= '&rows=' . $widget->getData()->getPaginateDefaultPageSize();
+                $url_params .= '&rows=' . (!is_null($widget->getData()->getPaginatePageSize()) ? $widget->getData()->getPaginatePageSize() : $this->getTemplate()->getConfig()->getOption('WIDGET.CHART.PAGE_SIZE'));
             }
             
             // send preset filters

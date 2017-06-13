@@ -6,6 +6,7 @@ use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 use exface\Core\Factories\WidgetFactory;
 use exface\Core\Widgets\DataButton;
+use exface\Core\Interfaces\Actions\iReadData;
 
 /**
  *
@@ -389,8 +390,15 @@ JS;
 
     public function buildJsDataGetter(ActionInterface $action = null)
     {
+        $rows = '';
+        $filters = '';
         if (is_null($action)) {
             $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getData')";
+        } elseif ($action instanceof iReadData) {
+            foreach ($this->getWidget()->getFilters() as $filter){
+                $filters .= ', ' . $this->getTemplate()->getElement($filter)->buildJsConditionGetter();
+            }
+            $filters = $filters ? '{operator: "AND", conditions: [' . trim($filters, ",") . ']}' : '';
         } elseif ($this->isEditable() && $action->implementsInterface('iModifyData')) {
             if ($this->getWidget()->getMultiSelect()) {
                 $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getSelections').length > 0 ? $('#" . $this->getId() . "')." . $this->getElementType() . "('getSelections') : " . $this->buildJsFunctionPrefix() . "getChanges()";
@@ -400,7 +408,7 @@ JS;
         } else {
             $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getSelections')";
         }
-        return "{oId: '" . $this->getWidget()->getMetaObjectId() . "', rows: " . $rows . "}";
+        return "{oId: '" . $this->getWidget()->getMetaObjectId() . "'" . ($rows ? ", rows: " . $rows : '') . ($filters ? ", filters: " . $filters : "") . "}";
     }
     
     /**
