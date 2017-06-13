@@ -201,10 +201,10 @@ abstract class euiAbstractElement extends AbstractJqueryElement
         } elseif ($widget instanceof iFillEntireContainer) {
             // Ein "grosses" Widget ohne angegebene Hoehe.
             $output = '100%';
-            if ($layoutWidget && ($layoutWidget->countWidgets() > 1)) {
+            //if ($layoutWidget && ($layoutWidget->countWidgets() > 1)) {
                 //$output = 'auto';
-                $output = ($this->getHeightRelativeUnit() * $this->getLargeWidgetDefaultHeight()) . 'px';
-            }
+            //    $output = ($this->getHeightRelativeUnit() * $this->getLargeWidgetDefaultHeight()) . 'px';
+            //}
         } else {
             // Ein "kleines" Widget ohne angegebene Hoehe.
             $output = ($this->getHeightRelativeUnit() * $this->getHeightDefault()) . 'px';
