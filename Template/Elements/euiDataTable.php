@@ -81,7 +81,9 @@ HTML;
         // Create a context menu if any items were found
         if ($context_menu_html && $widget->getContextMenuEnabled()) {
             $output .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu" style="width: 200px">' . $context_menu_html . '</div>';
-            $output .= $button_html;
+            // sfl: Sind diese zusaetzlichen Buttons notwendig??? Sie erscheinen am unteren
+            // Rand der DataTable, wenn diese nicht den gesamten Container ausfuellt.
+            // $output .= $button_html;
         }
         
         $output = <<<HTML
@@ -468,6 +470,27 @@ JS;
      * return $output;
      * }
      */
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::getHeight()
+     */
+    function getHeight()
+    {
+        // Die Hoehe der DataTable passt sich nicht automatisch dem Inhalt an. Wenn sie also
+        // nicht den gesamten Container ausfuellt, kollabiert sie so dass die Datensaetze nicht
+        // mehr sichtbar sind (nur noch Header und Footer). Deshalb wird hier die Hoehe der
+        // DataTable gesetzt, wenn sie nicht definiert ist, und sie nicht alleine im Container
+        // ist.
+        $widget = $this->getWidget();
+        
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
+            $this->getWidget()->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_MINIMUM'));
+        }
+        return parent::getHeight();
+    }
+
     public function buildJsLayouter()
     {
         return $this->getId() . '_layouter()';
