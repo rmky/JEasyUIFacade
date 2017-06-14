@@ -191,7 +191,6 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     public function getHeight()
     {
         $widget = $this->getWidget();
-        $layoutWidget = $widget->getLayoutWidget();
         
         $dimension = $widget->getHeight();
         if ($dimension->isRelative()) {
@@ -201,7 +200,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
         } elseif ($widget instanceof iFillEntireContainer) {
             // Ein "grosses" Widget ohne angegebene Hoehe.
             $output = '100%';
-            if ($layoutWidget && ($layoutWidget->countWidgets() > 1)) {
+            if (($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
                 $output = 'auto';
                 //$output = ($this->getHeightRelativeUnit() * $this->getLargeWidgetDefaultHeight()) . 'px';
             }
@@ -268,7 +267,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     public function getPadding()
     {
         $output = '0';
-        if (($layoutWidget = $this->getWidget()->getLayoutWidget()) && ($layoutWidget->countWidgets() > 1)) {
+        if (($containerWidget = $this->getWidget()->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
             $output = round($this->getSpacing() / 2) . 'px';
         }
         return $output;

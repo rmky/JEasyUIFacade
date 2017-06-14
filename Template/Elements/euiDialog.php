@@ -31,18 +31,15 @@ class euiDialog extends euiForm
         
         $children_html = '';
         if (! $widget->getLazyLoading()) {
-            $children_html = $this->buildHtmlForWidgets();
-            if ($widget->countWidgets() > 1) {
-                // Masonry-wrapper wird benoetigt, da sonst die Groesse des Dialogs selbst
-                // veraendert wird -> kein Scrollbalken.
-                $children_html = <<<HTML
+            // masonry_grid-wrapper wird benoetigt, da sonst die Groesse des Dialogs selbst
+            // veraendert wird -> kein Scrollbalken.
+            $children_html = <<<HTML
 
         <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
-            {$children_html}
+            {$this->buildHtmlForWidgets()}
             <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
         </div>
 HTML;
-            }
         }
         
         if (! $this->getWidget()->getHideHelpButton()) {
@@ -101,7 +98,7 @@ HTML;
         /* @var $widget \exface\Core\Widgets\Dialog */
         $widget = $this->getWidget();
         // TODO make the Dialog responsive as in http://www.jeasyui.com/demo/main/index.php?plugin=Dialog&theme=default&dir=ltr&pitem=
-        $output = parent::buildJsDataOptions() . ($widget->isMaximizable() ? ', maximizable: true, maximized: ' . ($widget->isMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true" /*. ", onOpen: function() {" . $this->buildJsLayouter() . ";}"*/;
+        $output = parent::buildJsDataOptions() . ($widget->isMaximizable() ? ', maximizable: true, maximized: ' . ($widget->isMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true" . ", onOpen: function() {" . $this->buildJsLayouter() . ";}";
         return $output;
     }
 
@@ -132,6 +129,34 @@ HTML;
             $this->getWidget()->setHeight('80%');
         }
         return parent::getHeight();
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiPanel::buildJsLayouterFunction()
+     */
+    public function buildJsLayouterFunction()
+    {
+        $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
+            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
+                $("#{$this->getId()}_masonry_grid").masonry({
+                    columnWidth: "#{$this->getId()}_sizer",
+                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                });
+            }
+        } else {
+            $("#{$this->getId()}_masonry_grid").masonry("reloadItems");
+            $("#{$this->getId()}_masonry_grid").masonry();
+        }
+    }
+JS;
+        
+        return $output;
     }
 }
 ?>

@@ -16,9 +16,9 @@ class euiPanel extends euiContainer
     private $on_load_script = '';
 
     private $on_resize_script = '';
-    
+
     private $on_open_script = '';
-    
+
     protected function init()
     {
         parent::init();
@@ -29,15 +29,24 @@ class euiPanel extends euiContainer
     {
         $widget = $this->getWidget();
         
-        $children_html = $this->buildHtmlForWidgets();
+        $children_html = <<<HTML
+        
+                            {$this->buildHtmlForWidgets()}
+                            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+HTML;
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
-        if ($widget->countWidgets() > 1) {
+        // Normalerweise wird das der masonry_grid-wrapper nicht gebraucht. Masonry ordnet
+        // dann die Elemente an und passt direkt die Grosse des Panels an den neuen Inhalt an.
+        // Nur wenn das Panel den gesamten Container ausfuellt, darf seine Groesse nicht
+        // geaendert werden. In diesem Fall wird der wrapper eingefuegt und stattdessen seine
+        // Groesse geaendert. Dadurch wird der Inhalt scrollbar im Panel angezeigt.
+        
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
             $children_html = <<<HTML
 
                         <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
                             {$children_html}
-                            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
                         </div>
 HTML;
         }
@@ -51,6 +60,8 @@ HTML;
         // ein .panel-header div erzeugt, welches sonst von masonry nicht beachtet wird
         // (beide divs .panel-header und .easyui-panel/.panel-body werden unter einem
         // .panel div zusammengefasst).
+        // Fit:true wird gebraucht, denn sonst aendert das Panel seine Groesse nicht mehr
+        // wenn sich die Groesse des Bildschirms/Containers aendert.
         $output = <<<HTML
 
                 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
@@ -73,14 +84,6 @@ HTML;
         $output .= <<<JS
 
         {$this->buildJsLayouterFunction()}
-        
-        $("#{$this->getId()}_masonry_grid").on("layoutComplete", function( event, laidOutItems ) {
-            if (event.target.id == "{$this->getId()}_masonry_grid") {
-                //komischer Nebeneffekt: das Panel war nicht mehr scrollbar
-                $("#{$this->getId()}").parent().parent().removeClass("panel-noscroll");
-                $("#{$this->getId()}").height($("#{$this->getId()}_masonry_grid").height());
-            }
-        });
 JS;
         
         return $output;
@@ -100,7 +103,7 @@ JS;
         if ($widget->getNumberOfColumns() != 1) {
             $this->addOnLoadScript($this->buildJsLayouter() . ';');
             $this->addOnResizeScript($this->buildJsLayouter() . ';');
-            $this->addOnOpenScript($this->buildJsLayouter() . ';');
+            //$this->addOnOpenScript($this->buildJsLayouter() . ';');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
         $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
@@ -141,12 +144,12 @@ JS;
         $this->on_resize_script .= $value;
         return $this;
     }
-    
+
     public function getOnOpenScript()
     {
         return $this->on_open_script;
     }
-    
+
     public function addOnOpenScript($value)
     {
         $this->on_open_script .= $value;
@@ -160,13 +163,25 @@ JS;
 
     public function buildJsLayouterFunction()
     {
-        $output = <<<JS
+        $widget = $this->getWidget();
+        
+        // Auch das Layout des Containers wird erneuert nachdem das eigene Layout aktualisiert
+        // wurde.
+        $layoutWidgetScript = '';
+        if ($layoutWidget = $widget->getLayoutWidget()) {
+            $layoutWidgetScript = <<<JS
+{$this->getTemplate()->getElement($layoutWidget)->getId()}_layouter();
+JS;
+        }
+        
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
+            $output = <<<JS
 
     function {$this->getId()}_layouter() {
         if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
             if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
                 $("#{$this->getId()}_masonry_grid").masonry({
-                    columnWidth: '#{$this->getId()}_sizer',
+                    columnWidth: "#{$this->getId()}_sizer",
                     itemSelector: ".{$this->getId()}_masonry_fitem"
                 });
             }
@@ -174,8 +189,28 @@ JS;
             $("#{$this->getId()}_masonry_grid").masonry("reloadItems");
             $("#{$this->getId()}_masonry_grid").masonry();
         }
+        {$layoutWidgetScript}
     }
 JS;
+        } else {
+            $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        if (!$("#{$this->getId()}").data("masonry")) {
+            if ($("#{$this->getId()}").find(".{$this->getId()}_masonry_fitem").length > 0) {
+                $("#{$this->getId()}").masonry({
+                    columnWidth: "#{$this->getId()}_sizer",
+                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                });
+            }
+        } else {
+            $("#{$this->getId()}").masonry("reloadItems");
+            $("#{$this->getId()}").masonry();
+        }
+        {$layoutWidgetScript}
+    }
+JS;
+        }
         
         return $output;
     }

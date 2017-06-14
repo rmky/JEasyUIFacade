@@ -39,7 +39,11 @@ class euiChart extends euiAbstractElement
                 foreach ($widget->getData()->getFilters() as $fltr) {
                     $fltr_html .= $this->getTemplate()->generateHtml($fltr);
                 }
-                $this->addOnResizeScript("$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthMinimum() . "});");
+                $fltr_html .= <<<HTML
+
+<div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+HTML;
+                $this->addOnResizeScript($this->buildJsLayouter() . ';');
                 $fltr_html = '<div class="datagrid-filters">' . $fltr_html . '</div>';
             }
             
@@ -176,6 +180,12 @@ HTML;
         $output .= $this->buildJsAjaxLoaderFunction();
         $output .= $this->buildJsTooltipInit();
         
+        // Layout-Funktion hinzufuegen
+        $output .= <<<JS
+
+                        {$this->buildJsLayouterFunction()}
+JS;
+        
         return $output;
     }
 
@@ -264,7 +274,7 @@ HTML;
             // send pagination/limit information. Charts currently do not support real pagination, but just a TOP-X display.
             if ($widget->getData()->getPaginate()) {
                 $url_params .= '&page=1';
-                $url_params .= '&rows=' . (!is_null($widget->getData()->getPaginatePageSize()) ? $widget->getData()->getPaginatePageSize() : $this->getTemplate()->getConfig()->getOption('WIDGET.CHART.PAGE_SIZE'));
+                $url_params .= '&rows=' . (! is_null($widget->getData()->getPaginatePageSize()) ? $widget->getData()->getPaginatePageSize() : $this->getTemplate()->getConfig()->getOption('WIDGET.CHART.PAGE_SIZE'));
             }
             
             // send preset filters
@@ -310,7 +320,7 @@ HTML;
             }
             
             // align the filters
-            $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthMinimum() . "});";
+            $output .= $this->buildJsLayouter() . ';';
             
             // Call the data loader to populate the Chart initially
             $output .= $this->buildJsFunctionPrefix() . 'load();';
@@ -503,6 +513,26 @@ HTML;
     public function getOnChangeScript()
     {
         return $this->on_change_script;
+    }
+
+    public function buildJsLayouter()
+    {
+        return $this->getId() . '_layouter()';
+    }
+
+    public function buildJsLayouterFunction()
+    {
+        $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        $("#{$this->getToolbarId()} .datagrid-filters").masonry({
+            columnWidth: "#{$this->getId()}_sizer",
+            itemSelector: ".{$this->getId()}_masonry_fitem"
+        });
+    }
+JS;
+        
+        return $output;
     }
 }
 ?>
