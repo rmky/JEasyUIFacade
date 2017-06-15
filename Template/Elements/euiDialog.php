@@ -37,7 +37,7 @@ class euiDialog extends euiForm
 
         <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
             {$this->buildHtmlForWidgets()}
-            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
         </div>
 HTML;
         }

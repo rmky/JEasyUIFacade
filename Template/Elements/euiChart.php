@@ -79,13 +79,18 @@ HTML;
         }
         
         // Create the panel for the chart
+        // overflow: hidden loest ein Problem im JavaFX WebView-Browser, bei dem immer wieder
+        // Scrollbars ein- und wieder ausgeblendet wurden. Es trat in Verbindung mit Masonry
+        // auf, wenn mehrere Elemente auf einer Seite angezeigt wurden (u.a. ein Chart) und
+        // das Layout umgebrochen hat. Da sich die Groesse des Charts sowieso an den Container
+        // anpasst hat overflow: hidden keine weiteren Auswirkungen.
         $output = <<<HTML
 
 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
     <div class="easyui-layout" id="{$this->getId()}_wrapper" data-options="fit: true">
     	{$toolbar}
     	<div style="height: auto;" data-options="region: 'center' {$chart_panel_options}">
-    		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px;"></div>
+    		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px; overflow: hidden;"></div>
     	</div>
     </div>
 </div>

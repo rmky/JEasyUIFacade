@@ -19,7 +19,7 @@ class euiTab extends euiPanel
         $children_html = <<<HTML
 
             {$this->buildHtmlForChildren()}
-            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
 HTML;
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out

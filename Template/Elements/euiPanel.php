@@ -32,7 +32,7 @@ class euiPanel extends euiContainer
         $children_html = <<<HTML
         
                             {$this->buildHtmlForWidgets()}
-                            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+                            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
 HTML;
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
@@ -49,6 +49,15 @@ HTML;
                             {$children_html}
                         </div>
 HTML;
+        }
+        
+        // Hat das Panel eine begrenzte Groesse (es ist nicht alleine in seinem Container)
+        // und hat es eine begrenzte Breite (z.B. width: 1), dann ist am Ende seine Hoehe
+        // aus irgendeinem Grund um etwa 1 Pixel zu klein, so dass ein Scrollbalken ange-
+        // zeigt wird. Aus diesem Grund wird hier dann overflow-y: hidden gesetzt. Falls
+        // das Probleme gibt, muss u.U. eine andere Loesung gefunden werden.
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
+            $styleScript = 'overflow-y:hidden;';
         }
         
         // A standalone panel will always fill out the parent container (fit: true), but
@@ -68,7 +77,8 @@ HTML;
                     <div class="easyui-{$this->getElementType()}"
                             id="{$this->getId()}"
                             data-options="{$this->buildJsDataOptions()},fit:true"
-                            title="{$this->getWidget()->getCaption()}">
+                            title="{$this->getWidget()->getCaption()}"
+                            style="{$styleScript}">
                         {$children_html}
                     </div>
                 </div>
@@ -103,7 +113,7 @@ JS;
         if ($widget->getNumberOfColumns() != 1) {
             $this->addOnLoadScript($this->buildJsLayouter() . ';');
             $this->addOnResizeScript($this->buildJsLayouter() . ';');
-            //$this->addOnOpenScript($this->buildJsLayouter() . ';');
+            // $this->addOnOpenScript($this->buildJsLayouter() . ';');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
         $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
