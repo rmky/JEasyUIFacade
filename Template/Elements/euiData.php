@@ -91,7 +91,7 @@ class euiData extends euiAbstractElement
                         $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
                         $live_filter_js .= 'param.fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '= "' . $fltr->getComparator() . '"+' . $linked_element->buildJsValueGetter() . ';';
                         $this->addOnBeforeLoad($live_filter_js);
-                    } // If the filter has a static value, just set it here
+                    }  // If the filter has a static value, just set it here
 else {
                         $params[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": "' . $fltr->getComparator() . urlencode(strpos($fltr->getValue(), '=') === 0 ? '' : $fltr->getValue()) . '"';
                     }
@@ -131,22 +131,31 @@ else {
             $sortOrder = ", sortOrder: '" . implode(',', $direction) . "'";
         }
         
-        if (!is_null($widget->getPaginatePageSize())){
+        if (! is_null($widget->getPaginatePageSize())) {
             $default_page_size = $widget->getPaginatePageSize();
         } else {
             try {
                 $default_page_size = $this->getTemplate()->getConfig()->getOption('WIDGET.' . $widget->getWidgetType() . '.PAGE_SIZE');
-            } catch (ConfigOptionNotFoundError $e){
+            } catch (ConfigOptionNotFoundError $e) {
                 $default_page_size = $this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZE');
             }
         }
+        
+        // Die page_size muss in der page_list enthalten sein, sonst wird Parameter rows "NaN" an den Server uebermittelt.
+        // Ist sie nicht enthalten wird daher ein entsprechender Eintrag hinzugefuegt.
+        $page_list = $this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE');
+        if (! in_array($default_page_size, $page_list)) {
+            $page_list[] = $default_page_size;
+            sort($page_list);
+        }
+        $page_list = json_encode($page_list);
         
         // Make sure, all selections are cleared, when the data is loaded from the backend. This ensures, the selected rows are always visible to the user!
         if ($widget->getMultiSelect()) {
             // TODO: Gibt Probleme im Context einer ComboTable. Dort muesste die Zeile folgendermassen
             // aussehen: $(this).combogrid("grid").' . $this->getElementType() . '("clearSelections");
             // Ist es fuer eine ComboTable sinnvoll nach jedem Laden ihre Auswahl zu verlieren???
-            //$this->addOnLoadSuccess('$(this).' . $this->getElementType() . '("clearSelections");');
+            // $this->addOnLoadSuccess('$(this).' . $this->getElementType() . '("clearSelections");');
         }
         
         $output = '
@@ -159,7 +168,7 @@ else {
 				' . (! $widget->getMultiSelect() ? ', singleSelect: true' : '') . '
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
-				, pageList: ' . json_encode($this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')) . '
+				, pageList: ' . $page_list . '
 				, pageSize: ' . $default_page_size . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '

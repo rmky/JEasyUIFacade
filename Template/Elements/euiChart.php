@@ -515,6 +515,26 @@ JS;
         return $this->on_change_script;
     }
 
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::getHeight()
+     */
+    function getHeight()
+    {
+        // Die Hoehe des Charts passt sich nicht automatisch dem Inhalt an. Wenn er also
+        // nicht den gesamten Container ausfuellt, kollabiert er vollstaendig. Deshalb
+        // wird hier die Hoehe des Charts gesetzt, wenn sie nicht definiert ist, und
+        // er nicht alleine im Container ist.
+        $widget = $this->getWidget();
+        
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
+            $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
+        }
+        return parent::getHeight();
+    }
+
     public function buildJsLayouter()
     {
         return $this->getId() . '_layouter()';

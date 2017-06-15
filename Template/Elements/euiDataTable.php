@@ -486,7 +486,7 @@ JS;
         $widget = $this->getWidget();
         
         if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
-            $this->getWidget()->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_MINIMUM'));
+            $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();
     }
