@@ -42,14 +42,15 @@ HTML;
 HTML;
         return $output;
     }
-    
-    function buildJsDataOptions() {
+
+    function buildJsDataOptions()
+    {
         $widget = $this->getWidget();
         
         $output = parent::buildJsDataOptions() . ($widget->isHidden() || $widget->isDisabled() ? ', disabled:true' : '');
         return $output;
     }
-    
+
     /**
      *
      * {@inheritdoc}
