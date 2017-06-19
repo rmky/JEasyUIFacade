@@ -133,8 +133,8 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     public function getMasonryItemClass()
     {
         $output = '';
-        if ($layoutWidget = $this->getWidget()->getLayoutWidget()) {
-            $output = $this->getTemplate()->getElement($layoutWidget)->getId() . '_masonry_fitem';
+        if (($containerWidget = $this->getWidget()->getContainerWidget()) && ($containerWidget instanceof iLayoutWidgets)) {
+            $output = $this->getTemplate()->getElement($containerWidget)->getId() . '_masonry_fitem';
         }
         return $output;
     }
