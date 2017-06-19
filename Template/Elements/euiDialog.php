@@ -106,7 +106,6 @@ HTML;
         /* @var $widget \exface\Core\Widgets\Dialog */
         $widget = $this->getWidget();
         // TODO make the Dialog responsive as in http://www.jeasyui.com/demo/main/index.php?plugin=Dialog&theme=default&dir=ltr&pitem=
-        // onOpen-Funktion wird hinzugefuegt, da sonst das Layout des Dialogs zu breit ist.
         $output = parent::buildJsDataOptions() . ($widget->isMaximizable() ? ', maximizable: true, maximized: ' . ($widget->isMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true";
         return $output;
     }
