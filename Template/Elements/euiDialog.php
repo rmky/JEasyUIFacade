@@ -31,15 +31,22 @@ class euiDialog extends euiForm
         
         $children_html = '';
         if (! $widget->getLazyLoading()) {
-            // masonry_grid-wrapper wird benoetigt, da sonst die Groesse des Dialogs selbst
-            // veraendert wird -> kein Scrollbalken.
             $children_html = <<<HTML
 
-        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
             {$this->buildHtmlForWidgets()}
             <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
+HTML;
+            
+            if ($widget->countVisibleWidgets() > 1) {
+                // masonry_grid-wrapper wird benoetigt, da sonst die Groesse des Dialogs selbst
+                // veraendert wird -> kein Scrollbalken.
+                $children_html = <<<HTML
+
+        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
+            {$children_html}
         </div>
 HTML;
+            }
         }
         
         if (! $this->getWidget()->getHideHelpButton()) {
@@ -81,6 +88,7 @@ HTML;
             $output .= $this->getTemplate()->generateJs($this->getWidget()->getHelpButton());
         }
         
+        // Layout-Funktion hinzufuegen
         $output .= $this->buildJsLayouterFunction();
         
         return $output;
@@ -98,6 +106,7 @@ HTML;
         /* @var $widget \exface\Core\Widgets\Dialog */
         $widget = $this->getWidget();
         // TODO make the Dialog responsive as in http://www.jeasyui.com/demo/main/index.php?plugin=Dialog&theme=default&dir=ltr&pitem=
+        // onOpen-Funktion wird hinzugefuegt, da sonst das Layout des Dialogs zu breit ist.
         $output = parent::buildJsDataOptions() . ($widget->isMaximizable() ? ', maximizable: true, maximized: ' . ($widget->isMaximized() ? 'true' : 'false') : '') . ", cache: false" . ", closed: false" . ", buttons: '#{$this->buttons_div_id}'" . ", tools: '#{$this->getId()}_window_tools'" . ", modal: true" . ", onOpen: function() {" . $this->buildJsLayouter() . ";}";
         return $output;
     }

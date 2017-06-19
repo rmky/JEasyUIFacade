@@ -17,8 +17,6 @@ class euiPanel extends euiContainer
 
     private $on_resize_script = '';
 
-    private $on_open_script = '';
-
     protected function init()
     {
         parent::init();
@@ -91,10 +89,8 @@ HTML;
     {
         $output = parent::generateJs();
         
-        $output .= <<<JS
-
-        {$this->buildJsLayouterFunction()}
-JS;
+        // Layout-Funktion hinzufuegen
+        $output .= $this->buildJsLayouterFunction();
         
         return $output;
     }
@@ -113,15 +109,13 @@ JS;
         if ($widget->getNumberOfColumns() != 1) {
             $this->addOnLoadScript($this->buildJsLayouter() . ';');
             $this->addOnResizeScript($this->buildJsLayouter() . ';');
-            // $this->addOnOpenScript($this->buildJsLayouter() . ';');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
         $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
         $onLoadScript = $this->getOnLoadScript() ? ', onLoad: function(){' . $this->getOnLoadScript() . '}' : '';
         $onResizeScript = $this->getOnResizeScript() ? ', onResize: function(){' . $this->getOnResizeScript() . '}' : '';
-        $onOpenScript = $this->getOnOpenScript() ? ', onOpen: function(){' . $this->getOnOpenScript() . '}' : '';
         
-        return $collapsibleScript . $iconClassScript . $onLoadScript . $onResizeScript . $onOpenScript;
+        return $collapsibleScript . $iconClassScript . $onLoadScript . $onResizeScript;
     }
 
     public function generateHeaders()
@@ -152,17 +146,6 @@ JS;
     public function addOnResizeScript($value)
     {
         $this->on_resize_script .= $value;
-        return $this;
-    }
-
-    public function getOnOpenScript()
-    {
-        return $this->on_open_script;
-    }
-
-    public function addOnOpenScript($value)
-    {
-        $this->on_open_script .= $value;
         return $this;
     }
 

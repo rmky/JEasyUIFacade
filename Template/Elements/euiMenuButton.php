@@ -93,7 +93,7 @@ class euiMenuButton extends euiAbstractElement
      */
     protected function buildHtmlWrapperDiv($html)
     {
-        $output = '<div class="fitem ' . $this->getMasonryItemClass() . ' exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; height: ' . $this->getHeight() . ';">
+        $output = '<div class="fitem ' . $this->getMasonryItemClass() . ' exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; min-width: ' . $this->getMinWidth() . '; height: ' . $this->getHeight() . ';">
 				' . $html . '
 			</div>
 			';

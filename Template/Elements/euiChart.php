@@ -70,7 +70,7 @@ HTML;
         		{$fltr_html}
         		<div style="min-height: 30px;">
         			{$button_html}
-        			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">Search</a>
+        			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">{$this->translate('WIDGET.SEARCH')}</a>
         		</div>
         	</div>
         </div>
@@ -83,7 +83,7 @@ HTML;
         // Scrollbars ein- und wieder ausgeblendet wurden. Es trat in Verbindung mit Masonry
         // auf, wenn mehrere Elemente auf einer Seite angezeigt wurden (u.a. ein Chart) und
         // das Layout umgebrochen hat. Da sich die Groesse des Charts sowieso an den Container
-        // anpasst hat overflow: hidden keine weiteren Auswirkungen.
+        // anpasst sollte overflow: hidden keine weiteren Auswirkungen haben.
         $output = <<<HTML
 
 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
@@ -186,10 +186,7 @@ HTML;
         $output .= $this->buildJsTooltipInit();
         
         // Layout-Funktion hinzufuegen
-        $output .= <<<JS
-
-                        {$this->buildJsLayouterFunction()}
-JS;
+        $output .= $this->buildJsLayouterFunction();
         
         return $output;
     }
@@ -540,11 +537,21 @@ JS;
         return parent::getHeight();
     }
 
+    /**
+     * Returns an inline JavaScript-Snippet to start the layouting of the filters of a chart.
+     *
+     * @return string
+     */
     public function buildJsLayouter()
     {
         return $this->getId() . '_layouter()';
     }
 
+    /**
+     * Returns a JavaScript-Function which layouts the filters of a chart.
+     *
+     * @return string
+     */
     public function buildJsLayouterFunction()
     {
         $output = <<<JS

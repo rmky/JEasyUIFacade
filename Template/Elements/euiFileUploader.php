@@ -17,7 +17,7 @@ class euiFileUploader extends euiAbstractElement
         /* @var $widget \exface\Core\Widgets\FileUploader */
         $widget = $this->getWidget();
         $output = <<<HTML
-<div id="{$this->getId()}_pastearea" class="fitem {$this->getMasonryItemClass()} exf_input" style="width:{$this->getWidth()};height:{$this->getHeight()};">
+<div id="{$this->getId()}_pastearea" class="fitem {$this->getMasonryItemClass()} exf_input" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};">
 	<div class="easyui-panel" title="{$widget->getCaption()}" data-options="fit:true" style="padding:10px;">	
 		<!-- The file input field used as target for the file upload widget -->
 		<div style="float: left; width:100px;">

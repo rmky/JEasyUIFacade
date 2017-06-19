@@ -272,10 +272,7 @@ JS;
         // traeger.
         $resize_function = '';
         if ($widget->hasFilters()) {
-            $resize_function .= <<<JS
-
-                    {$this->buildJsLayouter()};
-JS;
+            $resize_function .= $this->buildJsLayouter() . ';';
         }
         $resize_function .= '
 					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';
@@ -345,10 +342,7 @@ JS;
         }
         
         // Layout-Funktion hinzufuegen
-        $output .= <<<JS
-
-                        {$this->buildJsLayouterFunction()}
-JS;
+        $output .= $this->buildJsLayouterFunction();
         
         return $output;
     }
@@ -491,11 +485,21 @@ JS;
         return parent::getHeight();
     }
 
+    /**
+     * Returns an inline JavaScript-Snippet to start the layouting of the filters of a chart.
+     *
+     * @return string
+     */
     public function buildJsLayouter()
     {
         return $this->getId() . '_layouter()';
     }
 
+    /**
+     * Returns a JavaScript-Function which layouts the filters of a chart.
+     *
+     * @return string
+     */
     public function buildJsLayouterFunction()
     {
         $output = <<<JS

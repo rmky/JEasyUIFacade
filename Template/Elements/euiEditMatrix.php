@@ -44,6 +44,11 @@ class euiEditMatrix extends euiDataMatrixOld
             foreach ($widget->getFilters() as $fltr) {
                 $fltr_html .= $this->getTemplate()->generateHtml($fltr);
             }
+            
+            $fltr_html .= <<<HTML
+
+<div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+HTML;
         }
         
         // add buttons
@@ -63,7 +68,7 @@ class euiEditMatrix extends euiDataMatrixOld
             if ($button_html) {
                 $output .= $button_html;
             }
-            $output .= '<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="' . $this->buildJsFunctionPrefix() . 'doSearch()">Search</a></div>';
+            $output .= '<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="' . $this->buildJsFunctionPrefix() . 'doSearch()">' . $this->translate('WIDGET.SEARCH') . '</a></div>';
             $output .= '</div>';
         }
         // now the table itself
@@ -94,8 +99,11 @@ class euiEditMatrix extends euiDataMatrixOld
 						}';
         }
         
+        // Layout-Funktion hinzufuegen
+        $output .= $this->buildJsLayouterFunction();
+        
         // align the filters
-        $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '." . $this->getId() . "_masonry_fitem', columnWidth: " . $this->getWidthMinimum() . "});";
+        $output .= $this->buildJsLayouter() . ';';
         
         return $output;
     }
