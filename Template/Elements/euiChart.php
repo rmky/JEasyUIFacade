@@ -531,7 +531,7 @@ HTML;
         // er nicht alleine im Container ist.
         $widget = $this->getWidget();
         
-        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
             $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();

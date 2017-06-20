@@ -40,7 +40,7 @@ HTML;
         // geaendert werden. In diesem Fall wird der wrapper eingefuegt und stattdessen seine
         // Groesse geaendert. Dadurch wird der Inhalt scrollbar im Panel angezeigt.
         
-        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
             $children_html = <<<HTML
 
                         <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
@@ -54,7 +54,7 @@ HTML;
         // aus irgendeinem Grund um etwa 1 Pixel zu klein, so dass ein Scrollbalken ange-
         // zeigt wird. Aus diesem Grund wird hier dann overflow-y: hidden gesetzt. Falls
         // das Probleme gibt, muss u.U. eine andere Loesung gefunden werden.
-        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
             $styleScript = 'overflow-y:hidden;';
         }
         
@@ -161,13 +161,13 @@ HTML;
         // Auch das Layout des Containers wird erneuert nachdem das eigene Layout aktualisiert
         // wurde.
         $layoutWidgetScript = '';
-        if ($layoutWidget = $widget->getLayoutWidget()) {
+        if ($layoutWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')) {
             $layoutWidgetScript = <<<JS
 {$this->getTemplate()->getElement($layoutWidget)->getId()}_layouter();
 JS;
         }
         
-        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
             $output = <<<JS
 
     function {$this->getId()}_layouter() {

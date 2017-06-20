@@ -133,7 +133,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     public function getMasonryItemClass()
     {
         $output = '';
-        if (($containerWidget = $this->getWidget()->getContainerWidget()) && ($containerWidget instanceof iLayoutWidgets)) {
+        if (($containerWidget = $this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget instanceof iLayoutWidgets)) {
             $output = $this->getTemplate()->getElement($containerWidget)->getId() . '_masonry_fitem';
         }
         return $output;
@@ -149,7 +149,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     {
         $widget = $this->getWidget();
         
-        if ($layoutWidget = $widget->getLayoutWidget()) {
+        if ($layoutWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')) {
             $columnNumber = $this->getTemplate()->getElement($layoutWidget)->getNumberOfColumns();
         } else {
             $columnNumber = $this->getTemplate()->getConfig()->getOption("COLUMNS_BY_DEFAULT");
@@ -208,7 +208,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
             // Ein "grosses" Widget ohne angegebene Hoehe fuellt die gesamte Hoehe des
             // Containers aus, ausser es ist nicht alleine in diesem Container.
             $output = '100%';
-            if (($containerWidget = $widget->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
+            if (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
                 $output = 'auto';
             }
         } else {
@@ -252,7 +252,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
                 if (! is_null($widget->getNumberOfColumns())) {
                     $this->number_of_columns = $widget->getNumberOfColumns();
                 } else {
-                    if ($layoutWidget = $widget->getLayoutWidget()) {
+                    if ($layoutWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')) {
                         $parentColumnNumber = $this->getTemplate()->getElement($layoutWidget)->getNumberOfColumns();
                     }
                     switch (true) {
@@ -307,7 +307,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     public function getPadding()
     {
         $output = '0';
-        if (($containerWidget = $this->getWidget()->getContainerWidget()) && ($containerWidget->countVisibleWidgets() > 1)) {
+        if (($containerWidget = $this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
             $output = round($this->getSpacing() / 2) . 'px';
         }
         return $output;
