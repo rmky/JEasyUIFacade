@@ -5,10 +5,6 @@ use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
 use exface\Core\Interfaces\Widgets\iLayoutWidgets;
 use exface\Core\Interfaces\Widgets\iFillEntireContainer;
-use exface\Core\Widgets\Panel;
-use exface\Core\Widgets\Dialog;
-use exface\Core\Widgets\DataTable;
-use exface\Core\Widgets\Chart;
 
 abstract class euiAbstractElement extends AbstractJqueryElement
 {
@@ -16,10 +12,6 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     private $spacing = null;
 
     private $borderWidth = null;
-
-    private $number_of_columns = null;
-
-    private $searchedForNumberOfColumns = false;
 
     public function buildJsInitOptions()
     {
@@ -239,48 +231,6 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     }
 
     /**
-     * Determines the number of columns of a widget, based on the width of widget, the number
-     * of columns of the parent layout widget and the default number of columns of the widget.
-     *
-     * @return number
-     */
-    public function getNumberOfColumns()
-    {
-        if (! $this->searchedForNumberOfColumns) {
-            $widget = $this->getWidget();
-            if ($widget instanceof iLayoutWidgets) {
-                if (! is_null($widget->getNumberOfColumns())) {
-                    $this->number_of_columns = $widget->getNumberOfColumns();
-                } else {
-                    if ($layoutWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')) {
-                        $parentColumnNumber = $this->getTemplate()->getElement($layoutWidget)->getNumberOfColumns();
-                    }
-                    switch (true) {
-                        case $widget instanceof Dialog:
-                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.DIALOG.COLUMNS_BY_DEFAULT");
-                            break;
-                        case $widget instanceof Panel:
-                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.PANEL.COLUMNS_BY_DEFAULT");
-                            break;
-                        case $widget instanceof DataTable:
-                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.DATATABLE.COLUMNS_BY_DEFAULT");
-                            break;
-                        case $widget instanceof Chart:
-                            $defaultColumnNumber = $this->getTemplate()->getConfig()->getOption("WIDGET.CHART.COLUMNS_BY_DEFAULT");
-                    }
-                    if (is_null($parentColumnNumber) || $defaultColumnNumber < $parentColumnNumber) {
-                        $this->number_of_columns = $defaultColumnNumber;
-                    } else {
-                        $this->number_of_columns = $parentColumnNumber;
-                    }
-                }
-            }
-            $this->searchedForNumberOfColumns = true;
-        }
-        return $this->number_of_columns;
-    }
-
-    /**
      * Returns the spacing between two widgets.
      *
      * This is used to calculate the column width for the widget-layout (getMinWidth())
@@ -298,7 +248,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
 
     /**
      * Returns the padding of a widget in a layout.
-     * 
+     *
      * If the widget is alone in its container there is no padding, so it fills the entire
      * container. Otherwise the padding is calculated from the spacing.
      *

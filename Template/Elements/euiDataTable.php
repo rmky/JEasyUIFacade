@@ -18,6 +18,10 @@ class euiDataTable extends euiData
     
     use JqueryDataTableTrait;
 
+    private $number_of_columns = null;
+
+    private $searched_for_number_of_columns = false;
+
     protected function init()
     {
         parent::init();
@@ -513,6 +517,39 @@ JS;
 JS;
         
         return $output;
+    }
+
+    /**
+     * Determines the number of columns of a widget, based on the width of widget, the number
+     * of columns of the parent layout widget and the default number of columns of the widget.
+     *
+     * @return number
+     */
+    public function getNumberOfColumns()
+    {
+        if (! $this->searched_for_number_of_columns) {
+            $widget = $this->getWidget();
+            if (! is_null($widget->getNumberOfColumns())) {
+                $this->number_of_columns = $widget->getNumberOfColumns();
+            } elseif ($widget->getWidth()->isRelative() && !$widget->getWidth()->isMax()) {
+                $width = $widget->getWidth()->getValue();
+                if ($width < 1) {
+                    $width = 1;
+                }
+                $this->number_of_columns = $width;
+            } else {
+                if ($layoutWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')) {
+                    $parentColumnNumber = $this->getTemplate()->getElement($layoutWidget)->getNumberOfColumns();
+                }
+                if (! is_null($parentColumnNumber)) {
+                    $this->number_of_columns = $parentColumnNumber;
+                } else {
+                    $this->number_of_columns = $this->getTemplate()->getConfig()->getOption("WIDGET.DATATABLE.COLUMNS_BY_DEFAULT");
+                }
+            }
+            $this->searched_for_number_of_columns = true;
+        }
+        return $this->number_of_columns;
     }
 }
 ?>
