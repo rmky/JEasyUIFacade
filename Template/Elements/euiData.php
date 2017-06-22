@@ -141,6 +141,12 @@ else {
             }
         }
         
+        $page_sizes = $this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE');
+        if (!in_array($default_page_size, $page_sizes)){
+            $page_sizes[] = $default_page_size;
+            sort($page_sizes);
+        }
+        
         // Make sure, all selections are cleared, when the data is loaded from the backend. This ensures, the selected rows are always visible to the user!
         if ($widget->getMultiSelect()) {
             // TODO: Gibt Probleme im Context einer ComboTable. Dort muesste die Zeile folgendermassen
@@ -159,7 +165,7 @@ else {
 				' . (! $widget->getMultiSelect() ? ', singleSelect: true' : '') . '
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
-				, pageList: ' . json_encode($this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')) . '
+				, pageList: ' . json_encode($page_sizes) . '
 				, pageSize: ' . $default_page_size . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
