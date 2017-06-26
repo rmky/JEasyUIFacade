@@ -4,9 +4,9 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
-use exface\Core\Factories\WidgetFactory;
-use exface\Core\Widgets\DataButton;
 use exface\Core\Interfaces\Actions\iReadData;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
 
 /**
  *
@@ -15,10 +15,11 @@ use exface\Core\Interfaces\Actions\iReadData;
  * @method DataTable getWidget()
  *        
  */
-class euiDataTable extends euiData
+class euiDataTable extends euiData implements JqueryLayoutInterface
 {
     
     use JqueryDataTableTrait;
+    use JqueryLayoutTrait;
 
     protected function init()
     {
@@ -46,6 +47,11 @@ class euiDataTable extends euiData
             foreach ($widget->getFilters() as $fltr) {
                 $fltr_html .= $this->getTemplate()->generateHtml($fltr);
             }
+            
+            $fltr_html .= <<<HTML
+
+<div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+HTML;
         }
         
         // add buttons
@@ -78,8 +84,17 @@ class euiDataTable extends euiData
         // Create a context menu if any items were found
         if ($context_menu_html && $widget->getContextMenuEnabled()) {
             $output .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu" style="width: 200px">' . $context_menu_html . '</div>';
-            $output .= $button_html;
+            // sfl: Sind diese zusaetzlichen Buttons notwendig??? Sie erscheinen am unteren
+            // Rand der DataTable, wenn diese nicht den gesamten Container ausfuellt.
+            // $output .= $button_html;
         }
+        
+        $output = <<<HTML
+
+                <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+                    {$output}
+                </div>
+HTML;
         
         return $output;
     }
@@ -195,9 +210,9 @@ JS;
                 // Skip editors for columns, that are not attributes
                 if (! $col->getAttribute())
                     continue;
-                // For all other editors, that belong to related attributes, add some JS to update all rows with that
-                // attribute, once the value of one of them changes. This makes sure, that the value of a related attribute
-                // is the same, even if it is shown in multiple rows at all times!
+                    // For all other editors, that belong to related attributes, add some JS to update all rows with that
+                    // attribute, once the value of one of them changes. This makes sure, that the value of a related attribute
+                    // is the same, even if it is shown in multiple rows at all times!
                 $rel_path = $col->getAttribute()->getRelationPath();
                 if ($rel_path && ! $rel_path->isEmpty()) {
                     $col_obj_uid = $rel_path->getRelationLast()->getRelatedObjectKeyAttribute()->getAliasWithRelationPath();
@@ -260,8 +275,7 @@ JS;
         // traeger.
         $resize_function = '';
         if ($widget->hasFilters()) {
-            $resize_function .= '
-					$("#' . $this->getToolbarId() . ' .datagrid-filters").masonry({itemSelector: \'.fitem\', columnWidth: ' . $this->getWidthRelativeUnit() . '});';
+            $resize_function .= $this->buildJsLayouter() . ';';
         }
         $resize_function .= '
 					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';
@@ -330,6 +344,9 @@ JS;
 					';
         }
         
+        // Layout-Funktion hinzufuegen
+        $output .= $this->buildJsLayouterFunction();
+        
         return $output;
     }
 
@@ -382,7 +399,7 @@ JS;
         if (is_null($action)) {
             $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getData')";
         } elseif ($action instanceof iReadData) {
-            foreach ($this->getWidget()->getFilters() as $filter){
+            foreach ($this->getWidget()->getFilters() as $filter) {
                 $filters .= ', ' . $this->getTemplate()->getElement($filter)->buildJsConditionGetter();
             }
             $filters = $filters ? '{operator: "AND", conditions: [' . trim($filters, ",") . ']}' : '';
@@ -397,24 +414,26 @@ JS;
         }
         return "{oId: '" . $this->getWidget()->getMetaObjectId() . "'" . ($rows ? ", rows: " . $rows : '') . ($filters ? ", filters: " . $filters : "") . "}";
     }
-    
+
     /**
-     * 
-     * {@inheritDoc}
+     *
+     * {@inheritdoc}
+     *
      * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsRefresh()
      */
     public function buildJsRefresh($keep_pagination_position = false)
     {
-        if ($keep_pagination_position){
+        if ($keep_pagination_position) {
             return '$("#' . $this->getId() . '").' . $this->getElementType() . '("reload")';
         } else {
             return $this->buildJsFunctionPrefix() . 'doSearch()';
         }
     }
-    
+
     /**
-     * 
-     * {@inheritDoc}
+     *
+     * {@inheritdoc}
+     *
      * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateHeaders()
      */
     public function generateHeaders()
@@ -434,7 +453,7 @@ JS;
          */
         return $includes;
     }
-    
+
     /*
      * public function buildJsInitOptionsHead(){
      * /* @var $widget exface\Core\Widgets\DataTable
@@ -448,5 +467,67 @@ JS;
      * return $output;
      * }
      */
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::getHeight()
+     */
+    function getHeight()
+    {
+        // Die Hoehe der DataTable passt sich nicht automatisch dem Inhalt an. Wenn sie also
+        // nicht den gesamten Container ausfuellt, kollabiert sie so dass die Datensaetze nicht
+        // mehr sichtbar sind (nur noch Header und Footer). Deshalb wird hier die Hoehe der
+        // DataTable gesetzt, wenn sie nicht definiert ist, und sie nicht alleine im Container
+        // ist.
+        $widget = $this->getWidget();
+        
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
+            $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_DEFAULT'));
+        }
+        return parent::getHeight();
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
+     */
+    public function buildJsLayouterFunction()
+    {
+        $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        $("#{$this->getToolbarId()} .datagrid-filters").masonry({
+            columnWidth: "#{$this->getId()}_sizer",
+            itemSelector: ".{$this->getId()}_masonry_fitem"
+        });
+    }
+JS;
+        
+        return $output;
+    }
+
+    /**
+     * Returns the default number of columns to layout this widget.
+     *
+     * @return integer
+     */
+    public function getDefaultColumnNumber()
+    {
+        return $this->getTemplate()->getConfig()->getOption("WIDGET.DATATABLE.COLUMNS_BY_DEFAULT");
+    }
+
+    /**
+     * Returns if the the number of columns of this widget depends on the number of columns
+     * of the parent layout widget.
+     *
+     * @return boolean
+     */
+    public function inheritsColumnNumber()
+    {
+        return true;
+    }
 }
 ?>

@@ -1,8 +1,6 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\Core\Interfaces\Actions\ActionInterface;
-
 class euiInputPropertyTable extends euiInput
 {
 
@@ -21,7 +19,7 @@ class euiInputPropertyTable extends euiInput
             // TODO Look for default value here
             $value = '{}';
         }
-        $output = '	<div class="fitem exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '">
+        $output = '	<div class="fitem ' . $this->getMasonryItemClass() . ' exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . ';min-width:' . $this->getMinWidth() . ';">
 						<textarea name="' . $widget->getAttributeAlias() . '" id="' . $this->getId() . '" style="display:none;" >' . $value . '</textarea>
 						<table id="' . $this->buildJsGridId() . '" width="100%"></table>
 					' . $this->buildHtmlToolbar() . '</div>';

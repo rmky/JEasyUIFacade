@@ -5,6 +5,7 @@ use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\Core\Widgets\Input;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
 use exface\Core\Factories\WidgetLinkFactory;
+use exface\Core\Interfaces\Widgets\iLayoutWidgets;
 
 /**
  *
@@ -70,7 +71,7 @@ class euiInput extends euiAbstractElement
             $input = $html;
         }
         
-        $output = '	<div class="fitem exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; height: ' . $this->getHeight() . ';">
+        $output = '	<div class="fitem ' . $this->getMasonryItemClass() . ' exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; min-width: ' . $this->getMinWidth() . '; height: ' . $this->getHeight() . ';">
 						' . $input . '
 					</div>';
         return $output;

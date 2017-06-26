@@ -2,6 +2,8 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\Panel;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
 
 /**
  * The Panel widget is mapped to a panel in jEasyUI
@@ -10,8 +12,10 @@ use exface\Core\Widgets\Panel;
  *        
  * @method Panel getWidget()
  */
-class euiPanel extends euiContainer
+class euiPanel extends euiContainer implements JqueryLayoutInterface
 {
+    
+    use JqueryLayoutTrait;
 
     private $on_load_script = '';
 
@@ -25,24 +29,73 @@ class euiPanel extends euiContainer
 
     public function generateHtml()
     {
-        $children_html = $this->buildHtmlForWidgets();
+        $widget = $this->getWidget();
+        
+        $children_html = <<<HTML
+        
+                            {$this->buildHtmlForWidgets()}
+                            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
+HTML;
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
-        if ($this->getWidget()->countWidgets() > 1) {
-            $children_html = '<div class="grid">' . $children_html . '</div>';
+        // Normalerweise wird das der masonry_grid-wrapper nicht gebraucht. Masonry ordnet
+        // dann die Elemente an und passt direkt die Grosse des Panels an den neuen Inhalt an.
+        // Nur wenn das Panel den gesamten Container ausfuellt, darf seine Groesse nicht
+        // geaendert werden. In diesem Fall wird der wrapper eingefuegt und stattdessen seine
+        // Groesse geaendert. Dadurch wird der Inhalt scrollbar im Panel angezeigt.
+        
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() == 1))) && ($widget->countWidgetsVisible() > 1)) {
+            $children_html = <<<HTML
+
+                        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
+                            {$children_html}
+                        </div>
+HTML;
+        }
+        
+        // Hat das Panel eine begrenzte Groesse (es ist nicht alleine in seinem Container)
+        // und hat es eine begrenzte Breite (z.B. width: 1), dann ist am Ende seine Hoehe
+        // aus irgendeinem Grund um etwa 1 Pixel zu klein, so dass ein Scrollbalken ange-
+        // zeigt wird. Aus diesem Grund wird hier dann overflow-y: hidden gesetzt. Falls
+        // das Probleme gibt, muss u.U. eine andere Loesung gefunden werden.
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
+            $styleScript = 'overflow-y:hidden;';
         }
         
         // A standalone panel will always fill out the parent container (fit: true), but
         // other widgets based on a panel may not do so. Thus, the fit data-option is added
         // here, in the generate_html() method, which is verly likely to be overridden in
         // extending classes!
-        $output = '
-				<div class="easyui-' . $this->getElementType() . '" 
-					id="' . $this->getId() . '"
-					data-options="' . $this->buildJsDataOptions() . ', fit: true" 
-					title="' . $this->getWidget()->getCaption() . '">
-					' . $children_html . '
-				</div>';
+        
+        // Wrapper wird gebraucht, denn es wird von easyui neben dem .easyui-panel div
+        // ein .panel-header div erzeugt, welches sonst von masonry nicht beachtet wird
+        // (beide divs .panel-header und .easyui-panel/.panel-body werden unter einem
+        // .panel div zusammengefasst).
+        // Fit:true wird gebraucht, denn sonst aendert das Panel seine Groesse nicht mehr
+        // wenn sich die Groesse des Bildschirms/Containers aendert.
+        $output = <<<HTML
+
+                <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+                    <div class="easyui-{$this->getElementType()}"
+                            id="{$this->getId()}"
+                            data-options="{$this->buildJsDataOptions()},fit:true"
+                            title="{$this->getWidget()->getCaption()}"
+                            style="{$styleScript}">
+                        {$children_html}
+                    </div>
+                </div>
+HTML;
+        
+        return $output;
+    }
+
+    public function generateJs()
+    {
+        $output = parent::generateJs();
+        
+        // Layout-Funktion hinzufuegen
+        $output .= $this->buildJsLayouterFunction();
+        
         return $output;
     }
 
@@ -54,15 +107,19 @@ class euiPanel extends euiContainer
      */
     function buildJsDataOptions()
     {
-        /* @var $widget \exface\Core\Widgets\Panel */
+        /** @var Panel $widget */
         $widget = $this->getWidget();
-        if ($widget->getNumberOfColumns() != 1) {
-            $this->addOnLoadScript($this->buildJsLayouter());
-            $this->addOnResizeScript($this->buildJsLayouter());
-        }
         
-        $output = "collapsible: " . ($widget->isCollapsible() ? 'true' : 'false') . ($widget->getIconName() ? ", iconCls:'" . $this->buildCssIconClass($widget->getIconName()) . "'" : '') . ($this->getOnLoadScript() ? ", onLoad: function(){" . $this->getOnLoadScript() . "}" : '') . ($this->getOnResizeScript() ? ", onResize: function(){" . $this->getOnResizeScript() . "}" : '');
-        return $output;
+        if ($widget->getNumberOfColumns() != 1) {
+            $this->addOnLoadScript($this->buildJsLayouter() . ';');
+            $this->addOnResizeScript($this->buildJsLayouter() . ';');
+        }
+        $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
+        $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
+        $onLoadScript = $this->getOnLoadScript() ? ', onLoad: function(){' . $this->getOnLoadScript() . '}' : '';
+        $onResizeScript = $this->getOnResizeScript() ? ', onResize: function(){' . $this->getOnResizeScript() . '}' : '';
+        
+        return $collapsibleScript . $iconClassScript . $onLoadScript . $onResizeScript;
     }
 
     public function generateHeaders()
@@ -96,20 +153,85 @@ class euiPanel extends euiContainer
         return $this;
     }
 
-    public function buildJsLayouter()
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
+     */
+    public function buildJsLayouterFunction()
     {
-        $grid_jquery_selector = "$('#{$this->getId()} .grid')";
-        $script .= <<<JS
-	if (!$('#{$this->getId()} .grid').data('masonry')){
-		if ({$grid_jquery_selector}.find('.fitem').length > 0){
-			{$grid_jquery_selector}.masonry({itemSelector: '.fitem', columnWidth: {$this->getWidthRelativeUnit()}});
-		}
-	} else {
-		{$grid_jquery_selector}.masonry('reloadItems');
-		{$grid_jquery_selector}.masonry();
-	}
+        $widget = $this->getWidget();
+        
+        // Auch das Layout des Containers wird erneuert nachdem das eigene Layout aktualisiert
+        // wurde.
+        $layoutWidgetScript = '';
+        if ($layoutWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')) {
+            $layoutWidgetScript = <<<JS
+{$this->getTemplate()->getElement($layoutWidget)->buildJsLayouter()};
 JS;
-        return $script;
+        }
+        
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() == 1))) && ($widget->countWidgetsVisible() > 1)) {
+            $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
+            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
+                $("#{$this->getId()}_masonry_grid").masonry({
+                    columnWidth: "#{$this->getId()}_sizer",
+                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                });
+            }
+        } else {
+            $("#{$this->getId()}_masonry_grid").masonry("reloadItems");
+            $("#{$this->getId()}_masonry_grid").masonry();
+        }
+        {$layoutWidgetScript}
+    }
+JS;
+        } else {
+            $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        if (!$("#{$this->getId()}").data("masonry")) {
+            if ($("#{$this->getId()}").find(".{$this->getId()}_masonry_fitem").length > 0) {
+                $("#{$this->getId()}").masonry({
+                    columnWidth: "#{$this->getId()}_sizer",
+                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                });
+            }
+        } else {
+            $("#{$this->getId()}").masonry("reloadItems");
+            $("#{$this->getId()}").masonry();
+        }
+        {$layoutWidgetScript}
+    }
+JS;
+        }
+        
+        return $output;
+    }
+
+    /**
+     * Returns the default number of columns to layout this widget.
+     *
+     * @return integer
+     */
+    public function getDefaultColumnNumber()
+    {
+        return $this->getTemplate()->getConfig()->getOption("WIDGET.PANEL.COLUMNS_BY_DEFAULT");
+    }
+
+    /**
+     * Returns if the the number of columns of this widget depends on the number of columns
+     * of the parent layout widget.
+     *
+     * @return boolean
+     */
+    public function inheritsColumnNumber()
+    {
+        return true;
     }
 }
 ?>

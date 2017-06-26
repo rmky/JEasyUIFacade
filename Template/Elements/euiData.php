@@ -91,7 +91,7 @@ class euiData extends euiAbstractElement
                         $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
                         $live_filter_js .= 'param.fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '= "' . $fltr->getComparator() . '"+' . $linked_element->buildJsValueGetter() . ';';
                         $this->addOnBeforeLoad($live_filter_js);
-                    } // If the filter has a static value, just set it here
+                    }  // If the filter has a static value, just set it here
 else {
                         $params[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": "' . $fltr->getComparator() . urlencode(strpos($fltr->getValue(), '=') === 0 ? '' : $fltr->getValue()) . '"';
                     }
@@ -131,12 +131,12 @@ else {
             $sortOrder = ", sortOrder: '" . implode(',', $direction) . "'";
         }
         
-        if (!is_null($widget->getPaginatePageSize())){
+        if (! is_null($widget->getPaginatePageSize())) {
             $default_page_size = $widget->getPaginatePageSize();
         } else {
             try {
                 $default_page_size = $this->getTemplate()->getConfig()->getOption('WIDGET.' . $widget->getWidgetType() . '.PAGE_SIZE');
-            } catch (ConfigOptionNotFoundError $e){
+            } catch (ConfigOptionNotFoundError $e) {
                 $default_page_size = $this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZE');
             }
         }
@@ -152,7 +152,7 @@ else {
             // TODO: Gibt Probleme im Context einer ComboTable. Dort muesste die Zeile folgendermassen
             // aussehen: $(this).combogrid("grid").' . $this->getElementType() . '("clearSelections");
             // Ist es fuer eine ComboTable sinnvoll nach jedem Laden ihre Auswahl zu verlieren???
-            //$this->addOnLoadSuccess('$(this).' . $this->getElementType() . '("clearSelections");');
+            // $this->addOnLoadSuccess('$(this).' . $this->getElementType() . '("clearSelections");');
         }
         
         $output = '

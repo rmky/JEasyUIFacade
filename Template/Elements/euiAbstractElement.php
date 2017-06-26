@@ -3,9 +3,15 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
+use exface\Core\Interfaces\Widgets\iLayoutWidgets;
+use exface\Core\Interfaces\Widgets\iFillEntireContainer;
 
 abstract class euiAbstractElement extends AbstractJqueryElement
 {
+
+    private $spacing = null;
+
+    private $borderWidth = null;
 
     public function buildJsInitOptions()
     {
@@ -105,6 +111,171 @@ abstract class euiAbstractElement extends AbstractJqueryElement
 	                timeout:5000,
 	                showType:'slide'
 	            });";
+    }
+
+    /**
+     * Returns the masonry-item class name of this widget.
+     *
+     * This class name is generated from the id of the layout-widget of this widget. Like this
+     * nested masonry layouts are possible, because each masonry-container only layout the
+     * widgets assigned to it.
+     *
+     * @return string
+     */
+    public function getMasonryItemClass()
+    {
+        $output = '';
+        if (($containerWidget = $this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget instanceof iLayoutWidgets)) {
+            $output = $this->getTemplate()->getElement($containerWidget)->getId() . '_masonry_fitem';
+        }
+        return $output;
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getWidth()
+     */
+    public function getWidth()
+    {
+        $widget = $this->getWidget();
+        
+        if ($layoutWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')) {
+            $columnNumber = $this->getTemplate()->getElement($layoutWidget)->getNumberOfColumns();
+        } else {
+            $columnNumber = $this->getTemplate()->getConfig()->getOption("COLUMNS_BY_DEFAULT");
+        }
+        
+        $dimension = $widget->getWidth();
+        if ($dimension->isRelative()) {
+            $cols = $dimension->getValue();
+            if ($cols === 'max') {
+                $cols = $columnNumber;
+            }
+            if (is_numeric($cols)) {
+                if ($cols < 1) {
+                    $cols = 1;
+                } else if ($cols > $columnNumber) {
+                    $cols = $columnNumber;
+                }
+                
+                if ($cols == $columnNumber) {
+                    $output = '100%';
+                } else {
+                    $output = 'calc(100%*' . $cols . '/' . $columnNumber . ')';
+                }
+            } else {
+                $output = 'calc(100%*' . $this->getWidthDefault() . '/' . $columnNumber . ')';
+            }
+        } elseif ($dimension->isTemplateSpecific() || $dimension->isPercentual()) {
+            $output = $dimension->getValue();
+        } elseif ($widget instanceof iFillEntireContainer) {
+            // Ein "grosses" Widget ohne angegebene Breite fuellt die gesamte Breite des
+            // Containers aus.
+            $output = '100%';
+        } else {
+            // Ein "kleines" Widget ohne angegebene Breite hat ist widthDefault Spalten breit.
+            $output = 'calc(100%*' . $this->getWidthDefault() . '/' . $columnNumber . ')';
+        }
+        return $output;
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getHeight()
+     */
+    public function getHeight()
+    {
+        $widget = $this->getWidget();
+        
+        $dimension = $widget->getHeight();
+        if ($dimension->isRelative()) {
+            $output = $this->getHeightRelativeUnit() * $dimension->getValue() . 'px';
+        } elseif ($dimension->isTemplateSpecific() || $dimension->isPercentual()) {
+            $output = $dimension->getValue();
+        } elseif ($widget instanceof iFillEntireContainer) {
+            // Ein "grosses" Widget ohne angegebene Hoehe fuellt die gesamte Hoehe des
+            // Containers aus, ausser es ist nicht alleine in diesem Container.
+            $output = '100%';
+            if (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
+                $output = 'auto';
+            }
+        } else {
+            // Ein "kleines" Widget ohne angegebene Hoehe ist heightDefault Einheiten hoch.
+            $output = ($this->getHeightRelativeUnit() * $this->getHeightDefault()) . 'px';
+        }
+        return $output;
+    }
+
+    /**
+     * Returns the minimum width of a widget.
+     *
+     * This is used in the different widgets to determine its min-width and also to calculate
+     * the column width for the widget-layout.
+     *
+     * @return string
+     */
+    public function getMinWidth()
+    {
+        if ($this->getWidget() instanceof iLayoutWidgets) {
+            // z.B. die Filter-Widgets der DataTables sind genau getWidthRelativeUnits breit und
+            // wuerden sonst vom Rand teilweise verdeckt werden.
+            $output = ($this->getWidthMinimum() + $this->getSpacing() + 2 * $this->getBorderWidth()) . 'px';
+        } else {
+            $output = $this->getWidthMinimum() . 'px';
+        }
+        return $output;
+    }
+
+    /**
+     * Returns the spacing between two widgets.
+     *
+     * This is used to calculate the column width for the widget-layout (getMinWidth())
+     * and to calculate the padding of the widgets in the layout (getPadding()).
+     *
+     * @return string
+     */
+    public function getSpacing()
+    {
+        if (is_null($this->spacing)) {
+            $this->spacing = $this->getTemplate()->getConfig()->getOption("WIDGET.SPACING");
+        }
+        return $this->spacing;
+    }
+
+    /**
+     * Returns the padding of a widget in a layout.
+     *
+     * If the widget is alone in its container there is no padding, so it fills the entire
+     * container. Otherwise the padding is calculated from the spacing.
+     *
+     * @return string
+     */
+    public function getPadding()
+    {
+        $output = '0';
+        if (($containerWidget = $this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
+            $output = round($this->getSpacing() / 2) . 'px';
+        }
+        return $output;
+    }
+
+    /**
+     * Return the border-width of a widget in a layout.
+     *
+     * This is used to calculate the column width for the widget-layout (getMinWidth()).
+     *
+     * @return string
+     */
+    public function getBorderWidth()
+    {
+        if (is_null($this->borderWidth)) {
+            $this->borderWidth = $this->getTemplate()->getConfig()->getOption("WIDGET.BORDERWIDTH");
+        }
+        return $this->borderWidth;
     }
 }
 ?>

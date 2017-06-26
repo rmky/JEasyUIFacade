@@ -6,11 +6,14 @@ use exface\Core\Widgets\ChartSeries;
 use exface\Core\Widgets\Chart;
 use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryFlotTrait;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
 
-class euiChart extends euiAbstractElement
+class euiChart extends euiAbstractElement implements JqueryLayoutInterface
 {
     
     use JqueryFlotTrait;
+    use JqueryLayoutTrait;
 
     private $on_change_script = '';
 
@@ -39,7 +42,11 @@ class euiChart extends euiAbstractElement
                 foreach ($widget->getData()->getFilters() as $fltr) {
                     $fltr_html .= $this->getTemplate()->generateHtml($fltr);
                 }
-                $this->addOnResizeScript("$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '.fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});");
+                $fltr_html .= <<<HTML
+
+<div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+HTML;
+                $this->addOnResizeScript($this->buildJsLayouter() . ';');
                 $fltr_html = '<div class="datagrid-filters">' . $fltr_html . '</div>';
             }
             
@@ -60,29 +67,36 @@ class euiChart extends euiAbstractElement
             // create a container for the toolbar
             if (($widget->getData()->hasFilters() || $widget->hasButtons())) {
                 $toolbar = <<<HTML
-<div data-options="region: 'north', onResize: function(){{$this->getOnResizeScript()}}{$toolbar_panel_options}">
-	<div id="{$this->getToolbarId()}" class="datagrid-toolbar">
-		{$fltr_html}
-		<div style="min-height: 30px;">
-			{$button_html}
-			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">Search</a>
-		</div>
-	</div>
-</div>
+
+        <div data-options="region: 'north', onResize: function(){{$this->getOnResizeScript()}}{$toolbar_panel_options}">
+        	<div id="{$this->getToolbarId()}" class="datagrid-toolbar">
+        		{$fltr_html}
+        		<div style="min-height: 30px;">
+        			{$button_html}
+        			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">{$this->translate('WIDGET.SEARCH')}</a>
+        		</div>
+        	</div>
+        </div>
 HTML;
             }
         }
         
         // Create the panel for the chart
+        // overflow: hidden loest ein Problem im JavaFX WebView-Browser, bei dem immer wieder
+        // Scrollbars ein- und wieder ausgeblendet wurden. Es trat in Verbindung mit Masonry
+        // auf, wenn mehrere Elemente auf einer Seite angezeigt wurden (u.a. ein Chart) und
+        // das Layout umgebrochen hat. Da sich die Groesse des Charts sowieso an den Container
+        // anpasst sollte overflow: hidden keine weiteren Auswirkungen haben.
         $output = <<<HTML
 
-<div class="easyui-layout" id="{$this->getId()}_wrapper" data-options="fit: true">
-	{$toolbar}
-	<div style="heigth: auto;" data-options="region: 'center' {$chart_panel_options}">
-		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px;"></div>
-	</div>
+<div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+    <div class="easyui-layout" id="{$this->getId()}_wrapper" data-options="fit: true">
+    	{$toolbar}
+    	<div style="height: auto;" data-options="region: 'center' {$chart_panel_options}">
+    		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px; overflow: hidden;"></div>
+    	</div>
+    </div>
 </div>
-
 HTML;
         
         return $output;
@@ -174,6 +188,9 @@ HTML;
         $output .= $this->buildJsAjaxLoaderFunction();
         $output .= $this->buildJsTooltipInit();
         
+        // Layout-Funktion hinzufuegen
+        $output .= $this->buildJsLayouterFunction();
+        
         return $output;
     }
 
@@ -262,7 +279,7 @@ HTML;
             // send pagination/limit information. Charts currently do not support real pagination, but just a TOP-X display.
             if ($widget->getData()->getPaginate()) {
                 $url_params .= '&page=1';
-                $url_params .= '&rows=' . (!is_null($widget->getData()->getPaginatePageSize()) ? $widget->getData()->getPaginatePageSize() : $this->getTemplate()->getConfig()->getOption('WIDGET.CHART.PAGE_SIZE'));
+                $url_params .= '&rows=' . (! is_null($widget->getData()->getPaginatePageSize()) ? $widget->getData()->getPaginatePageSize() : $this->getTemplate()->getConfig()->getOption('WIDGET.CHART.PAGE_SIZE'));
             }
             
             // send preset filters
@@ -308,7 +325,7 @@ HTML;
             }
             
             // align the filters
-            $output .= "$('#" . $this->getToolbarId() . " .datagrid-filters').masonry({itemSelector: '.fitem', columnWidth: " . $this->getWidthRelativeUnit() . "});";
+            $output .= $this->buildJsLayouter() . ';';
             
             // Call the data loader to populate the Chart initially
             $output .= $this->buildJsFunctionPrefix() . 'load();';
@@ -501,6 +518,68 @@ HTML;
     public function getOnChangeScript()
     {
         return $this->on_change_script;
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::getHeight()
+     */
+    function getHeight()
+    {
+        // Die Hoehe des Charts passt sich nicht automatisch dem Inhalt an. Wenn er also
+        // nicht den gesamten Container ausfuellt, kollabiert er vollstaendig. Deshalb
+        // wird hier die Hoehe des Charts gesetzt, wenn sie nicht definiert ist, und
+        // er nicht alleine im Container ist.
+        $widget = $this->getWidget();
+        
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
+            $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
+        }
+        return parent::getHeight();
+    }
+
+    /**
+     *
+     * {@inheritdoc}
+     *
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
+     */
+    public function buildJsLayouterFunction()
+    {
+        $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        $("#{$this->getToolbarId()} .datagrid-filters").masonry({
+            columnWidth: "#{$this->getId()}_sizer",
+            itemSelector: ".{$this->getId()}_masonry_fitem"
+        });
+    }
+JS;
+        
+        return $output;
+    }
+
+    /**
+     * Returns the default number of columns to layout this widget.
+     *
+     * @return integer
+     */
+    public function getDefaultColumnNumber()
+    {
+        return $this->getTemplate()->getConfig()->getOption("WIDGET.CHART.COLUMNS_BY_DEFAULT");
+    }
+
+    /**
+     * Returns if the the number of columns of this widget depends on the number of columns
+     * of the parent layout widget.
+     *
+     * @return boolean
+     */
+    public function inheritsColumnNumber()
+    {
+        return true;
     }
 }
 ?>
