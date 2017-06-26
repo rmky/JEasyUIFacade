@@ -55,4 +55,4 @@ div.messager-body{overflow-y: auto;}
 #sf-resetcontent h1 {display: none;} 
 h2.block_exception.clear_fix {margin: 0}
 pre.sf-dump {background-color: white !important; margin: 10px;}
-pre.sf-dump .sf-dump-private {color: black !important; "}
+pre.sf-dump .sf-dump-private, pre.sf-dump .sf-dump-public, pre.sf-dump .sf-dump-protected {color: black !important; "}

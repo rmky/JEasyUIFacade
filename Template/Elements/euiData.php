@@ -141,14 +141,11 @@ else {
             }
         }
         
-        // Die page_size muss in der page_list enthalten sein, sonst wird Parameter rows "NaN" an den Server uebermittelt.
-        // Ist sie nicht enthalten wird daher ein entsprechender Eintrag hinzugefuegt.
-        $page_list = $this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE');
-        if (! in_array($default_page_size, $page_list)) {
-            $page_list[] = $default_page_size;
-            sort($page_list);
+        $page_sizes = $this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE');
+        if (!in_array($default_page_size, $page_sizes)){
+            $page_sizes[] = $default_page_size;
+            sort($page_sizes);
         }
-        $page_list = json_encode($page_list);
         
         // Make sure, all selections are cleared, when the data is loaded from the backend. This ensures, the selected rows are always visible to the user!
         if ($widget->getMultiSelect()) {
@@ -168,7 +165,7 @@ else {
 				' . (! $widget->getMultiSelect() ? ', singleSelect: true' : '') . '
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
-				, pageList: ' . $page_list . '
+				, pageList: ' . json_encode($page_sizes) . '
 				, pageSize: ' . $default_page_size . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
