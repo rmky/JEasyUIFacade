@@ -2,6 +2,8 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\Panel;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
 
 /**
  * The Panel widget is mapped to a panel in jEasyUI
@@ -10,8 +12,10 @@ use exface\Core\Widgets\Panel;
  *        
  * @method Panel getWidget()
  */
-class euiPanel extends euiContainer
+class euiPanel extends euiContainer implements JqueryLayoutInterface
 {
+    
+    use JqueryLayoutTrait;
 
     private $on_load_script = '';
 
@@ -40,7 +44,7 @@ HTML;
         // geaendert werden. In diesem Fall wird der wrapper eingefuegt und stattdessen seine
         // Groesse geaendert. Dadurch wird der Inhalt scrollbar im Panel angezeigt.
         
-        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() == 1))) && ($widget->countWidgetsVisible() > 1)) {
             $children_html = <<<HTML
 
                         <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
@@ -54,7 +58,7 @@ HTML;
         // aus irgendeinem Grund um etwa 1 Pixel zu klein, so dass ein Scrollbalken ange-
         // zeigt wird. Aus diesem Grund wird hier dann overflow-y: hidden gesetzt. Falls
         // das Probleme gibt, muss u.U. eine andere Loesung gefunden werden.
-        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
             $styleScript = 'overflow-y:hidden;';
         }
         
@@ -150,19 +154,10 @@ HTML;
     }
 
     /**
-     * Returns an inline JavaScript-Snippet to start the layouting of the panel.
      *
-     * @return string
-     */
-    public function buildJsLayouter()
-    {
-        return $this->getId() . '_layouter()';
-    }
-
-    /**
-     * Returns a JavaScript-Function which layouts the panel.
+     * {@inheritdoc}
      *
-     * @return string
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
      */
     public function buildJsLayouterFunction()
     {
@@ -177,7 +172,7 @@ HTML;
 JS;
         }
         
-        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() == 1))) && ($widget->countVisibleWidgets() > 1)) {
+        if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() == 1))) && ($widget->countWidgetsVisible() > 1)) {
             $output = <<<JS
 
     function {$this->getId()}_layouter() {

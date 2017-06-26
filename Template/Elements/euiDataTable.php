@@ -5,6 +5,8 @@ use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 use exface\Core\Interfaces\Actions\iReadData;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
 
 /**
  *
@@ -13,10 +15,11 @@ use exface\Core\Interfaces\Actions\iReadData;
  * @method DataTable getWidget()
  *        
  */
-class euiDataTable extends euiData
+class euiDataTable extends euiData implements JqueryLayoutInterface
 {
     
     use JqueryDataTableTrait;
+    use JqueryLayoutTrait;
 
     protected function init()
     {
@@ -479,26 +482,17 @@ JS;
         // ist.
         $widget = $this->getWidget();
         
-        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
             $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();
     }
 
     /**
-     * Returns an inline JavaScript-Snippet to start the layouting of the filters of a chart.
      *
-     * @return string
-     */
-    public function buildJsLayouter()
-    {
-        return $this->getId() . '_layouter()';
-    }
-
-    /**
-     * Returns a JavaScript-Function which layouts the filters of a chart.
+     * {@inheritdoc}
      *
-     * @return string
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
      */
     public function buildJsLayouterFunction()
     {

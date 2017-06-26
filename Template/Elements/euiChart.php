@@ -6,11 +6,14 @@ use exface\Core\Widgets\ChartSeries;
 use exface\Core\Widgets\Chart;
 use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryFlotTrait;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
 
-class euiChart extends euiAbstractElement
+class euiChart extends euiAbstractElement implements JqueryLayoutInterface
 {
     
     use JqueryFlotTrait;
+    use JqueryLayoutTrait;
 
     private $on_change_script = '';
 
@@ -531,26 +534,17 @@ HTML;
         // er nicht alleine im Container ist.
         $widget = $this->getWidget();
         
-        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
+        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
             $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();
     }
 
     /**
-     * Returns an inline JavaScript-Snippet to start the layouting of the filters of a chart.
      *
-     * @return string
-     */
-    public function buildJsLayouter()
-    {
-        return $this->getId() . '_layouter()';
-    }
-
-    /**
-     * Returns a JavaScript-Function which layouts the filters of a chart.
+     * {@inheritdoc}
      *
-     * @return string
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
      */
     public function buildJsLayouterFunction()
     {

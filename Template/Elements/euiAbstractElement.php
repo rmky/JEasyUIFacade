@@ -200,7 +200,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
             // Ein "grosses" Widget ohne angegebene Hoehe fuellt die gesamte Hoehe des
             // Containers aus, ausser es ist nicht alleine in diesem Container.
             $output = '100%';
-            if (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
+            if (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
                 $output = 'auto';
             }
         } else {
@@ -257,7 +257,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     public function getPadding()
     {
         $output = '0';
-        if (($containerWidget = $this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countVisibleWidgets() > 1)) {
+        if (($containerWidget = $this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
             $output = round($this->getSpacing() / 2) . 'px';
         }
         return $output;
