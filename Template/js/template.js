@@ -22,6 +22,24 @@ function contextBarInit(){
 	});
 	
 	contextBarLoad();
+	
+	// Remove row from object basket table, when the object is removed
+	$(document).on('exface.Core.ObjectBasketRemove.action.performed', function(e, requestData, inputElementId){
+		var dg = $('#'+inputElementId);
+		var rows = [];
+		if (dg.data('_rows') === undefined){
+			dg.data('_rows', dg.datagrid('getRows').slice(0));
+		}
+		for (var i in dg.datagrid('getSelections')){
+			dg.data('_rows').splice(i,1);
+		}
+		dg.datagrid('clearSelections');
+		dg.datagrid('loadData', {"total":0,"rows":[]});
+		for (var i in dg.data('_rows')){
+			dg.datagrid('appendRow', dg.data('_rows')[i]);
+		}
+		dg.datagrid('resize');
+	});
 }
 
 function contextBarLoad(delay){

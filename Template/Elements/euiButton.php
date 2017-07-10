@@ -5,6 +5,7 @@ use exface\Core\Widgets\DialogButton;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
 use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
+use exface\Core\Widgets\Dialog;
 
 /**
  * generates jEasyUI-Buttons for ExFace
@@ -154,7 +155,15 @@ JS;
 
     protected function buildJsCloseDialog($widget, $input_element)
     {
-        return ($widget instanceof DialogButton && $widget->getCloseDialogAfterActionSucceeds() ? "$('#" . $input_element->getId() . "').dialog('close');" : "");
+        if ($widget instanceof DialogButton && $widget->getCloseDialogAfterActionSucceeds()){
+            if ($widget->getInputWidget() instanceof Dialog){
+                return "$('#" . $input_element->getId() . "').dialog('close');";
+            } else {
+                // IDEA close the closest parent dialog here? This maybe usefull
+                // if the dialog button has a custom input widget - not a dialog.
+            }
+        }
+        return "";
     }
 
     /**

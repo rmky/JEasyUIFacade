@@ -86,13 +86,13 @@ class euiData extends euiAbstractElement
             // Add initial filters
             if ($this->getWidget()->hasFilters()) {
                 foreach ($this->getWidget()->getFilters() as $fnr => $fltr) {
-                    // If the filter is a live reference, add the code to use it to the onBeforeLoad event
                     if ($link = $fltr->getValueWidgetLink()) {
+                        // If the filter is a live reference, add the code to use it to the onBeforeLoad event
                         $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
                         $live_filter_js .= 'param.fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '= "' . $fltr->getComparator() . '"+' . $linked_element->buildJsValueGetter() . ';';
                         $this->addOnBeforeLoad($live_filter_js);
-                    }  // If the filter has a static value, just set it here
-else {
+                    } else {
+                        // If the filter has a static value, just set it here
                         $params[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": "' . $fltr->getComparator() . urlencode(strpos($fltr->getValue(), '=') === 0 ? '' : $fltr->getValue()) . '"';
                     }
                 }
