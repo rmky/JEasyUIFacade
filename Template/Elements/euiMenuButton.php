@@ -3,9 +3,12 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
 use exface\Core\Widgets\Dialog;
+use exface\Core\Widgets\MenuButton;
 
 /**
- * generates jEasyUI-Buttons for ExFace
+ * Renders MenuButtons as jEasyUI menu button
+ * 
+ * @method MenuButton getWidget()
  *
  * @author Andrej Kabachnik
  *        
@@ -47,7 +50,8 @@ class euiMenuButton extends euiAbstractElement
             // In any case, create a menu entry
             $icon = $b->getIconName() ? ' iconCls="' . $this->buildCssIconClass($b->getIconName()) . '"' : '';
             $disabled = $b->isDisabled() ? ' disabled=true' : '';
-            $buttons_html .= '<div' . $icon . $disabled . '>
+            $buttons_html .= '
+                <div' . $icon . $disabled . ' id="' . $this->getTemplate()->getElement($b)->getId() . '" onclick="'.$this->getTemplate()->getElement($b)->buildJsClickFunctionName().'()">
 					' . $b->getCaption() . '
 				</div>
 				';
@@ -108,22 +112,15 @@ class euiMenuButton extends euiAbstractElement
      */
     function generateJs()
     {
-        $output = '';
-        $output .= '$("#' . $this->buildJsMenuName() . '").menu({
-				onClick:function(item){
-					switch(item.text) {
-						';
-        
-        foreach ($this->getWidget()->getButtons() as $b) {
-            $output .= 'case "' . $b->getCaption() . '":
-							' . $this->getTemplate()->getElement($b)->buildJsClickFunction() . '
-							break;
-						';
+        foreach ($this->getWidget()->getButtons() as $btn){
+            $button_js .= $this->getTemplate()->getElement($btn)->generateJs();   
         }
-        $output .= '}
-				}
-			});';
-        return $output;
+        
+        return  <<<JS
+
+{$button_js}
+
+JS;
     }
 
     /**

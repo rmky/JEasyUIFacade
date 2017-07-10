@@ -80,7 +80,7 @@ class euiButton extends euiAbstractElement
         if ($widget->isDisabled()) {
             $data_options .= ', disabled: true';
         }
-        if ($widget->getIconName()) {
+        if ($widget->getIconName() && !$widget->getHideButtonIcon()) {
             $data_options .= ", iconCls: '" . $this->buildCssIconClass($widget->getIconName()) . "'";
         }
         

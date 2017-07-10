@@ -7,12 +7,13 @@ ul.nav_menu a {padding: 6px 0 6px 10px; color: black; text-decoration: none; dis
 ul.nav_menu li.active a.active {color: white; font-weight: bold; text-decoration: none; display: block; width: 100%; background: #6CAEF5}
 ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; display: block; width: 100%; background: #6CAEF5}
 
-/* Top toolbar */
+/* Context bar */
 .toolbar-element {height: 30px; display:inline-block; line-height: 30px; vertical-align: top; }
 .toolbar-element div.toolbar-button {padding-top: 2px}
 .toolbar-element.user-info {padding: 0 10px; border-right: 1px solid #c3d9e0; border-left: 1px solid #c3d9e0;}
 .toolbar-element.user-info .user-display {vertical-align: top; display: inline-block;}
 .toolbar-element.user-info .user-image {padding-right: 7px;}
+.toolbar-element .panel-loading {height: 10px}
 
 /* Inputs */
 .exf_input {box-sizing: border-box; padding:4px; text-align:right;}

@@ -20,6 +20,8 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
     
     use JqueryDataTableTrait;
     use JqueryLayoutTrait;
+    
+    private $more_buttons_menu = null;
 
     protected function init()
     {
@@ -53,15 +55,40 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
 <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
 HTML;
         }
+         
+        // Add the buttons
+        /* @var $more_buttons_menu \exface\Core\Widgets\MenuButton */
+        $this->more_buttons_menu = $widget->getPage()->createWidget('MenuButton', $widget);
+        $this->more_buttons_menu->setCaption('...');
+        $this->more_buttons_menu->setHideButtonIcon(true);
         
-        // add buttons
         if ($widget->hasButtons()) {
-            foreach ($widget->getButtons() as $button) {
-                if ($button->isHidden())
-                    continue;
-                $button_html .= $this->getTemplate()->generateHtml($button);
+            foreach ($widget->getToolbarMain()->getButtonGroupMain()->getButtons() as $button) {
+                // Make pomoted and regular buttons visible right in the bottom toolbar
+                // Hidden buttons also go here, because it does not make sense to put them into the menu
+                if ($button->getVisibility() !== EXF_WIDGET_VISIBILITY_OPTIONAL || $button->isHidden()) {
+                    $button_html .= $this->getTemplate()->generateHtml($button);
+                }
+                
+                // Put optional buttons in the menu
+                if ($button->getVisibility() == EXF_WIDGET_VISIBILITY_OPTIONAL && ! $button->isHidden()) {
+                    $this->more_buttons_menu->addButton($button);
+                }
+                
                 $context_menu_html .= str_replace('<a id=', '<a style="width: 500px; text-align: left;" id=', $this->getTemplate()->getElement($button)->buildHtmlButton());
             }
+            
+            foreach ($widget->getToolbars() as $toolbar){
+                foreach ($toolbar->getButtonGroups() as $btn_group){
+                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupMain()){
+                        $this->more_buttons_menu->getMenu()->addButtonGroup($btn_group);
+                    }
+                }
+            }
+        }
+        
+        if ($this->more_buttons_menu) {
+            $button_html .= $this->getTemplate()->getElement($this->more_buttons_menu)->generateHtml();
         }
         
         // create a container for the toolbar
@@ -177,18 +204,28 @@ JS;
             $grid_head .= ', onDblClickRow: function(index, row) {' . $this->getTemplate()->getElement($dblclick_button)->buildJsClickFunction() . '}';
         }
         
-        // Context menu
-        if ($widget->getContextMenuEnabled()) {
-            $grid_head .= ', onRowContextMenu: function(e, index, row) {
-					e.preventDefault();
-					e.stopPropagation();
-					$(this).datagrid("selectRow", index);
-	                $("#' . $this->getId() . '_cmenu").menu("show", {
-	                    left: e.pageX,
-	                    top: e.pageY
-	                });
-	                return false;
-				}';
+        // Left click actions. Currently only supports one double click action - the first one in the list of buttons
+        if ($leftclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_LEFT_CLICK)[0]) {
+            $grid_head .= ', onClickRow: function(index, row) {' . $this->getTemplate()->getElement($leftclick_button)->buildJsClickFunction() . '}';
+        }
+        
+        // Right click actions or context menu
+        if ($rightclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_RIGHT_CLICK)[0]) {
+            $grid_head .= ', onClickRow: function(index, row) {' . $this->getTemplate()->getElement($rightclick_button)->buildJsClickFunction() . '}';
+        } else {
+            // Context menu
+            if ($widget->getContextMenuEnabled()) {
+                $grid_head .= ', onRowContextMenu: function(e, index, row) {
+    					e.preventDefault();
+    					e.stopPropagation();
+    					$(this).datagrid("selectRow", index);
+    	                $("#' . $this->getId() . '_cmenu").menu("show", {
+    	                    left: e.pageX,
+    	                    top: e.pageY
+    	                });
+    	                return false;
+    				}';
+            }
         }
         
         if ($this->isEditable()) {

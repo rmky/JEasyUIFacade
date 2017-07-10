@@ -148,3 +148,9 @@
 .icon-basket {
 	background:url('icons/shopping_basket_empty.png') no-repeat center center;
 }
+.icon-barcode {
+	background:url('icons/barcode.png') no-repeat center center;
+}
+.icon-star {
+	background:url('icons/star.png') no-repeat center center;
+}
