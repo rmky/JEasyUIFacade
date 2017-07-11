@@ -7,6 +7,7 @@ use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 use exface\Core\Interfaces\Actions\iReadData;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
+use exface\Core\Widgets\MenuButton;
 
 /**
  *
@@ -21,6 +22,7 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
     use JqueryDataTableTrait;
     use JqueryLayoutTrait;
     
+    /** @var MenuButton */
     private $more_buttons_menu = null;
 
     protected function init()
@@ -57,7 +59,6 @@ HTML;
         }
          
         // Add the buttons
-        /* @var $more_buttons_menu \exface\Core\Widgets\MenuButton */
         $this->more_buttons_menu = $widget->getPage()->createWidget('MenuButton', $widget);
         $this->more_buttons_menu->setCaption('...');
         $this->more_buttons_menu->setHideButtonIcon(true);
@@ -87,7 +88,7 @@ HTML;
             }
         }
         
-        if ($this->more_buttons_menu) {
+        if ($this->more_buttons_menu->hasButtons()) {
             $button_html .= $this->getTemplate()->getElement($this->more_buttons_menu)->generateHtml();
         }
         

@@ -25,7 +25,8 @@ fieldset.exface_inputgroup {border-color: #95B8E7; border-width: 1px 0 0 0; padd
 fieldset.exface_inputgroup legend {color: #404040; font-weight: bold; padding: 0 6px; margin: 0 10px;}
 
 /* Text & headings */
-.panel-body>h1, .panel-body>h2, .panel-body>h3, .panel-body>h4, .panel-body>h5, .panel-body>p {padding: 0 10px;}
+.panel-body>h1, .panel-body>h2, .panel-body>h3, .panel-body>h4, .panel-body>h5, .panel-body>p,
+.panel-body>.grid>h1, .panel-body>.grid>h2, .panel-body>.grid>h3, .panel-body>.grid>h4, .panel-body>.grid>h5, .panel-body>.grid>p {padding: 0 10px;}
 
 /* jEasyUI customizing */
 div.panel-body{background-color:#fff;}

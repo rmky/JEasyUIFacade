@@ -34,7 +34,7 @@ class euiMenuButton extends euiAbstractElement
      *
      * @see \exface\JEasyUiTemplate\Template\Elements\abstractWidget::generateHtml()
      */
-    function generateHtml()
+    public function generateHtml()
     {
         $buttons_html = '';
         $output = '';
@@ -50,11 +50,11 @@ class euiMenuButton extends euiAbstractElement
             // In any case, create a menu entry
             $icon = $b->getIconName() ? ' iconCls="' . $this->buildCssIconClass($b->getIconName()) . '"' : '';
             $disabled = $b->isDisabled() ? ' disabled=true' : '';
-            $buttons_html .= '
-                <div' . $icon . $disabled . ' id="' . $this->getTemplate()->getElement($b)->getId() . '" onclick="'.$this->getTemplate()->getElement($b)->buildJsClickFunctionName().'()">
-					' . $b->getCaption() . '
-				</div>
-				';
+            $buttons_html .= <<<HTML
+                <div {$icon} {$disabled} id="{$this->getTemplate()->getElement($b)->getId()}" onclick="{$this->getTemplate()->getElement($b)->buildJsClickFunctionName()}()">
+    				{$b->getCaption()}
+    			</div>
+HTML;
         }
         
         $icon = $this->getWidget()->getIconName() ? ',iconCls:\'' . $this->buildCssIconClass($this->getWidget()->getIconName()) . '\'' : '';
@@ -68,13 +68,18 @@ class euiMenuButton extends euiAbstractElement
             default:
                 $align_style = '';
         }
-        $output .= '<a href="javascript:void(0)" id="' . $this->getId() . '" class="easyui-' . $this->getElementType() . '" data-options="menu:\'#' . $this->buildJsMenuName() . '\'' . $icon . '" style="' . $align_style . '">
-				' . $this->getWidget()->getCaption() . '
+        // Disable the menu button if empty or explicitly disabled
+        $menu_disabled = $this->getWidget()->isDisabled() || ! $this->getWidget()->hasButtons() ? 'disabled="disabled"' : '';
+        
+        // Render jEasyUI menubutton
+        $output .= <<<HTML
+            <a href="javascript:void(0)" id="{$this->getId()}" class="easyui-{$this->getElementType()}" data-options="menu:'#{$this->buildHtmlMenuId()}' {$icon}" style="{$align_style}" {$menu_disabled}>
+				{$this->getWidget()->getCaption()}
 			</a>
-			<div id="' . $this->buildJsMenuName() . '">
-				' . $buttons_html . '
+			<div id="{$this->buildHtmlMenuId()}">
+				{$buttons_html}
 			</div>
-			';
+HTML;
         
         if ($this->getWidget()->getInputWidget() instanceof Dialog && ! $this->getWidget()->getParent() instanceof Dialog) {
             // Hier wird versucht zu unterscheiden wo sich der Knopf befindet. Der Wrapper wird nur benoetigt
@@ -84,11 +89,6 @@ class euiMenuButton extends euiAbstractElement
         
         return $output;
     }
-
-    /**
-     */
-    function buildHtmlButton()
-    {}
 
     /**
      *
@@ -110,7 +110,7 @@ class euiMenuButton extends euiAbstractElement
      *
      * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateJs()
      */
-    function generateJs()
+    public function generateJs()
     {
         foreach ($this->getWidget()->getButtons() as $btn){
             $button_js .= $this->getTemplate()->getElement($btn)->generateJs();   
@@ -127,7 +127,7 @@ JS;
      *
      * @return string
      */
-    function buildJsMenuName()
+    protected function buildHtmlMenuId()
     {
         return $this->getId() . '_menu';
     }

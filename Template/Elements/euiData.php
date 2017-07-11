@@ -116,7 +116,6 @@ class euiData extends euiAbstractElement
 
     public function buildJsInitOptionsHead()
     {
-        /* @var $widget \exface\Core\Widgets\Data */
         $widget = $this->getWidget();
         
         // add initial sorters
@@ -153,6 +152,11 @@ class euiData extends euiAbstractElement
             // aussehen: $(this).combogrid("grid").' . $this->getElementType() . '("clearSelections");
             // Ist es fuer eine ComboTable sinnvoll nach jedem Laden ihre Auswahl zu verlieren???
             // $this->addOnLoadSuccess('$(this).' . $this->getElementType() . '("clearSelections");');
+            
+            // Autoselect all rows if neccessary
+            if ($widget->getMultiSelectAllSelected()){
+                $this->addOnLoadSuccess("$('#" . $this->getId() . "')." . $this->getElementType() . "('selectAll');");
+            }
         }
         
         $output = '

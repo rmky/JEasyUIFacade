@@ -113,7 +113,9 @@ function contextBarRefresh(data){
         	$(this).one('click', function(){
         		$(this).tooltip('update');
         	})
-        	$('#'+$(this).closest('.toolbar-element').attr('id')+'_tooltip').panel('destroy');
+        	if ($('#'+$(this).closest('.toolbar-element').attr('id')+'_tooltip').hasClass('panel')){
+        		$('#'+$(this).closest('.toolbar-element').attr('id')+'_tooltip').panel('destroy');
+        	}
 		}
     });
 }
