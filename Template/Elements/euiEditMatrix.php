@@ -2,10 +2,12 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\DataTypes\AbstractDataType;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
 
 class euiEditMatrix extends euiDataMatrixOld
 {
-
+    use JqueryToolbarsTrait;
+    
     private $label_values = array();
 
     protected function init()
@@ -52,14 +54,10 @@ HTML;
         }
         
         // add buttons
-        if ($widget->hasButtons()) {
-            foreach ($widget->getButtons() as $button) {
-                $button_html .= $this->getTemplate()->generateHtml($button);
-            }
-        }
+        $button_html = $this->buildHtmlButtons();
         
         // create a container for the toolbar
-        if (! $widget->getHideToolbarTop() && ($widget->hasFilters() || $widget->hasButtons())) {
+        if (! $widget->getHideHeader() && ($widget->hasFilters() || $widget->hasButtons())) {
             $output .= '<div id="' . $this->getToolbarId() . '" class="datagrid-toolbar">';
             if ($fltr_html) {
                 $output .= '<div class="datagrid-filters">' . $fltr_html . '</div>';

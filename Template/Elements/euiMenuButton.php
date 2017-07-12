@@ -36,26 +36,8 @@ class euiMenuButton extends euiAbstractElement
      */
     public function generateHtml()
     {
-        $buttons_html = '';
         $output = '';
-        
-        foreach ($this->getWidget()->getButtons() as $b) {
-            // If the button has an action, make some action specific HTML depending on the action
-            if ($action = $b->getAction()) {
-                if ($action->implementsInterface('iShowDialog')) {
-                    $dialog_widget = $action->getDialogWidget();
-                    $output .= $this->getTemplate()->generateHtml($dialog_widget);
-                }
-            }
-            // In any case, create a menu entry
-            $icon = $b->getIconName() ? ' iconCls="' . $this->buildCssIconClass($b->getIconName()) . '"' : '';
-            $disabled = $b->isDisabled() ? ' disabled=true' : '';
-            $buttons_html .= <<<HTML
-                <div {$icon} {$disabled} id="{$this->getTemplate()->getElement($b)->getId()}" onclick="{$this->getTemplate()->getElement($b)->buildJsClickFunctionName()}()">
-    				{$b->getCaption()}
-    			</div>
-HTML;
-        }
+        $buttons_html = $this->getTemplate()->getElement($this->getWidget()->getMenu())->buildHtmlButtons();
         
         $icon = $this->getWidget()->getIconName() ? ',iconCls:\'' . $this->buildCssIconClass($this->getWidget()->getIconName()) . '\'' : '';
         switch ($this->getWidget()->getAlign()) {

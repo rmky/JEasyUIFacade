@@ -8,12 +8,21 @@ use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryFlotTrait;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
 
+/**
+ * 
+ * @method Chart getWidget()
+ * 
+ * @author Andrej Kabachnik
+ *
+ */
 class euiChart extends euiAbstractElement implements JqueryLayoutInterface
 {
     
     use JqueryFlotTrait;
     use JqueryLayoutTrait;
+    use JqueryToolbarsTrait;
 
     private $on_change_script = '';
 
@@ -51,13 +60,9 @@ HTML;
             }
             
             // add buttons
-            if ($widget->hasButtons()) {
-                foreach ($widget->getButtons() as $button) {
-                    $button_html .= $this->getTemplate()->generateHtml($button);
-                }
-            }
+            $button_html = $this->buildHtmlButtons();
             
-            if ($widget->getHideToolbarTop()) {
+            if ($widget->getHideHeader()) {
                 $toolbar_panel_options = ', collapsible: true, collapsed: true';
                 $chart_panel_options = ", title: '{$this->getWidget()->getCaption()}'";
             } else {
@@ -461,16 +466,6 @@ HTML;
         return $includes;
     }
 
-    /**
-     *
-     * @return Chart
-     * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::getWidget()
-     */
-    public function getWidget()
-    {
-        return parent::getWidget();
-    }
-
     protected function generateSeriesConfig()
     {
         $output = '';
@@ -580,6 +575,10 @@ JS;
     public function inheritsColumnNumber()
     {
         return true;
+    }
+    
+    protected function getMoreButtonsMenuCaption(){
+        return '...';
     }
 }
 ?>

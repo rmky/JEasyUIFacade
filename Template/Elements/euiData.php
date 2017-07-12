@@ -5,6 +5,7 @@ use exface\Core\Widgets\DataColumnGroup;
 use exface\Core\Widgets\Data;
 use exface\Core\CommonLogic\DataSheets\DataSheet;
 use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
 
 /**
  * Implementation of a basic grid.
@@ -16,7 +17,8 @@ use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
  */
 class euiData extends euiAbstractElement
 {
-
+    use JqueryToolbarsTrait;
+    
     private $toolbar_id = null;
 
     private $show_footer = null;
@@ -447,6 +449,33 @@ JS;
     public function buildJsInitOptions()
     {
         return $this->buildJsDataSource() . $this->buildJsInitOptionsHead();
+    }
+    
+    protected function getMoreButtonsMenuCaption(){
+        return '...';
+    }
+    
+    protected function buildHtmlContextMenu()
+    {
+        $widget = $this->getWidget();
+        $context_menu_html = '';
+        if ($widget->hasButtons()) {
+            foreach ($widget->getToolbarMain()->getButtonGroupMain()->getButtons() as $button) {
+                $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton'], ['<div id="' . $this->getId() . '_', '</div>', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());
+            }
+            
+            foreach ($widget->getToolbars() as $toolbar){
+                foreach ($toolbar->getButtonGroups() as $btn_group){
+                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupMain() && $btn_group->hasButtons()){
+                        $context_menu_html .= '<div class="menu-sep"></div>';
+                        foreach ($btn_group->getButtons() as $button){
+                            $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton', ' href="#"'], ['<div id="' . $this->getId() . '_', '</div>', '', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());
+                        }
+                    }
+                }
+            }
+        }
+        return $context_menu_html;
     }
 }
 ?>

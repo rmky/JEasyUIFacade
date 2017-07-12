@@ -11,10 +11,10 @@ class euiPlanogram extends euiDiagram
     {
         $button_html = "";
         foreach ($this->getWidget()->getShapes() as $shape) {
-            foreach ($shape->getData()->getButtons() as $button) {
-                $button_html .= $this->getTemplate()->getElement($button)->generateHtml() . "\n";
-                $menu_html .= $this->getTemplate()->getElement($button)->buildHtmlButton();
-            }
+            
+            $button_html .= $this->getTemplate()->getElement($shape->getData())->buildHtmlButtons() . "\n";
+            $menu_html .= $this->getTemplate()->getElement($shape->getData())->buildHtmlContextMenu();
+            
             // Create a context menu if any items were found
             if (count($shape->getData()->getButtons()) > 1 && $menu_html) {
                 $menu_html = '<div id="' . $this->getId() . '_smenu" class="easyui-menu">' . $menu_html . '</div>';
@@ -261,6 +261,29 @@ JS;
     public function buildJsBusyIconHide()
     {
         return '$("#' . $this->getId() . ' .datagrid-mask").remove();$("#' . $this->getId() . ' .datagrid-mask-msg").remove();';
+    }
+    
+    protected function buildHtmlContextMenu()
+    {
+        $widget = $this->getWidget();
+        $context_menu_html = '';
+        if ($widget->hasButtons()) {
+            foreach ($widget->getToolbarMain()->getButtonGroupMain()->getButtons() as $button) {
+                $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton'], ['<div id="' . $this->getId() . '_', '</div>', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());
+            }
+            
+            foreach ($widget->getToolbars() as $toolbar){
+                foreach ($toolbar->getButtonGroups() as $btn_group){
+                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupMain() && $btn_group->hasButtons()){
+                        $context_menu_html .= '<div class="menu-sep"></div>';
+                        foreach ($btn_group->getButtons() as $button){
+                            $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton'], ['<div id="' . $this->getId() . '_', '</div>', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());
+                        }
+                    }
+                }
+            }
+        }
+        return $context_menu_html;
     }
 }
 ?>

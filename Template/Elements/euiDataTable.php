@@ -7,7 +7,6 @@ use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 use exface\Core\Interfaces\Actions\iReadData;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
-use exface\Core\Widgets\MenuButton;
 
 /**
  *
@@ -21,9 +20,6 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
     
     use JqueryDataTableTrait;
     use JqueryLayoutTrait;
-    
-    /** @var MenuButton */
-    private $more_buttons_menu = null;
 
     protected function init()
     {
@@ -57,44 +53,13 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
 <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
 HTML;
         }
-         
-        // Add the buttons
-        $this->more_buttons_menu = $widget->getPage()->createWidget('MenuButton', $widget);
-        $this->more_buttons_menu->setCaption('...');
-        $this->more_buttons_menu->setHideButtonIcon(true);
         
-        if ($widget->hasButtons()) {
-            foreach ($widget->getToolbarMain()->getButtonGroupMain()->getButtons() as $button) {
-                // Make pomoted and regular buttons visible right in the bottom toolbar
-                // Hidden buttons also go here, because it does not make sense to put them into the menu
-                if ($button->getVisibility() !== EXF_WIDGET_VISIBILITY_OPTIONAL || $button->isHidden()) {
-                    $button_html .= $this->getTemplate()->generateHtml($button);
-                }
-                
-                // Put optional buttons in the menu
-                if ($button->getVisibility() == EXF_WIDGET_VISIBILITY_OPTIONAL && ! $button->isHidden()) {
-                    $this->more_buttons_menu->addButton($button);
-                }
-                
-                $context_menu_html .= str_replace('<a id=', '<a style="width: 500px; text-align: left;" id=', $this->getTemplate()->getElement($button)->buildHtmlButton());
-            }
-            
-            foreach ($widget->getToolbars() as $toolbar){
-                foreach ($toolbar->getButtonGroups() as $btn_group){
-                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupMain()){
-                        $this->more_buttons_menu->getMenu()->addButtonGroup($btn_group);
-                    }
-                }
-            }
-        }
-        
-        if ($this->more_buttons_menu->hasButtons()) {
-            $button_html .= $this->getTemplate()->getElement($this->more_buttons_menu)->generateHtml();
-        }
+        $button_html = $this->buildHtmlButtons();
+        $context_menu_html = $this->buildHtmlContextMenu();
         
         // create a container for the toolbar
         if ($widget->hasFilters() || $widget->hasButtons()) {
-            if ($widget->getHideToolbarTop()) {
+            if ($widget->getHideHeader()) {
                 $toolbar_style = 'visibility: hidden; height: 0px; padding: 0px;';
             }
             $output .= '<form id="' . $this->getToolbarId() . '"  style="' . $toolbar_style . '" onsubmit="' . $this->buildJsFunctionPrefix() . 'doSearch();return false;">';
@@ -111,10 +76,7 @@ HTML;
         
         // Create a context menu if any items were found
         if ($context_menu_html && $widget->getContextMenuEnabled()) {
-            $output .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu" style="width: 200px">' . $context_menu_html . '</div>';
-            // sfl: Sind diese zusaetzlichen Buttons notwendig??? Sie erscheinen am unteren
-            // Rand der DataTable, wenn diese nicht den gesamten Container ausfuellt.
-            // $output .= $button_html;
+            $output .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
         }
         
         $output = <<<HTML
@@ -201,7 +163,6 @@ JS;
         
         // Double click actions. Currently only supports one double click action - the first one in the list of buttons
         if ($dblclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_DOUBLE_CLICK)[0]) {
-            
             $grid_head .= ', onDblClickRow: function(index, row) {' . $this->getTemplate()->getElement($dblclick_button)->buildJsClickFunction() . '}';
         }
         
@@ -339,15 +300,13 @@ JS;
 						}';
         
         // build JS for the button actions
-        foreach ($widget->getButtons() as $button) {
-            $output .= $this->getTemplate()->generateJs($button);
-        }
+        $output .= $this->buildJsButtons();
         
         // Add buttons to the pager at the bottom of the datagrid
         $bottom_buttons = array();
         
         // If the top toolbar is hidden, add actions to the bottom toolbar
-        if ($widget->getHideToolbarTop() && ! $widget->getHideToolbarBottom() && $widget->hasButtons()) {
+        if ($widget->getHideHeader() && ! $widget->getHideFooter() && $widget->hasButtons()) {
             foreach ($widget->getButtons() as $button) {
                 if ($button->isHidden())
                     continue;
