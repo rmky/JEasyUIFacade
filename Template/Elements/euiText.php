@@ -6,7 +6,7 @@ class euiText extends euiAbstractElement
 
     function generateHtml()
     {
-        $output = '<p>' . $this->getWidget()->getText() . '</p>';
+        $output = '<p>' . nl2br($this->getWidget()->getText()) . '</p>';
         return $output;
     }
 
