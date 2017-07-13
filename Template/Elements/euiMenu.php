@@ -30,18 +30,31 @@ class euiMenu extends euiAbstractElement
                 $align_style = '';
         }
         
+        $title = $this->getWidget()->getCaption() ? '<div class="panel-header"><span class="panel-title">' . $this->getWidget()->getCaption() . '</span></div>' : '';
+        
         return <<<HTML
-<div id="{$this->getId()}" class="easyui-menu" style="{$align_style}">
-    {$this->buildHtmlButtons()}
+<div class="easyui-panel" data-options="fit:true, title:'{$this->getWidget()->getCaption()}'">
+    <div class="easyui-menu" data-options="inline:true, fit:true, lines:true" style="position:relative; border:none">
+        {$this->buildHtmlButtons()}
+    </div>
 </div>
 HTML;
     }
     
     /**
-     * Renders buttons as <div> elements
      * 
-     * @return string
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateJs()
      */
+    public function generateJs()
+    {
+        $buttons_js = '';
+        foreach ($this->getWidget()->getButtons() as $btn){
+            $buttons_js .= $this->getTemplate()->getElement($btn)->generateJs();
+        }
+        return $buttons_js;
+    }
+    
     public function buildHtmlButtons()
     {
         $buttons_html = '';
@@ -58,25 +71,11 @@ HTML;
             $icon = $b->getIconName() ? ' iconCls="' . $this->buildCssIconClass($b->getIconName()) . '"' : '';
             $disabled = $b->isDisabled() ? ' disabled=true' : '';
             $buttons_html .= <<<HTML
-                <div {$icon} {$disabled} id="{$this->getTemplate()->getElement($b)->getId()}" onclick="{$this->getTemplate()->getElement($b)->buildJsClickFunctionName()}()">
+                <div {$icon} {$disabled} title="{$b->getHint()}" id="{$this->getTemplate()->getElement($b)->getId()}" onclick="{$this->getTemplate()->getElement($b)->buildJsClickFunctionName()}()">
     				{$b->getCaption()}
     			</div>
 HTML;
         }
         return $buttons_html;
-    }
-    
-    /**
-     * 
-     * {@inheritDoc}
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateJs()
-     */
-    public function generateJs()
-    {
-        $buttons_js = '';
-        foreach ($this->getWidget()->getButtons() as $btn){
-            $buttons_js .= $this->getTemplate()->getElement($btn)->generateJs();
-        }
-        return $buttons_js;
     }
 }

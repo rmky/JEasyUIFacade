@@ -86,7 +86,7 @@ class euiButton extends euiAbstractElement
         }
         
         $output = '
-				<a id="' . $this->getId() . '" title="' . str_replace('"', '\"', $widget->getCaption()) . '" href="#" class="easyui-linkbutton" data-options="' . $data_options . '" style="' . $style . '" onclick="' . $this->buildJsFunctionPrefix() . 'click();">
+				<a id="' . $this->getId() . '" title="' . str_replace('"', '\"', $widget->getHint()) . '" href="#" class="easyui-linkbutton" data-options="' . $data_options . '" style="' . $style . '" onclick="' . $this->buildJsFunctionPrefix() . 'click();">
 						' . $widget->getCaption() . '
 				</a>';
         return $output;
