@@ -22,7 +22,7 @@ class euiFileUploader extends euiAbstractElement
 		<!-- The file input field used as target for the file upload widget -->
 		<div style="float: left; width:100px;">
 			<input id="{$this->getId()}" type="file" name="files[]" multiple style="display: none;">
-			<a href="javascript:;" class="easyui-linkbutton" onclick="$('#{$this->getId()}').trigger('click');" data-options="iconCls: 'icon-add'" style="width:100px;">Add files</a>
+			<a href="javascript:;" class="easyui-linkbutton" onclick="$('#{$this->getId()}').trigger('click');" data-options="iconCls: 'fa fa-plus'" style="width:100px;">Add files</a>
 		</div>
 		<div style="width: calc(100% - 105px); margin: 2px 0 0 105px;">
 			<div id="progress" class="easyui-progressbar"></div>

@@ -7,6 +7,15 @@ ul.nav_menu a {padding: 6px 0 6px 10px; color: black; text-decoration: none; dis
 ul.nav_menu li.active a.active {color: white; font-weight: bold; text-decoration: none; display: block; width: 100%; background: #6CAEF5}
 ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; display: block; width: 100%; background: #6CAEF5}
 
+/* Font awsome */
+.fa {padding: 1px;}
+.l-btn-plain .fa {padding: 3px 2px;}
+.menu-icon.fa {font-size: 12px; padding: 3px 2px;}
+.pagination .fa {font-size: 16px; padding: 0;}
+.dialog-button .fa, .dialog-button .l-button-plain.fa {font-size: 12px; padding: 2px;}
+.panel-tool-a.fa {font-size: 14px; padding: 1px 0 1px 3px; text-decoration: none; color: black;}
+.panel-icon.fa {padding: 0;}
+
 /* Context bar */
 .toolbar-element {height: 30px; display:inline-block; line-height: 30px; vertical-align: top; }
 .toolbar-element div.toolbar-button {padding-top: 2px}
@@ -14,6 +23,7 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 .toolbar-element.user-info .user-display {vertical-align: top; display: inline-block;}
 .toolbar-element.user-info .user-image {padding-right: 7px;}
 .toolbar-element .panel-loading {height: 10px}
+.toolbar-element .fa {font-size: 14px; margin-top: -10px; padding: 0; color: #999}
 
 /* Inputs */
 .exf_input {box-sizing: border-box; padding:4px; text-align:right;}
@@ -31,6 +41,7 @@ fieldset.exface_inputgroup legend {color: #404040; font-weight: bold; padding: 0
 /* jEasyUI customizing */
 div.panel-body{background-color:#fff;}
 div.messager-body{overflow-y: auto;}
+.window .window-header .panel-with-icon {padding-left: 21px !important;}
 
 /* TextDiff widget */
 .difftext-container {border: 1px solid #c3d9e0;}

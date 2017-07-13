@@ -118,6 +118,11 @@ function contextBarRefresh(data){
         	}
 		}
     });
+	
+	// Restore title after tooltip init (tooltip will remove titles)
+	$.each($('#contextBar a'), function(){
+		$(this).attr('title', $(this).parent().attr('title'));
+	});
 }
 
 function contextShowMenu(containerSelector){

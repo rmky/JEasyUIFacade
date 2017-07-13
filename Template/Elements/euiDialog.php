@@ -50,7 +50,7 @@ HTML;
         }
         
         if (! $this->getWidget()->getHideHelpButton()) {
-            $window_tools = '<a href="javascript:' . $this->getTemplate()->getElement($this->getWidget()->getHelpButton())->buildJsClickFunctionName() . '()" class="icon-help"></a>';
+            $window_tools = '<a href="javascript:' . $this->getTemplate()->getElement($this->getWidget()->getHelpButton())->buildJsClickFunctionName() . '()" class="fa fa-question-circle-o"></a>';
         }
         
         $dialog_title = str_replace('"', '\"', $this->getWidget()->getCaption());

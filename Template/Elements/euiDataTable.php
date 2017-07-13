@@ -70,7 +70,7 @@ HTML;
             if ($button_html) {
                 $output .= $button_html;
             }
-            $output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search">' . $this->translate('WIDGET.SEARCH') . '</button></div>';
+            $output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">' . $this->translate('WIDGET.SEARCH') . '</button></div>';
             $output .= '</form>';
         }
         
@@ -324,7 +324,7 @@ JS;
         if (! $widget->getHideHelpButton()) {
             $output .= $this->getTemplate()->generateJs($widget->getHelpButton());
             $bottom_buttons[] = '{
-						iconCls:  "icon-help",
+						iconCls:  "fa fa-question-circle-o",
 						title: "' . $this->translate('HELP') . '",
 						handler: ' . $this->getTemplate()->getElement($widget->getHelpButton())->buildJsClickFunctionName() . '
 					}';

@@ -116,10 +116,10 @@ JS;
         /* @var $widget \exface\Core\Widgets\InputPropertyTable */
         $widget = $this->getWidget();
         if ($widget->getAllowAddProperties()) {
-            $output .= '<a href="#" class="icon-add" onclick="' . $this->buildJsFunctionPrefix() . 'AddProperties();" title="Append property"></a>';
+            $output .= '<a href="#" class="fa fa-plus" onclick="' . $this->buildJsFunctionPrefix() . 'AddProperties();" title="Append property"></a>';
         }
         if ($widget->getAllowRemoveProperties()) {
-            $output .= '<a href="#" class="icon-remove" onclick="' . $this->buildJsFunctionPrefix() . 'RemoveProperties();" title="Remove selected properties"></a>';
+            $output .= '<a href="#" class="fa fa-minus" onclick="' . $this->buildJsFunctionPrefix() . 'RemoveProperties();" title="Remove selected properties"></a>';
         }
         if ($output) {
             $output = '<div id="' . $this->getId() . '_tools">' . $output . '</div>';
