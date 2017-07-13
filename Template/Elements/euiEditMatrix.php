@@ -66,7 +66,7 @@ HTML;
             if ($button_html) {
                 $output .= $button_html;
             }
-            $output .= '<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="' . $this->buildJsFunctionPrefix() . 'doSearch()">' . $this->translate('WIDGET.SEARCH') . '</a></div>';
+            $output .= '<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search" onclick="' . $this->buildJsFunctionPrefix() . 'doSearch()">' . $this->translate('WIDGET.SEARCH') . '</a></div>';
             $output .= '</div>';
         }
         // now the table itself

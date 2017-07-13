@@ -78,7 +78,7 @@ HTML;
         		{$fltr_html}
         		<div style="min-height: 30px;">
         			{$button_html}
-        			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">{$this->translate('WIDGET.SEARCH')}</a>
+        			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">{$this->translate('WIDGET.SEARCH')}</a>
         		</div>
         	</div>
         </div>

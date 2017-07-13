@@ -30,8 +30,8 @@ class euiPlanogram extends euiDiagram
 
     </div>
 	<div id="{$this->getId()}_tools">
-		<a href="319.html" class="icon-link" title="Preview" target="_blank"></a>
-		<a href="#" onclick="{$this->buildJsRefresh()};" class="icon-reload" title="{$this->getTemplate()->getApp()->getTranslator()->translate('REFRESH')}"></a>
+		<a href="319.html" class="fa fa-external-link" title="Preview" target="_blank"></a>
+		<a href="#" onclick="{$this->buildJsRefresh()};" class="fa fa-refresh" title="{$this->getTemplate()->getApp()->getTranslator()->translate('REFRESH')}"></a>
 	</div>
 	<div style="display:none">
 		{$menu_html}
