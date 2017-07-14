@@ -22,6 +22,7 @@
         "bower-asset/jsoneditor": "^4.2",
         "bower-asset/paste.js": "~0.0.15",
         "bower-asset/google-diff-match-patch-js": "^1.0.0",
+        "bower-asset/font-awesome" : "^4.7",
         "npm-asset/flot-charts": "~0.8",
         "npm-asset/jquery-prettytextdiff": "^1.0.3",
         "npm-asset/Datejs": "1.0.0.0-beta2",
