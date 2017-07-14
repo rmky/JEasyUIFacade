@@ -46,7 +46,12 @@ function contextBarLoad(delay){
 	if (delay == undefined) delay = 100;
 	
 	setTimeout(function(){
-		if ($.active == 0 && $('#contextBar .panel-loading').length > 0){
+		// IDEA had to disable adding context bar extras to every request due to
+		// performance issues. This will be needed for asynchronous contexts like
+		// user messaging, external task management, etc. So put the line back in
+		// place to fetch context data with every request instead of a dedicated one.
+		// if ($.active == 0 && $('#contextBar .panel-loading').length > 0){
+		if ($('#contextBar .panel-loading').length > 0){
 			$.ajax({
 				type: 'POST',
 				url: 'exface/exface.php?exftpl=exface.JEasyUiTemplate',

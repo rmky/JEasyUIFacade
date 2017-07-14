@@ -415,7 +415,7 @@ JS;
         $js = <<<JS
 		
 		try {
-			var data = {$this->getTemplate()->encodeData($this->prepareData($data))};
+			var data = {$this->getTemplate()->encodeData($this->prepareData($data, false))};
 		} catch (err){
 			error();
 			return;
