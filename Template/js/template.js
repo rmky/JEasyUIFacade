@@ -110,9 +110,10 @@ function contextBarRefresh(data){
             var t = $(this);
             t.tooltip('tip').unbind().bind('mouseenter', function(){
                 t.tooltip('show');
-            }).bind('mouseleave', function(){
-                t.tooltip('hide');
             });
+           $(document).one('click', function(){
+        	   t.tooltip('hide');
+           })
         },
         onHide: function(){
         	$(this).one('click', function(){
