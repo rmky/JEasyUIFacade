@@ -35,5 +35,13 @@
             "model_md5": "9ddff40b26324b5fcca65acf751b013d",
             "model_timestamp": "2017-05-12 08:59:10"
         }
+    },
+    "autoload": {
+        "psr-4": { "exface\\JEasyUiTemplate\\": "" },
+        "exclude-from-classmap": [
+            "/Config/",
+            "/Translations/",
+            "/Model/"
+        ]
     }
 }
