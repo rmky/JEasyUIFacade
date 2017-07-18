@@ -4,6 +4,7 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\Panel;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
+use exface\Core\DataTypes\BooleanDataType;
 
 /**
  * The Panel widget is mapped to a panel in jEasyUI
@@ -20,6 +21,8 @@ class euiPanel extends euiContainer implements JqueryLayoutInterface
     private $on_load_script = '';
 
     private $on_resize_script = '';
+    
+    private $fit_option = true;
 
     protected function init()
     {
@@ -31,10 +34,21 @@ class euiPanel extends euiContainer implements JqueryLayoutInterface
     {
         $widget = $this->getWidget();
         
+        switch ($widget->getVisibility()){
+            case EXF_WIDGET_VISIBILITY_HIDDEN:
+                $style = 'visibility: hidden; height: 0px; padding: 0px;';
+                break;
+            default:
+                $style = '';
+                
+        }
+        
+        $title = $widget->getHideCaption() ? '' : ' title="' . $widget->getCaption() . '"';
+        
         $children_html = <<<HTML
         
                             {$this->buildHtmlForWidgets()}
-                            <div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
+                            <div id="{$this->getId()}_sizer" style="width:calc(100% / {$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
 HTML;
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
@@ -66,6 +80,7 @@ HTML;
         // other widgets based on a panel may not do so. Thus, the fit data-option is added
         // here, in the generate_html() method, which is verly likely to be overridden in
         // extending classes!
+        $fit = $this->getFitOption() ? ', fit: true' : '';
         
         // Wrapper wird gebraucht, denn es wird von easyui neben dem .easyui-panel div
         // ein .panel-header div erzeugt, welches sonst von masonry nicht beachtet wird
@@ -75,11 +90,11 @@ HTML;
         // wenn sich die Groesse des Bildschirms/Containers aendert.
         $output = <<<HTML
 
-                <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+                <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;{$style}">
                     <div class="easyui-{$this->getElementType()}"
                             id="{$this->getId()}"
-                            data-options="{$this->buildJsDataOptions()},fit:true"
-                            title="{$this->getWidget()->getCaption()}"
+                            data-options="{$this->buildJsDataOptions()}{$fit}"
+                            {$title}
                             style="{$styleScript}">
                         {$children_html}
                     </div>
@@ -105,7 +120,7 @@ HTML;
      *
      * @return string
      */
-    function buildJsDataOptions()
+    public function buildJsDataOptions()
     {
         /** @var Panel $widget */
         $widget = $this->getWidget();
@@ -118,8 +133,19 @@ HTML;
         $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
         $onLoadScript = $this->getOnLoadScript() ? ', onLoad: function(){' . $this->getOnLoadScript() . '}' : '';
         $onResizeScript = $this->getOnResizeScript() ? ', onResize: function(){' . $this->getOnResizeScript() . '}' : '';
-        
+                
         return $collapsibleScript . $iconClassScript . $onLoadScript . $onResizeScript;
+    }
+    
+    public function setFitOption($value)
+    {
+        $this->fit_option = BooleanDataType::parse($value);
+        return $this;
+    }
+    
+    public function getFitOption()
+    {
+        return $this->fit_option;
     }
 
     public function generateHeaders()

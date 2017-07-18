@@ -30,7 +30,7 @@ class euiForm extends euiPanel
         if ($this->getWidget()->hasButtons()) {
             $output = <<<HTML
 
-				<div id="{$this->getFooterId()}" style="padding:5px;">
+				<div id="{$this->getFooterId()}" class="exf-toolbar">
 					{$this->buildHtmlButtons()}
 				</div>
 

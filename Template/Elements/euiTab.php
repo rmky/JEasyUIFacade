@@ -33,10 +33,12 @@ HTML;
         </div>
 HTML;
         }
+            
+        $title = $widget->getHideCaption() ? '' : ' title="' . $widget->getCaption() . '"';
         
         $output = <<<HTML
 
-    <div title="{$widget->getCaption()}" data-options="{$this->buildJsDataOptions()}">
+    <div {$title} data-options="{$this->buildJsDataOptions()}">
         {$children_html}
     </div>
 HTML;

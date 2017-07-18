@@ -5,8 +5,7 @@ use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 use exface\Core\Interfaces\Actions\iReadData;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
+use exface\Core\Widgets\Tabs;
 
 /**
  *
@@ -15,11 +14,10 @@ use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
  * @method DataTable getWidget()
  *        
  */
-class euiDataTable extends euiData implements JqueryLayoutInterface
+class euiDataTable extends euiData
 {
     
     use JqueryDataTableTrait;
-    use JqueryLayoutTrait;
 
     protected function init()
     {
@@ -33,6 +31,10 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
                 $refresh_link_element->addOnChangeScript($this->buildJsRefresh());
             }
         }
+        
+        $widget->getConfiguratorWidget()
+            ->setTabPosition(Tabs::TAB_POSITION_RIGHT)
+            ->setHideTabsCaptions(true);
     }
 
     function generateHtml()
@@ -41,50 +43,31 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
         $widget = $this->getWidget();
         
         // first the table itself
-        $output = '<table id="' . $this->getId() . '"></table>';
-        // add filters
-        if ($widget->hasFilters()) {
-            foreach ($widget->getFilters() as $fltr) {
-                $fltr_html .= $this->getTemplate()->generateHtml($fltr);
-            }
-            
-            $fltr_html .= <<<HTML
-
-<div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+        $output = '
+            <table id="' . $this->getId() . '"></table>
+        ';
+        
+        if ($widget->getHideHeader()){
+            $widget->getConfiguratorWidget()->setHidden(true);
+        }
+        
+        $output .= <<<HTML
+<div id="{$this->getToolbarId()}">
+            <div  class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', border: false, width: '100%'">
+                {$this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget())->setFitOption(false)->setStyleAsPills(true)->generateHtml()}
+            </div>
+            <div id="{$this->getToolbarId()}_footer" class="exf-toolbar exf-data-toolbar">
+                {$this->buildHtmlButtons()}
+                <button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">{$this->translate('WIDGET.SEARCH')}</button>
+            </div>
+</div>
 HTML;
-        }
-        
-        $button_html = $this->buildHtmlButtons();
-        $context_menu_html = $this->buildHtmlContextMenu();
-        
-        // create a container for the toolbar
-        if ($widget->hasFilters() || $widget->hasButtons()) {
-            if ($widget->getHideHeader()) {
-                $toolbar_style = 'visibility: hidden; height: 0px; padding: 0px;';
-            }
-            $output .= '<form id="' . $this->getToolbarId() . '"  style="' . $toolbar_style . '" onsubmit="' . $this->buildJsFunctionPrefix() . 'doSearch();return false;">';
-            if ($fltr_html) {
-                $output .= '<div class="datagrid-filters">' . $fltr_html . '</div>';
-            }
-            $output .= '<div style="min-height: 30px;">';
-            if ($button_html) {
-                $output .= $button_html;
-            }
-            $output .= '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">' . $this->translate('WIDGET.SEARCH') . '</button></div>';
-            $output .= '</form>';
-        }
         
         // Create a context menu if any items were found
+        $context_menu_html = $this->buildHtmlContextMenu();
         if ($context_menu_html && $widget->getContextMenuEnabled()) {
             $output .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
         }
-        
-        $output = <<<HTML
-
-                <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
-                    {$output}
-                </div>
-HTML;
         
         return $output;
     }
@@ -273,23 +256,23 @@ JS;
         // onLoadError u.U. mit setTimeout()). Durch diese Aenderung wird das Layout leider etwas
         // traeger.
         $resize_function = '';
-        if ($widget->hasFilters()) {
-            $resize_function .= $this->buildJsLayouter() . ';';
-        }
         $resize_function .= '
 					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';
         $grid_head .= ', fit: true
 				, onResize: function(){' . $resize_function . '}' . ($this->getOnChangeScript() ? ', onSelect: function(index, row){' . $this->getOnChangeScript() . '}' : '') . ($widget->getCaption() ? ', title: "' . str_replace('"', '\"', $widget->getCaption()) . '"' : '');
         
         // instantiate the data grid
-        $output .= '$("#' . $this->getId() . '").' . $this->getElementType() . '({' . $grid_head . '});';
+        $output .= '
+            $("#' . $this->getId() . '").' . $this->getElementType() . '({' . $grid_head . '});
+        ';
         
         // doSearch function for the filters
+        $output .= $this->getTemplate()->getElement($widget->getConfiguratorWidget())->generateJs();
         $fltrs = array();
         if ($widget->hasFilters()) {
             foreach ($widget->getFilters() as $fnr => $fltr) {
                 $fltr_impl = $this->getTemplate()->getElement($fltr, $this->getPageId());
-                $output .= $fltr_impl->generateJs();
+                //$output .= $fltr_impl->generateJs();
                 $fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": "' . $fltr->getComparator() . '"+' . $fltr_impl->buildJsValueGetter();
             }
         }
@@ -340,9 +323,6 @@ JS;
 										
 					';
         }
-        
-        // Layout-Funktion hinzufuegen
-        $output .= $this->buildJsLayouterFunction();
         
         return $output;
     }
@@ -483,48 +463,6 @@ JS;
             $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();
-    }
-
-    /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
-     */
-    public function buildJsLayouterFunction()
-    {
-        $output = <<<JS
-
-    function {$this->getId()}_layouter() {
-        $("#{$this->getToolbarId()} .datagrid-filters").masonry({
-            columnWidth: "#{$this->getId()}_sizer",
-            itemSelector: ".{$this->getId()}_masonry_fitem"
-        });
-    }
-JS;
-        
-        return $output;
-    }
-
-    /**
-     * Returns the default number of columns to layout this widget.
-     *
-     * @return integer
-     */
-    public function getDefaultColumnNumber()
-    {
-        return $this->getTemplate()->getConfig()->getOption("WIDGET.DATATABLE.COLUMNS_BY_DEFAULT");
-    }
-
-    /**
-     * Returns if the the number of columns of this widget depends on the number of columns
-     * of the parent layout widget.
-     *
-     * @return boolean
-     */
-    public function inheritsColumnNumber()
-    {
-        return true;
     }
 }
 ?>
