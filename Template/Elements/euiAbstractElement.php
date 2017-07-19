@@ -277,5 +277,22 @@ abstract class euiAbstractElement extends AbstractJqueryElement
         }
         return $this->borderWidth;
     }
+    
+    /**
+     * Wraps the given HTML code in a DIV with properties needed for layouting
+     * parent widgets to put this widget in the correct position.
+     *
+     * @param string $html
+     * @return string
+     */
+    protected function buildHtmlWrapper($html)
+    {
+        return <<<HTML
+        
+        <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+            {$html}
+        </div>
+HTML;
+    }
 }
 ?>

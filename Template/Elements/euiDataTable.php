@@ -37,17 +37,11 @@ class euiDataTable extends euiData
             ->setHideTabsCaptions(true);
     }
 
-    function generateHtml()
+    public function generateHtml()
     {
-        /* @var $widget \exface\Core\Widgets\DataTable */
         $widget = $this->getWidget();
         
-        // First the table itself
-        $output = '
-            <table id="' . $this->getId() . '"></table>
-        ';
-        
-        // Now the header with the configurator and the toolbars
+        // Prepare the header with the configurator and the toolbars
         $configurator_widget = $widget->getConfiguratorWidget();
         /* @var $configurator_element \exface\JEasyUiTemplate\Template\Elements\euiDataConfigurator */
         $configurator_element = $this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget())->setFitOption(false)->setStyleAsPills(true);
@@ -61,17 +55,6 @@ class euiDataTable extends euiData
             $header_style = 'visibility: hidden; height: 0px; padding: 0px;';
         }
         
-        $output .= <<<HTML
-            <div id="{$this->getToolbarId()}" style="{$header_style}">
-                <div class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', border: false, width: '100%' {$configurator_panel_collapsed}">
-                    {$configurator_element->generateHtml()}
-                </div>
-                <div id="{$this->getToolbarId()}_footer" class="exf-toolbar exf-data-toolbar">
-                    {$this->buildHtmlButtons()}
-                    <button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">{$this->translate('WIDGET.SEARCH')}</button>
-                </div>
-            </div>
-HTML;
         // jEasyUI will not resize the configurator once the datagrid is resized
         // (don't know why), so we need to do it manually.
         // Wrapping the resize-call into a setTimeout( ,0) is another strange
@@ -84,17 +67,31 @@ HTML;
                 }, 0);
             }
         ");
-                
+        
         // Create a context menu if any items were found
         $context_menu_html = $this->buildHtmlContextMenu();
         if ($context_menu_html && $widget->getContextMenuEnabled()) {
             $output .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
         }
         
-        return $output;
+        $output .= <<<HTML
+            <table id="{$this->getId()}"></table>
+            <div id="{$this->getToolbarId()}" style="{$header_style}">
+                <div class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', border: false, width: '100%' {$configurator_panel_collapsed}">
+                    {$configurator_element->generateHtml()}
+                </div>
+                <div id="{$this->getToolbarId()}_footer" class="exf-toolbar exf-data-toolbar">
+                    {$this->buildHtmlButtons()}
+                    <button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">{$this->translate('WIDGET.SEARCH')}</button>
+                </div>
+            </div>
+            {$context_menu_html}
+HTML;
+        
+        return $this->buildHtmlWrapper($output);
     }
 
-    function generateJs()
+    public function generateJs()
     {
         $widget = $this->getWidget();
         $output = '';
