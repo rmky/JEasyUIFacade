@@ -477,5 +477,16 @@ JS;
         }
         return $context_menu_html;
     }
+    
+    /**
+     * Returns the base HTML element to construct the widget from: e.g. div, table, etc.
+     * 
+     * @return string
+     */
+    protected function getBaseHtmlElement()
+    {
+        return 'table';
+    }
+ 
 }
 ?>

@@ -17,6 +17,16 @@ class euiDataList extends euiDataTable
     {
         parent::init();
         $this->setElementType('datalist');
+        
+        $widget = $this->getWidget();
+        if($widget->getConfiguratorWidget()->isEmpty() && is_null($widget->getHideRefreshButton())){
+            $widget->setHideRefreshButton(true);
+        }
+    }
+    
+    protected function getBaseHtmlElement()
+    {
+        return 'ul';
     }
     
 }

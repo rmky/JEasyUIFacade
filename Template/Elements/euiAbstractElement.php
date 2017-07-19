@@ -287,12 +287,16 @@ abstract class euiAbstractElement extends AbstractJqueryElement
      */
     protected function buildHtmlWrapper($html)
     {
-        return <<<HTML
-        
-        <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
-            {$html}
-        </div>
+        if ($this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')){
+            return <<<HTML
+            
+            <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+                {$html}
+            </div>
 HTML;
+        } else {
+            return $html;
+        }
     }
 }
 ?>

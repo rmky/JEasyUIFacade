@@ -71,18 +71,25 @@ class euiDataTable extends euiData
         // Create a context menu if any items were found
         $context_menu_html = $this->buildHtmlContextMenu();
         if ($context_menu_html && $widget->getContextMenuEnabled()) {
-            $output .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
+            $context_menu_html .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
+        } else {
+            $context_menu_html = '';
+        }
+        
+        // Create the search button
+        if (! $widget->getHideRefreshButton()){
+            $search_button = '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">' . $this->translate('WIDGET.SEARCH') . '</button>';
         }
         
         $output .= <<<HTML
-            <table id="{$this->getId()}"></table>
+            <{$this->getBaseHtmlElement()} id="{$this->getId()}"></{$this->getBaseHtmlElement()}>
             <div id="{$this->getToolbarId()}" style="{$header_style}">
                 <div class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', border: false, width: '100%' {$configurator_panel_collapsed}">
                     {$configurator_element->generateHtml()}
                 </div>
                 <div id="{$this->getToolbarId()}_footer" class="exf-toolbar exf-data-toolbar">
                     {$this->buildHtmlButtons()}
-                    <button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">{$this->translate('WIDGET.SEARCH')}</button>
+                    {$search_button}
                 </div>
             </div>
             {$context_menu_html}
@@ -182,7 +189,7 @@ JS;
                 $grid_head .= ', onRowContextMenu: function(e, index, row) {
     					e.preventDefault();
     					e.stopPropagation();
-    					$(this).datagrid("selectRow", index);
+    					$(this).' . $this->getElementType() . '("selectRow", index);
     	                $("#' . $this->getId() . '_cmenu").menu("show", {
     	                    left: e.pageX,
     	                    top: e.pageY
@@ -332,10 +339,10 @@ JS;
 					}';
         }
         
-        if (count($bottom_buttons) > 0) {
+        if (! empty($bottom_buttons)) {
             $output .= '
 					
-							var pager = $("#' . $this->getId() . '").datagrid("getPager");
+							var pager = $("#' . $this->getId() . '").' . $this->getElementType() . '("getPager");
 	            			pager.pagination({
 								buttons: [' . implode(', ', $bottom_buttons) . ']
 							});
