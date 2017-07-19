@@ -1,8 +1,17 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
+use exface\Core\Widgets\DataConfigurator;
+
+/**
+ * 
+ * @method DataConfigurator getWidget()
+ * 
+ * @author Andrej Kabachnik
+ *
+ */
 class euiDataConfigurator extends euiTabs
-{
+{    
     /**
      * Returns the default number of columns to layout this widget.
      *

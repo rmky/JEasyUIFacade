@@ -42,27 +42,49 @@ class euiDataTable extends euiData
         /* @var $widget \exface\Core\Widgets\DataTable */
         $widget = $this->getWidget();
         
-        // first the table itself
+        // First the table itself
         $output = '
             <table id="' . $this->getId() . '"></table>
         ';
         
+        // Now the header with the configurator and the toolbars
+        $configurator_widget = $widget->getConfiguratorWidget();
+        /* @var $configurator_element \exface\JEasyUiTemplate\Template\Elements\euiDataConfigurator */
+        $configurator_element = $this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget())->setFitOption(false)->setStyleAsPills(true);
+        
+        if ($configurator_widget->isEmpty()){
+            $configurator_widget->setHidden(true);
+            $configurator_panel_collapsed = ', collapsed: true';
+        }
+        
         if ($widget->getHideHeader()){
-            $widget->getConfiguratorWidget()->setHidden(true);
+            $header_style = 'visibility: hidden; height: 0px; padding: 0px;';
         }
         
         $output .= <<<HTML
-<div id="{$this->getToolbarId()}">
-            <div  class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', border: false, width: '100%'">
-                {$this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget())->setFitOption(false)->setStyleAsPills(true)->generateHtml()}
+            <div id="{$this->getToolbarId()}" style="{$header_style}">
+                <div class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', border: false, width: '100%' {$configurator_panel_collapsed}">
+                    {$configurator_element->generateHtml()}
+                </div>
+                <div id="{$this->getToolbarId()}_footer" class="exf-toolbar exf-data-toolbar">
+                    {$this->buildHtmlButtons()}
+                    <button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">{$this->translate('WIDGET.SEARCH')}</button>
+                </div>
             </div>
-            <div id="{$this->getToolbarId()}_footer" class="exf-toolbar exf-data-toolbar">
-                {$this->buildHtmlButtons()}
-                <button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">{$this->translate('WIDGET.SEARCH')}</button>
-            </div>
-</div>
 HTML;
-        
+        // jEasyUI will not resize the configurator once the datagrid is resized
+        // (don't know why), so we need to do it manually.
+        // Wrapping the resize-call into a setTimeout( ,0) is another strange
+        // workaround, but if not done so, the configurator will get resized to
+        // the old size, not the new one.
+        $this->addOnResizeScript("
+            if(typeof $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "() !== 'undefined') {
+                setTimeout(function(){
+                    $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "('resize');
+                }, 0);
+            }
+        ");
+                
         // Create a context menu if any items were found
         $context_menu_html = $this->buildHtmlContextMenu();
         if ($context_menu_html && $widget->getContextMenuEnabled()) {
@@ -255,7 +277,7 @@ JS;
         // korrigiert) oder "autoSizeColumn" onLoadSuccess ($this->addOnLoadSuccess()) und
         // onLoadError u.U. mit setTimeout()). Durch diese Aenderung wird das Layout leider etwas
         // traeger.
-        $resize_function = '';
+        $resize_function = $this->getOnResizeScript();
         $resize_function .= '
 					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';
         $grid_head .= ', fit: true
@@ -266,7 +288,7 @@ JS;
             $("#' . $this->getId() . '").' . $this->getElementType() . '({' . $grid_head . '});
         ';
         
-        // doSearch function for the filters
+        // Add Scripts for the configurator widget
         $output .= $this->getTemplate()->getElement($widget->getConfiguratorWidget())->generateJs();
         $fltrs = array();
         if ($widget->hasFilters()) {

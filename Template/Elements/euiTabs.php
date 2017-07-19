@@ -18,15 +18,30 @@ class euiTabs extends euiContainer
     
     private $style_as_pills = false;
     
+    protected function init(){
+        parent::init();
+        $this->setElementType('tabs');
+    }
+    
     public function generateHtml()
     {
+        $widget = $this->getWidget();
+        switch ($widget->getVisibility()){
+            case EXF_WIDGET_VISIBILITY_HIDDEN:
+                $style = 'visibility: hidden; height: 0px; padding: 0px;';
+                break;
+            default:
+                $style = '';
+                
+        }
         $output = <<<HTML
-	<div id="{$this->getId()}" class="easyui-tabs" data-options="{$this->buildJsDataOptions()}">
-		{$this->buildHtmlForChildren()}
-	</div>
+    <div id="{$this->getId()}" style="{$style}" class="easyui-{$this->getElementType()}" data-options="{$this->buildJsDataOptions()}">
+    	{$this->buildHtmlForChildren()}
+    </div>
 HTML;
         return $output;
     }
+    
     
     public function buildJsDataOptions()
     {
