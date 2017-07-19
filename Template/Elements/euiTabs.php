@@ -62,7 +62,15 @@ HTML;
         return $this;
     }
  
-    
+    /**
+     * Returns the default number of columns to layout this widget.
+     *
+     * @return integer
+     */
+    public function getDefaultColumnNumber()
+    {
+        return $this->getTemplate()->getConfig()->getOption("WIDGET.TABS.COLUMNS_BY_DEFAULT");
+    }
     
 }
 ?>
