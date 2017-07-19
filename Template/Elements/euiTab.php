@@ -80,5 +80,19 @@ JS;
         
         return $output;
     }
+    
+    /**
+     * The default column number for tabs is defined for the tabs widget or its derivatives.
+     *
+     * @return integer
+     */
+    public function getDefaultColumnNumber()
+    {
+        $parent_element = $this->getTemplate()->getElement($this->getWidget()->getParent());
+        if (method_exists($parent_element, 'getDefaultColumnNumber')){
+            return $parent_element->getDefaultColumnNumber();
+        }
+        return parent::getDefaultColumnNumber();
+    }
 }
 ?>
