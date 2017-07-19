@@ -103,6 +103,9 @@ function contextBarRefresh(data){
                     action: 'exface.Core.ShowContextPopup',
                     resource: getPageId(),
                     element: $(this).parent().data('widget')
+                },
+                onLoadError: function(response) {
+                	jeasyui_create_dialog($("body"), $(this).attr('id')+"_error", {title: response.status + " " + response.statusText, width: 800, height: "80%"}, response.responseText, true);
                 }
             });
         },
@@ -119,8 +122,10 @@ function contextBarRefresh(data){
         	$(this).one('click', function(){
         		$(this).tooltip('update');
         	})
-        	if ($('#'+$(this).closest('.toolbar-element').attr('id')+'_tooltip').hasClass('panel')){
-        		$('#'+$(this).closest('.toolbar-element').attr('id')+'_tooltip').panel('destroy');
+        	var tt = $('#'+$(this).closest('.toolbar-element').attr('id')+'_tooltip');
+        	if (tt.hasClass('panel-body')){
+        		tt.panel('destroy');
+        		tt.closest('tooltip-content').empty();
         	}
 		}
     });
