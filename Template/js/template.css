@@ -30,6 +30,8 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 .exf-data-toolbar {border-width: 0 0 1px 0}
 .exf-data-header {padding: 0; border-width: 0}
 .exf-data-header .tabs-container, .exf-data-header .panel-body {background: #f5f5f5}
+.exf-data-header .tabs-panels .panel-body {padding-right: 5px;}
+.exf-data-header .tabs-header-right .tabs {border: 0}
 
 /* Inputs */
 .exf_input {box-sizing: border-box; padding:4px; text-align:right;}

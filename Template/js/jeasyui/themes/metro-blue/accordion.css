@@ -39,3 +39,51 @@
 .accordion .accordion-header-selected .panel-title {
   color: #fff;
 }
+.accordion .panel-last > .accordion-header {
+  border-bottom-color: #daeef5;
+}
+.accordion .panel-last > .accordion-body {
+  border-bottom-color: #fafafa;
+}
+.accordion .panel-last > .accordion-header-selected,
+.accordion .panel-last > .accordion-header-border {
+  border-bottom-color: #c3d9e0;
+}
+.accordion> .panel-hleft {
+  float: left;
+}
+.accordion> .panel-hleft>.panel-header {
+  border-width: 0 1px 0 0;
+}
+.accordion> .panel-hleft> .panel-body {
+  border-width: 0 1px 0 0;
+}
+.accordion> .panel-hleft.panel-last > .accordion-header {
+  border-right-color: #daeef5;
+}
+.accordion> .panel-hleft.panel-last > .accordion-body {
+  border-right-color: #fafafa;
+}
+.accordion> .panel-hleft.panel-last > .accordion-header-selected,
+.accordion> .panel-hleft.panel-last > .accordion-header-border {
+  border-right-color: #c3d9e0;
+}
+.accordion> .panel-hright {
+  float: right;
+}
+.accordion> .panel-hright>.panel-header {
+  border-width: 0 0 0 1px;
+}
+.accordion> .panel-hright> .panel-body {
+  border-width: 0 0 0 1px;
+}
+.accordion> .panel-hright.panel-last > .accordion-header {
+  border-left-color: #daeef5;
+}
+.accordion> .panel-hright.panel-last > .accordion-body {
+  border-left-color: #fafafa;
+}
+.accordion> .panel-hright.panel-last > .accordion-header-selected,
+.accordion> .panel-hright.panel-last > .accordion-header-border {
+  border-left-color: #c3d9e0;
+}
