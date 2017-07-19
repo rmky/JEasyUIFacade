@@ -50,7 +50,7 @@ class euiDataTable extends euiData implements JqueryLayoutInterface
             
             $fltr_html .= <<<HTML
 
-<div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
+<div id="{$this->getId()}_sizer" style="width:calc(100% / {$this->getTemplate()->getElement($widget->getConfiguratorWidget()->getFilterTab())->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
 HTML;
         }
         
@@ -498,7 +498,7 @@ JS;
     function {$this->getId()}_layouter() {
         $("#{$this->getToolbarId()} .datagrid-filters").masonry({
             columnWidth: "#{$this->getId()}_sizer",
-            itemSelector: ".{$this->getId()}_masonry_fitem"
+            itemSelector: ".{$this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget()->getFilterTab())->getId()}_masonry_fitem"
         });
     }
 JS;
