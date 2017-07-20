@@ -32,26 +32,5 @@ class euiStateMenuButton extends euiMenuButton
         
         return $output;
     }
-
-    /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\JEasyUiTemplate\Template\Elements\euiMenuButton::generateJs()
-     */
-    function generateJs()
-    {
-        $widget = $this->getWidget();
-        $button_no = count($widget->getButtons());
-        $output = '';
-        
-        if ($button_no == 1) {
-            $output = $this->getTemplate()->getElement($widget->getButtons()[0])->generateJs();
-        } elseif ($button_no > 1) {
-            $output = parent::generateJs();
-        }
-        
-        return $output;
-    }
 }
 ?>

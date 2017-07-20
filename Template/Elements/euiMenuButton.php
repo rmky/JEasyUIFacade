@@ -37,7 +37,7 @@ class euiMenuButton extends euiAbstractElement
     public function generateHtml()
     {
         $output = '';
-        $buttons_html = $this->getTemplate()->getElement($this->getWidget()->getMenu())->buildHtmlButtons();
+        $buttons_html = $this->buildHtmlMenuItems();
         
         $icon = $this->getWidget()->getIconName() ? ',iconCls:\'' . $this->buildCssIconClass($this->getWidget()->getIconName()) . '\'' : '';
         switch ($this->getWidget()->getAlign()) {
@@ -70,6 +70,11 @@ HTML;
         }
         
         return $output;
+    }
+    
+    public function buildHtmlMenuItems()
+    {
+        return $this->getTemplate()->getElement($this->getWidget()->getMenu())->buildHtmlButtons();
     }
 
     /**

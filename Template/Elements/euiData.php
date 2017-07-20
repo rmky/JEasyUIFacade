@@ -6,6 +6,8 @@ use exface\Core\Widgets\Data;
 use exface\Core\CommonLogic\DataSheets\DataSheet;
 use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
+use exface\Core\Widgets\MenuButton;
+use exface\Core\Widgets\Button;
 
 /**
  * Implementation of a basic grid.
@@ -465,7 +467,7 @@ JS;
         $context_menu_html = '';
         if ($widget->hasButtons()) {
             foreach ($widget->getToolbarMain()->getButtonGroupMain()->getButtons() as $button) {
-                $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton'], ['<div id="' . $this->getId() . '_', '</div>', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());
+                $context_menu_html .= $this->buildHtmlContextMenuItem($button);
             }
             
             foreach ($widget->getToolbars() as $toolbar){
@@ -473,13 +475,25 @@ JS;
                     if ($btn_group !== $widget->getToolbarMain()->getButtonGroupMain() && $btn_group->hasButtons()){
                         $context_menu_html .= '<div class="menu-sep"></div>';
                         foreach ($btn_group->getButtons() as $button){
-                            $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton', ' href="#"'], ['<div id="' . $this->getId() . '_', '</div>', '', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());
+                            $context_menu_html .= $this->buildHtmlContextMenuItem($button);
                         }
                     }
                 }
             }
         }
         return $context_menu_html;
+    }
+    
+    protected function buildHtmlContextMenuItem(Button $button)
+    {
+        $menu_item = '';
+        if ($button instanceof MenuButton){
+            $menu_item .= '<div><span>' . $button->getCaption() . '</span><div>' . $this->getTemplate()->getElement($button)->buildHtmlMenuItems(). '</div></div>';
+        } else {
+            $menu_item .= $this->getTemplate()->getElement($button)->buildHtmlButton();
+        }
+        $menu_item = str_replace(['<a id="', '</a>', 'easyui-linkbutton', ' href="#"'], ['<div id="' . $this->getId() . '_', '</div>', '', ''], $menu_item);
+        return $menu_item;
     }
     
     /**
