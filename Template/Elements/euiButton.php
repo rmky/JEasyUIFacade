@@ -4,11 +4,17 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 use exface\Core\Widgets\DialogButton;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryAlignmentTrait;
 use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
 use exface\Core\Widgets\Dialog;
+use exface\Core\Widgets\Button;
+use exface\Core\Widgets\ButtonGroup;
 
 /**
  * generates jEasyUI-Buttons for ExFace
+ * 
+ * @method Button getWidget()
+ * @method euiAbstractElement getInputElement()
  *
  * @author Andrej Kabachnik
  *        
@@ -17,6 +23,7 @@ class euiButton extends euiAbstractElement
 {
     
     use JqueryButtonTrait;
+    use JqueryAlignmentTrait;
 
     function generateJs()
     {
@@ -63,13 +70,15 @@ class euiButton extends euiAbstractElement
         $widget = $this->getWidget();
         
         $style = '';
-        switch ($widget->getAlign()) {
-            case EXF_ALIGN_LEFT:
-                $style .= 'float: left;';
-                break;
-            case EXF_ALIGN_RIGHT:
-                $style .= 'float: right;';
-                break;
+        if (! $widget->getParent() instanceof ButtonGroup){
+            switch ($this->buildCssTextAlignValue()) {
+                case 'left':
+                    //$style .= 'float: left;';
+                    break;
+                case 'right':
+                    $style .= 'float: right;';
+                    break;
+            }
         }
         
         $data_options = '';

@@ -85,7 +85,7 @@ class euiData extends euiAbstractElement
                 $params[] = $param . ': "' . $val . '"';
             }
             
-            // Add initial filters
+            // Add filters
             if ($this->getWidget()->hasFilters()) {
                 foreach ($this->getWidget()->getFilters() as $fnr => $fltr) {
                     if ($link = $fltr->getValueWidgetLink()) {
@@ -99,6 +99,10 @@ class euiData extends euiAbstractElement
                     }
                 }
             }
+            
+            // TODO why did this not work? It produces a result with most columns being empty
+            // $params[] = 'data: ' . $this->getTemplate()->getElement($widget->getConfiguratorWidget())->buildJsDataGetter();
+            
             $result = '
 				url: "' . $this->getAjaxUrl() . '"
 				, queryParams: {' . implode("\n\t\t\t\t\t, ", $params) . '}';
@@ -486,6 +490,11 @@ JS;
     protected function getBaseHtmlElement()
     {
         return 'table';
+    }
+    
+    public function getDefaultButtonAlignment()
+    {
+        return $this->getTemplate()->getConfig()->getOption('WIDGET.DATA.DEFAULT_BUTTON_ALIGNMENT');
     }
  
 }

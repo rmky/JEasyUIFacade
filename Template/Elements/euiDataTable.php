@@ -77,8 +77,8 @@ class euiDataTable extends euiData
         }
         
         // Create the search button
-        if (! $widget->getHideRefreshButton()){
-            $search_button = '<button type="submit" style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search">' . $this->translate('WIDGET.SEARCH') . '</button>';
+        if (! $widget->getHideSearchButton()){
+            $search_button = '<button style="position: absolute; right: 0; margin: 0 4px;" href="#" onclick="' . $this->buildJsFunctionPrefix() . 'doSearch()" class="easyui-linkbutton" iconCls="fa fa-search">' . $this->translate('WIDGET.SEARCH') . '</button>';
         }
         
         $output .= <<<HTML
@@ -102,6 +102,24 @@ HTML;
     {
         $widget = $this->getWidget();
         $output = '';
+        
+        // FIXME config widget failure
+        // Add Scripts for the configurator widget first as they may be needed for the others
+        /*$output .= $this->getTemplate()->getElement($widget->getConfiguratorWidget())->generateJs();
+        
+        $loader_script = '';
+        if ($this->getWidget()->hasFilters()) {
+            foreach ($this->getWidget()->getFilters() as $fnr => $fltr) {
+                if ($link = $fltr->getValueWidgetLink()) {
+                    // TODO
+                } else {
+                    // If the filter has a static value, just set it here
+                    $loader_script .= '
+                        param["fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '"] = "' . $fltr->getComparator() . '"+' . $this->getTemplate()->getElement($fltr)->buildJsValueGetter() . ";";
+                }
+            }
+        }
+        $this->addOnBeforeLoad($loader_script);*/
         
         if ($this->isEditable()) {
             foreach ($this->getEditors() as $editor) {
@@ -292,6 +310,7 @@ JS;
             $("#' . $this->getId() . '").' . $this->getElementType() . '({' . $grid_head . '});
         ';
         
+        // FIXME config widget failure
         // Add Scripts for the configurator widget
         $output .= $this->getTemplate()->getElement($widget->getConfiguratorWidget())->generateJs();
         $fltrs = array();
@@ -402,10 +421,9 @@ JS;
         if (is_null($action)) {
             $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getData')";
         } elseif ($action instanceof iReadData) {
-            foreach ($this->getWidget()->getFilters() as $filter) {
-                $filters .= ', ' . $this->getTemplate()->getElement($filter)->buildJsConditionGetter();
-            }
-            $filters = $filters ? '{operator: "AND", conditions: [' . trim($filters, ",") . ']}' : '';
+            // If we are reading, than we need the special data from the configurator 
+            // widget: filters, sorters, etc.
+            return $this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget())->buildJsDataGetter($action);
         } elseif ($this->isEditable() && $action->implementsInterface('iModifyData')) {
             if ($this->getWidget()->getMultiSelect()) {
                 $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getSelections').length > 0 ? $('#" . $this->getId() . "')." . $this->getElementType() . "('getSelections') : " . $this->buildJsFunctionPrefix() . "getChanges()";
@@ -426,6 +444,9 @@ JS;
      */
     public function buildJsRefresh($keep_pagination_position = false)
     {
+        // FIXME config widget failure
+        // return '$("#' . $this->getId() . '").' . $this->getElementType() . '("' . ($keep_pagination_position ? 'reload' : 'load') .'")';
+                
         if ($keep_pagination_position) {
             return '$("#' . $this->getId() . '").' . $this->getElementType() . '("reload")';
         } else {
@@ -448,12 +469,9 @@ JS;
         if ($this->getWidget()->hasRowDetails()) {
             $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-detailview.js"></script>';
         }
-        /*
-         * IDEA The row groups get included always by the current template. Perhaps we need some way to allow manual includes in parallel with automatic ones
-         * if ($this->getWidget()->hasRowGroups()){
-         * $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/datagridview/datagrid-groupview.js"></script>';
-         * }
-         */
+        if ($this->getWidget()->hasRowGroups()){
+            $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/datagridview/datagrid-groupview.js"></script>';
+        }
         return $includes;
     }
 
@@ -476,7 +494,7 @@ JS;
      *
      * @see \exface\JEasyUiTemplate\Template\Elements\euiAbstractElement::getHeight()
      */
-    function getHeight()
+    public function getHeight()
     {
         // Die Hoehe der DataTable passt sich nicht automatisch dem Inhalt an. Wenn sie also
         // nicht den gesamten Container ausfuellt, kollabiert sie so dass die Datensaetze nicht
