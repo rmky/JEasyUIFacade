@@ -9,8 +9,8 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 
 /* Font awsome */
 .fa {padding: 1px;}
-.l-btn-plain .fa {padding: 3px 2px;}
-.menu-icon.fa {font-size: 12px; padding: 3px 2px;}
+.l-btn-plain .fa {padding: 2px;}
+.menu-icon.fa {font-size: 12px; padding: 2px;}
 .pagination .fa {font-size: 16px; padding: 0;}
 .dialog-button .fa, .dialog-button .l-button-plain.fa {font-size: 12px; padding: 2px;}
 .panel-tool-a.fa {font-size: 14px; padding: 1px 0 1px 3px; text-decoration: none; color: black;}
@@ -18,12 +18,11 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 
 /* Context bar */
 .toolbar-element {height: 30px; display:inline-block; line-height: 30px; vertical-align: top; }
-.toolbar-element div.toolbar-button {padding-top: 2px}
 .toolbar-element.user-info {padding: 0 10px; border-right: 1px solid #c3d9e0; border-left: 1px solid #c3d9e0;}
-.toolbar-element.user-info .user-display {vertical-align: top; display: inline-block;}
+.toolbar-element.user-info .user-display {vertical-align: top; display: inline-block; padding: 1px 0 0 0}
 .toolbar-element.user-info .user-image {padding-right: 7px;}
 .toolbar-element .panel-loading {height: 10px}
-.toolbar-element .fa {font-size: 14px; margin-top: -10px; padding: 0; color: #999}
+.toolbar-element .fa {font-size: 14px; padding: 0; color: #999}
 
 /* Toolbars for widgets */
 .exf-toolbar {padding:5px;}
