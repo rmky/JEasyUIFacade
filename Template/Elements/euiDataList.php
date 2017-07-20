@@ -19,8 +19,8 @@ class euiDataList extends euiDataTable
         $this->setElementType('datalist');
         
         $widget = $this->getWidget();
-        if($widget->getConfiguratorWidget()->isEmpty() && is_null($widget->getHideRefreshButton())){
-            $widget->setHideRefreshButton(true);
+        if($widget->getConfiguratorWidget()->isEmpty() && is_null($widget->getHideSearchButton())){
+            $widget->setHideSearchButton(true);
         }
     }
     
