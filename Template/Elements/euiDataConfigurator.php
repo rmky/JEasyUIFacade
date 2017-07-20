@@ -2,6 +2,7 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\DataConfigurator;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataConfiguratorTrait;
 
 /**
  * 
@@ -12,6 +13,8 @@ use exface\Core\Widgets\DataConfigurator;
  */
 class euiDataConfigurator extends euiTabs
 {    
+    use JqueryDataConfiguratorTrait;
+    
     /**
      * Returns the default number of columns to layout this widget.
      *
