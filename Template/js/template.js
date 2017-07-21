@@ -77,11 +77,13 @@ function contextBarLoad(delay){
 function contextBarRefresh(data){
 	$('#contextBar').children().not('.login-logout').not('.user-info').remove();
 	for (var id in data){
+		var color = data[id].color ? 'color:'+data[id].color+';' : '';
+		var weight = data[id].visibility === 'emphasized' ? 'font-weight: bold;' : '';
 		var btn = $(' \
 				<!-- '+data[id].bar_widget_id+' --> \
 				<div class="toolbar-element" id="'+id+'"> \
 					<div class="toolbar-button" title="'+data[id].hint+'" data-widget="'+data[id].bar_widget_id+'"> \
-						<a href="#" class="easyui-linkbutton context-button" data-options="plain:true, iconCls:\''+data[id].icon+'\'">'+data[id].indicator+'</a> \
+						<a href="#" style="'+color+weight+'" class="easyui-linkbutton context-button" data-options="plain:true, iconCls:\''+data[id].icon+'\'">'+data[id].indicator+'</a> \
 					</div> \
 				</div>');
 		$('#contextBar').prepend(btn);
