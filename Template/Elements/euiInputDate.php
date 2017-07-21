@@ -45,7 +45,13 @@ class euiInputDate extends euiInput
 
     public function buildJsValueGetter()
     {
-        return "function(){ try {return $('#" . $this->getId() . "')." . $this->getElementType() . "('getValue'); } catch (error) {return '';} }()";
+        return "function(){ 
+                    try {
+                        return $('#" . $this->getId() . "')." . $this->getElementType() . "('getValue'); 
+                    } catch (error) {
+                        return $('#" . $this->getId() . "').val();
+                    }
+                }()";
     }
 
     protected function buildJsDateFormat()
