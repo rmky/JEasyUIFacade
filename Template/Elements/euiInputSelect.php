@@ -24,8 +24,11 @@ class euiInputSelect extends euiInput
     {
         $widget = $this->getWidget();
         $options = '';
+        $selected_cnt = count($this->getWidget()->getValues());
         foreach ($widget->getSelectableOptions() as $value => $text) {
-            if (! ($this->getWidget()->getMultiSelect() && count($this->getWidget()->getValues()) > 1)) {
+            if ($this->getWidget()->getMultiSelect() && $selected_cnt > 1) {
+                $selected = in_array($value, $this->getWidget()->getValues());
+            } else {
                 $selected = strcasecmp($this->getValueWithDefaults(), $value) == 0 ? true : false;
             }
             $options .= '
@@ -80,7 +83,11 @@ JS;
 	if ({$this->getId()}_jquery.data("{$this->getElementType()}")) {
 		{$value_getter}
 	} else {
-		return {$this->getId()}_jquery.val();
+        var value = '';
+        $.each({$this->getId()}_jquery.children('option[selected=selected]'), function(){
+            value += (value !== '' ? '{$this->getWidget()->getMultiSelectValueDelimiter()}' : '') + this.value;
+        });
+        return value;
 	}
 })()
 JS;
