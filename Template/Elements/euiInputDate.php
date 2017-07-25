@@ -21,17 +21,12 @@ class euiInputDate extends euiInput
         
         $output = <<<HTML
 
-                    <input type="hidden"
-						id="{$this->getId()}_value" 
-						value="{$value}" />
-                    <input class="easyui-{$this->getElementType()}" 
-                        style="height: 100%; width: 100%;"
-                        name="{$widget->getAttributeAlias()}"
-                        value="{$value}"
-                        id="{$this->getId()}"
-                        {$requiredScript}
-                        {$disabledScript}
-                        data-options="{$this->buildJsDataOptions()}" />
+                <input style="height: 100%; width: 100%;"
+                    id="{$this->getId()}"
+                    name="{$widget->getAttributeAlias()}"
+                    value="{$value}"
+                    {$requiredScript}
+                    {$disabledScript} />
 HTML;
         
         return $this->buildHtmlWrapperDiv($output);
@@ -41,6 +36,10 @@ HTML;
     {
         $output = <<<JS
 
+    $("#{$this->getId()}").{$this->getElementType()}({
+        {$this->buildJsDataOptions()}
+    });
+    
     {$this->buildJsDateParser()}
     {$this->buildJsDateFormatter()}
 JS;
@@ -51,7 +50,20 @@ JS;
     protected function buildJsDataOptions()
     {
         return <<<JS
-formatter:{$this->getId()}_dateFormatter, parser:{$this->getId()}_dateParser
+
+        formatter: {$this->getId()}_dateFormatter,
+        parser: {$this->getId()}_dateParser,
+        onHidePanel: function() {
+            // onHidePanel wird der Inhalt formatiert (beim Verlassen des Feldes), der ausge-
+            // fuehrte Code entspricht dem beim Druecken der Enter-Taste
+            // Known Issue: wird sehr schnell Enter oder Tab gedrueckt (bevor das Datum im
+            // Kalender angezeigt wird), wird auf das vorherige Datum zurueckgesetzt 
+            {$this->getId()}_jquery = $("#{$this->getId()}");
+            currentDate = {$this->getId()}_jquery.datebox("calendar").calendar("options").current;
+            if (currentDate) {
+                {$this->getId()}_jquery.datebox("setValue", {$this->getId()}_dateFormatter(currentDate));
+            }
+        }
 JS;
     }
 
@@ -64,20 +76,15 @@ JS;
 
     public function buildJsValueGetter()
     {
-        $output = <<<JS
-function(){ 
-                    try {
-                        return $('#{$this->getId()}').{$this->getElementType()}('getValue'); 
-                    } catch (error) {
-                        return $('#{$this->getId()}').val();
-                    }
-                }()
-JS;
-        
-        return $output;
+        return '$("#' . $this->getId() . '").data("_internalValue")';
     }
 
-    protected function buildJsDateFormat()
+    protected function buildJsScreenDateFormat()
+    {
+        return 'dd.MM.yyyy';
+    }
+
+    protected function buildJsInternalDateFormat()
     {
         return 'yyyy-MM-dd';
     }
@@ -86,92 +93,128 @@ JS;
     {
         $output = <<<JS
 
-    function {$this->getId()}_dateParser(s) {
-        // funktionieren meist mit z.B. yyyy-MM-dd und yyyy-MM-dd HH:mm:ss.S
+    function {$this->getId()}_dateParser(date) {
+        // date ist ein String und wird zu einem date-Objekt geparst
+        
+        // Variablen initialisieren
+        var {$this->getId()}_jquery = $("#{$this->getId()}");
+        var match = null;
+        
         // dd.MM.yyyy, dd-MM-yyyy, dd/MM/yyyy, d.M.yyyy, d-M-yyyy, d/M/yyyy
-        var match = /(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/.exec(s);
+        match = /(\d{1,2})([.\-/])(\d{1,2})([.\-/])(\d{4})/.exec(date);
         if (match != null) {
-            return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+            var output = new Date(Number(match[5]), Number(match[3]) - 1, Number(match[1]));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "dd" + match[2] + "MM" + match[4] + "yyyy");
+            return output;
         }
         // yyyy.MM.dd, yyyy-MM-dd, yyyy/MM/dd, yyyy.M.d, yyyy-M-d, yyyy/M/d
-        var match = /(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/.exec(s);
+        match = /(\d{4})([.\-/])(\d{1,2})([.\-/])(\d{1,2})/.exec(date);
         if (match != null) {
-            return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+            var output = new Date(Number(match[1]), Number(match[3]) - 1, Number(match[5]))
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "yyyy" + match[2] + "MM" + match[4] + "dd");
+            return output;
         }
         // dd.MM.yy, dd-MM-yy, dd/MM/yy, d.M.yy, d-M-yy, d/M/yy
-        var match = /(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2})/.exec(s);
+        match = /(\d{1,2})([.\-/])(\d{1,2})([.\-/])(\d{2})/.exec(date);
         if (match != null) {
-            return new Date(2000 + Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+            var output = new Date(2000 + Number(match[5]), Number(match[3]) - 1, Number(match[1]));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "dd" + match[2] + "MM" + match[4] + "yyyy");
+            return output;
         }
         // yy.MM.dd, yy-MM-dd, yy/MM/dd, yy.M.d, yy-M-d, yy/M/d
-        var match = /(\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})/.exec(s);
+        match = /(\d{2})([.\-/])(\d{1,2})([.\-/])(\d{1,2})/.exec(date);
         if (match != null) {
-            return new Date(2000 + Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+            var output = new Date(2000 + Number(match[1]), Number(match[3]) - 1, Number(match[5]));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "yyyy" + match[2] + "MM" + match[4] + "dd");
+            return output;
         }
         // dd.MM, dd-MM, dd/MM, d.M, d-M, d/M
-        var match = /(\d{1,2})[.\-/](\d{1,2})/.exec(s);
+        match = /(\d{1,2})([.\-/])(\d{1,2})/.exec(date);
         if (match != null) {
-            return new Date((new Date).getFullYear(), Number(match[2]) - 1, Number(match[1]));
+            var output = new Date((new Date()).getFullYear(), Number(match[3]) - 1, Number(match[1]));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "dd" + match[2] + "MM" + match[2] + "yyyy");
+            return output;
         }
         // ddMMyyyy
-        var match = /^(\d{2})(\d{2})(\d{4})$/.exec(s);
+        match = /^(\d{2})(\d{2})(\d{4})$/.exec(date);
         if (match != null) {
-            return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+            var output = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "{$this->buildJsScreenDateFormat()}");
+            return output;
         }
         // ddMMyy
-        var match = /^(\d{2})(\d{2})(\d{2})$/.exec(s);
+        match = /^(\d{2})(\d{2})(\d{2})$/.exec(date);
         if (match != null) {
-            return new Date(2000 + Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+            var output = new Date(2000 + Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "{$this->buildJsScreenDateFormat()}");
+            return output;
         }
         // ddMM
-        var match = /^(\d{2})(\d{2})$/.exec(s);
+        match = /^(\d{2})(\d{2})$/.exec(date);
         if (match != null) {
-            return new Date((new Date).getFullYear(), Number(match[2]) - 1, Number(match[1]));
+            var output = new Date((new Date()).getFullYear(), Number(match[2]) - 1, Number(match[1]));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "{$this->buildJsScreenDateFormat()}");
+            return output;
         }
         // +/- ... T/D/W/M/J/Y
-        var match = /^([+\-]?\d+)([TtDdWwMmJjYy])$/.exec(s);
+        match = /^([+\-]?\d+)([TtDdWwMmJjYy])$/.exec(date);
         if (match != null) {
-            var now = new Date();
-            var dd = now.getDate();
-            var MM = now.getMonth();
-            var yyyy = now.getFullYear();
+            var output = Date.today();
             switch (match[2].toUpperCase()) {
                 case "T":
                 case "D":
-                    dd += Number(match[1]);
+                    output.addDays(Number(match[1]));
                     break;
                 case "W":
-                    dd += 7*Number(match[1]);
+                    output.addWeeks(Number(match[1]));
                     break;
                 case "M":
-                    MM += Number(match[1]);
+                    output.addMonths(Number(match[1]));
                     break;
                 case "J":
                 case "Y":
-                    yyyy += Number(match[1]);
+                    output.addYears(Number(match[1]));
             }
-            return new Date(yyyy, MM, dd);
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_screenFormat", "{$this->buildJsScreenDateFormat()}");
+            return output;
         }
         // TODAY, HEUTE, NOW, JETZT, YESTERDAY, GESTERN, TOMORROW, MORGEN
-        switch (s.toUpperCase()) {
+        switch (date.toUpperCase()) {
             case "TODAY":
             case "HEUTE":
             case "NOW":
             case "JETZT":
-                var now = new Date();
-                return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                var output = Date.today();
+                {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+                {$this->getId()}_jquery.data("_screenFormat", "{$this->buildJsScreenDateFormat()}");
+                return output;
                 break;
             case "YESTERDAY":
             case "GESTERN":
-                var now = new Date();
-                return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                var output = Date.today().addDays(-1);
+                {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+                {$this->getId()}_jquery.data("_screenFormat", "{$this->buildJsScreenDateFormat()}");
+                return output;
                 break;
             case "TOMORROW":
             case "MORGEN":
-                var now = new Date();
-                return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                var output = Date.today().addDays(1);
+                {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+                {$this->getId()}_jquery.data("_screenFormat", "{$this->buildJsScreenDateFormat()}");
+                return output;
         }
         
+        {$this->getId()}_jquery.data("_internalValue", "");
+        {$this->getId()}_jquery.data("_screenFormat", "");
         return null;
     }
 JS;
@@ -184,7 +227,8 @@ JS;
         $output = <<<JS
 
     function {$this->getId()}_dateFormatter(date) {
-        //return date.toString('{$this->buildJsDateFormat()}');
+        // date ist ein date-Objekt und wird zu einem String geparst
+        return date.toString($("#{$this->getId()}").data("_screenFormat") ? $("#{$this->getId()}").data("_screenFormat") : "{$this->buildJsScreenDateFormat()}");
     }
 JS;
         
