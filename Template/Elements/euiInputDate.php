@@ -4,6 +4,10 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 class euiInputDate extends euiInput
 {
 
+    private $dateFormatScreen;
+
+    private $dateFormatInternal;
+
     protected function init()
     {
         parent::init();
@@ -55,13 +59,15 @@ JS;
         parser: {$this->getId()}_dateParser,
         onHidePanel: function() {
             // onHidePanel wird der Inhalt formatiert (beim Verlassen des Feldes), der ausge-
-            // fuehrte Code entspricht dem beim Druecken der Enter-Taste
-            // Known Issue: wird sehr schnell Enter oder Tab gedrueckt (bevor das Datum im
-            // Kalender angezeigt wird), wird auf das vorherige Datum zurueckgesetzt 
+            // fuehrte Code entspricht dem beim Druecken der Enter-Taste.
+            // Known Issue: Wird sehr schnell Enter oder Tab gedrueckt (bevor das Datum im
+            // Kalender angezeigt wird), so wird auf das vorherige Datum zurueckgesetzt. Da
+            // beim Druecken der Enter-Taste das Panel auch geschlossen wird, wird der Code
+            // dann zweimal ausgefuehrt (beim Schliessen des Panels ohne Enter einmal).
             {$this->getId()}_jquery = $("#{$this->getId()}");
-            currentDate = {$this->getId()}_jquery.datebox("calendar").calendar("options").current;
+            currentDate = {$this->getId()}_jquery.{$this->getElementType()}("calendar").calendar("options").current;
             if (currentDate) {
-                {$this->getId()}_jquery.datebox("setValue", {$this->getId()}_dateFormatter(currentDate));
+                {$this->getId()}_jquery.{$this->getElementType()}("setValue", {$this->getId()}_dateFormatter(currentDate));
             }
         }
 JS;
@@ -73,29 +79,45 @@ JS;
         $headers[] = '<script type="text/javascript" src="exface/vendor/npm-asset/datejs/build/production/' . $this->getDateJsFileName() . '"></script>';
         return $headers;
     }
-    
+
     /**
      * Generates the DateJs filename based on the locale provided by the translator.
-     * 
+     *
      * @return string
      */
-    protected function getDateJsFileName() {
-        $dateJsBasepath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'npm-asset' . DIRECTORY_SEPARATOR . 'datejs' . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'production' . DIRECTORY_SEPARATOR;
+    protected function getDateJsFileName()
+    {
+        // Es waere wuenschenswert die Formatierung des Datums abhaengig vom Locale zu machen.
+        // Das Problem dabei ist folgendes: Wird im DateFormatter das Datum von DateJs ent-
+        // sprechend dem Locale formatiert, so muss der DateParser kompatibel sein. Es kommt
+        // sonst z.B. beim amerik. Format zu Problemen. Der 5.11.2015 wird als 11/5/2015
+        // formatiert, dann aber entspr. den alexa RMS Formaten als 11.5.2015 geparst. Der
+        // Parser von DateJs kommt leider nicht mit allen alexa RMS Formaten zurecht.
         
-        $locale = $this->getTemplate()->getApp()->getTranslator()->getLocale();
-        $filename = 'date-' . str_replace("_", "-", $locale) . '.min.js';
-        if (file_exists($dateJsBasepath . $filename)) {
-            return $filename;
-        }
+        // Eine Loesung waere fuer die verschiedenen Locales versch. eigene Parser zu
+        // schreiben, dann koennte man aber auch gleich versch. eigene Formatter hinzufuegen.
+        // In der jetzt umgesetzten Loesung wird das Anzeigeformat in den Uebersetzungsdateien
+        // festgelegt. Dabei ist darauf zu achten, dass es kompatibel zum Parser ist, das
+        // amerikanische Format MM/dd/yyyy ist deshalb nicht moeglich, da es vom Parser als
+        // dd/MM/yyyy interpretiert wird.
         
-        $fallbackLocales = $this->getTemplate()->getApp()->getTranslator()->getFallbackLocales();
-        foreach ($fallbackLocales as $fallbackLocale) {
-            $filename = 'date-' . str_replace("_", "-", $fallbackLocale) . '.min.js';
-            if (file_exists($dateJsBasepath . $filename)) {
-                return $filename;
-            }
-        }
-        
+        /*
+         * $dateJsBasepath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'npm-asset' . DIRECTORY_SEPARATOR . 'datejs' . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'production' . DIRECTORY_SEPARATOR;
+         *
+         * $locale = $this->getTemplate()->getApp()->getTranslator()->getLocale();
+         * $filename = 'date-' . str_replace("_", "-", $locale) . '.min.js';
+         * if (file_exists($dateJsBasepath . $filename)) {
+         * return $filename;
+         * }
+         *
+         * $fallbackLocales = $this->getTemplate()->getApp()->getTranslator()->getFallbackLocales();
+         * foreach ($fallbackLocales as $fallbackLocale) {
+         * $filename = 'date-' . str_replace("_", "-", $fallbackLocale) . '.min.js';
+         * if (file_exists($dateJsBasepath . $filename)) {
+         * return $filename;
+         * }
+         * }
+         */
         return 'date.min.js';
     }
 
@@ -104,9 +126,20 @@ JS;
         return '$("#' . $this->getId() . '").data("_internalValue")';
     }
 
+    protected function buildJsScreenDateFormat()
+    {
+        if (is_null($this->dateFormatScreen)) {
+            $this->dateFormatScreen = $this->translate("DATE.FORMAT.SCREEN");
+        }
+        return $this->dateFormatScreen;
+    }
+
     protected function buildJsInternalDateFormat()
     {
-        return 'yyyy-MM-dd';
+        if (is_null($this->dateFormatInternal)) {
+            $this->dateFormatInternal = $this->translate("DATE.FORMAT.INTERNAL");
+        }
+        return $this->dateFormatInternal;
     }
 
     protected function buildJsDateParser()
@@ -115,6 +148,10 @@ JS;
 
     function {$this->getId()}_dateParser(date) {
         // date ist ein String und wird zu einem date-Objekt geparst
+        
+        // date wird entsprechend CultureInfo geparst, hierfuer muss das entsprechende locale
+        // DateJs eingebunden werden und ein kompatibler Formatter verwendet werden
+        //return Date.parse(date);
         
         // Variablen initialisieren
         var {$this->getId()}_jquery = $("#{$this->getId()}");
@@ -235,8 +272,16 @@ JS;
 
     function {$this->getId()}_dateFormatter(date) {
         // date ist ein date-Objekt und wird zu einem String geparst
-        // "d" entspricht CultureInfo shortDate Format Pattern
-        return date.toString("d");
+        
+        // "d" entspricht CultureInfo shortDate Format Pattern, hierfuer muss das
+        // entpsprechende locale DateJs eingebunden werden und ein kompatibler Parser ver-
+        // wendet werden
+        //return date.toString("d");
+        
+        // Das Format in dateFormatScreen muss mit dem DateParser kompatibel sein. Das
+        // amerikanische Format MM/dd/yyyy wird vom Parser als dd/MM/yyyy interpretiert und
+        // kann deshalb nicht verwendet werden. Loesung waere den Parser anzupassen.
+        return date.toString("{$this->buildJsScreenDateFormat()}");
     }
 JS;
         
