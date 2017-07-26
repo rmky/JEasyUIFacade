@@ -5,7 +5,7 @@ use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 use exface\Core\Interfaces\Actions\iReadData;
-use exface\Core\Widgets\Tabs;
+use exface\Core\Widgets\DataColumn;
 
 /**
  *
@@ -19,6 +19,11 @@ class euiDataTable extends euiData
     
     use JqueryDataTableTrait;
 
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiData::init()
+     */
     protected function init()
     {
         parent::init();
@@ -32,95 +37,56 @@ class euiDataTable extends euiData
             }
         }
         
-        $widget->getConfiguratorWidget()
-            ->setTabPosition(Tabs::TAB_POSITION_RIGHT)
-            ->setHideTabsCaptions(true);
+        // Initialize editors
+        /* @var $col \exface\Core\Widgets\DataColumn */
+        foreach ($widget->getColumns() as $col) {
+            if ($col->isEditable()) {
+                $editor = $this->getTemplate()->getElement($col->getEditor(), $this->getPageId());
+                $this->setEditable(true);
+                $this->editors[$col->getId()] = $editor;
+            }
+        }
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiData::generateHtml()
+     */
     public function generateHtml()
     {
         $widget = $this->getWidget();
-        
-        // Prepare the header with the configurator and the toolbars
-        $configurator_widget = $widget->getConfiguratorWidget();
-        /* @var $configurator_element \exface\JEasyUiTemplate\Template\Elements\euiDataConfigurator */
-        $configurator_element = $this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget())->setFitOption(false)->setStyleAsPills(true);
-        
-        if ($configurator_widget->isEmpty()){
-            $configurator_widget->setHidden(true);
-            $configurator_panel_collapsed = ', collapsed: true';
-        }
         
         if ($widget->getHideHeader()){
             $header_style = 'visibility: hidden; height: 0px; padding: 0px;';
         }
         
-        // jEasyUI will not resize the configurator once the datagrid is resized
-        // (don't know why), so we need to do it manually.
-        // Wrapping the resize-call into a setTimeout( ,0) is another strange
-        // workaround, but if not done so, the configurator will get resized to
-        // the old size, not the new one.
-        $this->addOnResizeScript("
-            if(typeof $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "() !== 'undefined') {
-                setTimeout(function(){
-                    $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "('resize');
-                }, 0);
-            }
-        ");
-        
-        // Create a context menu if any items were found
-        $context_menu_html = $this->buildHtmlContextMenu();
-        if ($context_menu_html && $widget->getContextMenuEnabled()) {
-            $context_menu_html .= '<div id="' . $this->getId() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
-        } else {
-            $context_menu_html = '';
-        }
-        
-        // Create the search button
-        if (! $widget->getHideSearchButton()){
-            $search_button = '<button style="position: absolute; right: 0; margin: 0 4px;" href="#" onclick="' . $this->buildJsFunctionPrefix() . 'doSearch()" class="easyui-linkbutton" iconCls="fa fa-search">' . $this->translate('WIDGET.SEARCH') . '</button>';
-        }
-        
         $output .= <<<HTML
             <{$this->getBaseHtmlElement()} id="{$this->getId()}"></{$this->getBaseHtmlElement()}>
             <div id="{$this->getToolbarId()}" style="{$header_style}">
-                <div class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', border: false, width: '100%' {$configurator_panel_collapsed}">
-                    {$configurator_element->generateHtml()}
-                </div>
-                <div id="{$this->getToolbarId()}_footer" class="exf-toolbar exf-data-toolbar">
-                    {$this->buildHtmlButtons()}
-                    {$search_button}
-                </div>
+                {$this->buildHtmlTableHeader()}
             </div>
-            {$context_menu_html}
 HTML;
         
         return $this->buildHtmlWrapper($output);
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiData::generateJs()
+     */
     public function generateJs()
     {
         $widget = $this->getWidget();
         $output = '';
         
-        // FIXME config widget failure
         // Add Scripts for the configurator widget first as they may be needed for the others
-        /*$output .= $this->getTemplate()->getElement($widget->getConfiguratorWidget())->generateJs();
+        $configurator_element = $this->getTemplate()->getElement($widget->getConfiguratorWidget());
+        $output .= $configurator_element->generateJs();
+        $this->addOnBeforeLoad('param["data"] = ' . $configurator_element->buildJsDataGetter() . ';');
         
-        $loader_script = '';
-        if ($this->getWidget()->hasFilters()) {
-            foreach ($this->getWidget()->getFilters() as $fnr => $fltr) {
-                if ($link = $fltr->getValueWidgetLink()) {
-                    // TODO
-                } else {
-                    // If the filter has a static value, just set it here
-                    $loader_script .= '
-                        param["fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '"] = "' . $fltr->getComparator() . '"+' . $this->getTemplate()->getElement($fltr)->buildJsValueGetter() . ";";
-                }
-            }
-        }
-        $this->addOnBeforeLoad($loader_script);*/
-        
+        // Build JS for the editors
         if ($this->isEditable()) {
             foreach ($this->getEditors() as $editor) {
                 $output .= $editor->buildJsInlineEditorInit();
@@ -310,23 +276,6 @@ JS;
             $("#' . $this->getId() . '").' . $this->getElementType() . '({' . $grid_head . '});
         ';
         
-        // FIXME config widget failure
-        // Add Scripts for the configurator widget
-        $output .= $this->getTemplate()->getElement($widget->getConfiguratorWidget())->generateJs();
-        $fltrs = array();
-        if ($widget->hasFilters()) {
-            foreach ($widget->getFilters() as $fnr => $fltr) {
-                $fltr_impl = $this->getTemplate()->getElement($fltr, $this->getPageId());
-                //$output .= $fltr_impl->generateJs();
-                $fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": "' . $fltr->getComparator() . '"+' . $fltr_impl->buildJsValueGetter();
-            }
-        }
-        // build JS for the search function
-        $output .= '
-						function ' . $this->buildJsFunctionPrefix() . 'doSearch(){
-							$("#' . $this->getId() . '").' . $this->getElementType() . '("load",{' . (count($fltrs) > 0 ? implode(', ', $fltrs) . ',' : '') . 'action: "' . $widget->getLazyLoadingAction() . '", resource: "' . $this->getPageId() . '", element: "' . $this->getWidget()->getId() . '"});
-						}';
-        
         // build JS for the button actions
         $output .= $this->buildJsButtons();
         
@@ -444,14 +393,7 @@ JS;
      */
     public function buildJsRefresh($keep_pagination_position = false)
     {
-        // FIXME config widget failure
-        // return '$("#' . $this->getId() . '").' . $this->getElementType() . '("' . ($keep_pagination_position ? 'reload' : 'load') .'")';
-                
-        if ($keep_pagination_position) {
-            return '$("#' . $this->getId() . '").' . $this->getElementType() . '("reload")';
-        } else {
-            return $this->buildJsFunctionPrefix() . 'doSearch()';
-        }
+        return '$("#' . $this->getId() . '").' . $this->getElementType() . '("' . ($keep_pagination_position ? 'reload' : 'load') .'")';
     }
 
     /**
@@ -470,24 +412,11 @@ JS;
             $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-detailview.js"></script>';
         }
         if ($this->getWidget()->hasRowGroups()){
-            $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/datagridview/datagrid-groupview.js"></script>';
+            $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-groupview.js"></script>';
         }
         return $includes;
     }
 
-    /*
-     * public function buildJsInitOptionsHead(){
-     * /* @var $widget exface\Core\Widgets\DataTable
-     */
-    /*
-     * $widget = $this->getWidget();
-     * $output = parent::buildJsInitOptionsHead();
-     * $output .= ', fit: true'
-     * . ($widget->getCaption() ? ', title: "' . $widget->getCaption() . '"' : '')
-     * ;
-     * return $output;
-     * }
-     */
     /**
      *
      * {@inheritdoc}
@@ -507,6 +436,19 @@ JS;
             $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiData::buildJsInitOptionsColumn()
+     */
+    protected function buildJsInitOptionsColumn(DataColumn $col){
+        $editor = $this->getEditors()[$col->getId()];
+        $output = parent::buildJsInitOptionsColumn($col);
+        $output .= "\n
+                        " . ($editor ? ', editor: {type: "' . $editor->getElementType() . '"' . ($editor->buildJsInitOptions() ? ', options: {' . $editor->buildJsInitOptions() . '}' : '') . '}' : '');
+        return $output;
     }
 }
 ?>

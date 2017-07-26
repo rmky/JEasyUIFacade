@@ -1,8 +1,8 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryFormTrait;
 use exface\Core\Widgets\Form;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
 
 /**
  * The Form widget is just another panel in jEasyUI.
@@ -17,7 +17,7 @@ use exface\Core\Widgets\Form;
 class euiForm extends euiPanel
 {
     
-    use JqueryFormTrait;
+    use JqueryToolbarsTrait;
 
     public function generateHtml()
     {
@@ -30,8 +30,8 @@ class euiForm extends euiPanel
         if ($this->getWidget()->hasButtons()) {
             $output = <<<HTML
 
-				<div id="{$this->getFooterId()}" class="exf-toolbar">
-					{$this->buildHtmlButtons()}
+				<div id="{$this->getFooterId()}" class="exf-form-footer">
+					{$this->buildHtmlToolbars()}
 				</div>
 
 HTML;

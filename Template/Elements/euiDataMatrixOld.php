@@ -14,40 +14,6 @@ class euiDataMatrixOld extends euiDataTable
         $this->setElementType('datagrid');
     }
 
-    function generateJs()
-    {
-        $widget = $this->getWidget();
-        $output = '';
-        
-        if ($this->isEditable()) {
-            foreach ($this->getEditors() as $editor) {
-                $output .= $editor->buildJsInlineEditorInit();
-            }
-        }
-        
-        // get the standard params for grids
-        $grid_head = $this->buildJsInitOptions();
-        
-        // instantiate the data grid
-        $output .= '$("#' . $this->getId() . '").' . $this->getElementType() . '({' . $grid_head . '});';
-        
-        // doSearch function for the filters
-        if ($widget->hasFilters()) {
-            foreach ($widget->getFilters() as $fnr => $fltr) {
-                $fltr_impl = $this->getTemplate()->getElement($fltr, $this->getPageId());
-                $output .= $fltr_impl->generateJs();
-                $fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": ' . $fltr_impl->buildJsValueGetter();
-            }
-            // build JS for the search function
-            $output .= '
-						function ' . $this->buildJsFunctionPrefix() . 'doSearch(){
-							$("#' . $this->getId() . '").' . $this->getElementType() . '("load",{' . implode(', ', $fltrs) . ', resource: "' . $this->getPageId() . '", element: "' . $this->getWidget()->getId() . '"});
-						}';
-        }
-        
-        return $output;
-    }
-
     /**
      * This special data source renderer fetches data according to the filters an reorganizes the rows and column to fit the matrix.
      * It basically transposes the data column (data_column_id) using values of the label column (label_column_id) as new column headers.

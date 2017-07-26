@@ -6,8 +6,6 @@ use exface\Core\Widgets\ChartSeries;
 use exface\Core\Widgets\Chart;
 use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryFlotTrait;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
 
 /**
@@ -17,11 +15,11 @@ use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
  * @author Andrej Kabachnik
  *
  */
-class euiChart extends euiAbstractElement implements JqueryLayoutInterface
+class euiChart extends euiData
 {
     
     use JqueryFlotTrait;
-    use JqueryLayoutTrait;
+    
     use JqueryToolbarsTrait;
 
     private $on_change_script = '';
@@ -31,11 +29,19 @@ class euiChart extends euiAbstractElement implements JqueryLayoutInterface
         parent::init();
         // Connect to an external data widget if a data link is specified for this chart
         $this->registerLiveReferenceAtLinkedElement();
-    }
-
-    protected function getToolbarId()
-    {
-        return $this->getId() . '_toolbar';
+        
+        // Disable global buttons because jEasyUI charts do not have data getters yet
+        $this->getWidget()->getToolbarMain()->setIncludeGlobalActions(false);
+        
+        // Make the configurator resize together with the chart layout.
+        $configurator_element = $this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget());
+        $this->addOnResizeScript("
+            if(typeof $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "() !== 'undefined') {
+                setTimeout(function(){
+                    $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "('resize');
+                }, 0);       
+            }
+        ");
     }
 
     function generateHtml()
@@ -46,21 +52,6 @@ class euiChart extends euiAbstractElement implements JqueryLayoutInterface
         
         // Create the toolbar if the chart has it's own controls and is not bound to another data widget
         if (! $widget->getDataWidgetLink()) {
-            // add filters
-            if ($widget->getData()->hasFilters()) {
-                foreach ($widget->getData()->getFilters() as $fltr) {
-                    $fltr_html .= $this->getTemplate()->generateHtml($fltr);
-                }
-                $fltr_html .= <<<HTML
-
-<div id="{$this->getId()}_sizer" style="width:calc(100%/{$this->getNumberOfColumns()});min-width:{$this->getWidthMinimum()}px;"></div>
-HTML;
-                $this->addOnResizeScript($this->buildJsLayouter() . ';');
-                $fltr_html = '<div class="datagrid-filters">' . $fltr_html . '</div>';
-            }
-            
-            // add buttons
-            $button_html = $this->buildHtmlButtons();
             
             if ($widget->getHideHeader()) {
                 $toolbar_panel_options = ', collapsible: true, collapsed: true';
@@ -71,16 +62,11 @@ HTML;
             
             // create a container for the toolbar
             if (($widget->getData()->hasFilters() || $widget->hasButtons())) {
+                
                 $toolbar = <<<HTML
 
-        <div data-options="region: 'north', onResize: function(){{$this->getOnResizeScript()}}{$toolbar_panel_options}">
-        	<div id="{$this->getToolbarId()}" class="datagrid-toolbar">
-        		{$fltr_html}
-        		<div style="min-height: 30px;">
-        			{$button_html}
-        			<a style="position: absolute; right: 0; margin: 0 4px;" href="#" class="easyui-linkbutton" iconCls="fa fa-search" onclick="{$this->buildJsFunctionPrefix()}doSearch()">{$this->translate('WIDGET.SEARCH')}</a>
-        		</div>
-        	</div>
+        <div id="{$this->getId()}_header" data-options="region: 'north', onResize: function(){ {$this->getOnResizeScript()} }{$toolbar_panel_options}">
+            {$this->buildHtmlTableHeader()}
         </div>
 HTML;
             }
@@ -95,9 +81,9 @@ HTML;
         $output = <<<HTML
 
 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
-    <div class="easyui-layout" id="{$this->getId()}_wrapper" data-options="fit: true">
+    <div class="easyui-layout" style="height: auto;"  id="{$this->getId()}_wrapper" data-options="fit: true">
     	{$toolbar}
-    	<div style="height: auto;" data-options="region: 'center' {$chart_panel_options}">
+    	<div data-options="region: 'center' {$chart_panel_options}">
     		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px; overflow: hidden;"></div>
     	</div>
     </div>
@@ -119,6 +105,32 @@ HTML;
             $this->getWidget()->setHideAxes(true);
         }
         
+        // Add Scripts for the configurator widget first as they may be needed for the others
+        $configurator_element = $this->getTemplate()->getElement($widget->getConfiguratorWidget());
+        $output .= $configurator_element->generateJs();
+        
+        // Add scripts for the buttons
+        $output .= $this->buildJsButtons();
+        
+        // TODO this ugly hack makes sure, the north panel of the layout is reduced
+        // in height after masonry finishes rendering the configurator. The
+        // trouble is, that this triggers a resize of the layout and that, in turn,
+        // leads to another resize of the configurator and so on. 
+        $output .= <<<JS
+                    $('#{$configurator_element->getId()}').find('.grid').on( 'layoutComplete', function( event, items ) {
+                        setTimeout(function(){
+                            var newHeight = $('#Chart_header > .panel').height()+3;
+                            var p = $('#{$this->getId()}_wrapper').layout('panel','north');  // get the west panel
+                            if (p.height()+2 != newHeight){
+                                p.panel('resize',{height: newHeight});  // change the width of west panel
+                                $('#{$this->getId()}_wrapper').layout('resize');
+                            }
+                        }, 0);
+                                                    
+                    });
+                    
+JS;
+        
         // Create the function to process fetched data
         $output .= '
 			function ' . $this->buildJsFunctionPrefix() . 'plot(ds){
@@ -126,7 +138,7 @@ HTML;
         
         // Transform the input data to a flot dataset
         foreach ($widget->getSeries() as $series) {
-            $series_id = $this->generateSeriesId($series->getId());
+            $series_id = $this->sanitizeSeriesId($series->getId());
             $output .= '
 					var ' . $series_id . ' = [];';
             
@@ -149,7 +161,7 @@ HTML;
         }
         
         // Prepare other flot options
-        $series_config = $this->generateSeriesConfig();
+        $series_config = $this->buildJsSeriesConfig();
         
         foreach ($widget->getAxesX() as $axis) {
             if (! $axis->isHidden()) {
@@ -169,14 +181,14 @@ HTML;
 					}
 		
 					$.plot("#' . $this->getId() . '",
-						' . $this->generateSeriesData() . ',
+						' . $this->buildJsSeriesData() . ',
 						{
-							grid:  { ' . $this->generateGridOptions() . ' }
+							grid:  { ' . $this->buildJsGridOptions() . ' }
 							, crosshair: {mode: "xy"}
 							' . ($axis_y_init ? ', yaxes: [ ' . substr($axis_y_init, 2) . ' ]' : '') . '
 							' . ($axis_x_init ? ', xaxes: [ ' . substr($axis_x_init, 2) . ' ]' : '') . '
 							' . ($series_config ? ', series: { ' . $series_config . ' }' : '') . '
-							, legend: { ' . $this->generateLegendOptions() . ' }
+							, legend: { ' . $this->buildJsLegendOptions() . ' }
 						}
 					);
 								
@@ -193,18 +205,15 @@ HTML;
         $output .= $this->buildJsAjaxLoaderFunction();
         $output .= $this->buildJsTooltipInit();
         
-        // Layout-Funktion hinzufuegen
-        $output .= $this->buildJsLayouterFunction();
-        
         return $output;
     }
 
-    protected function generateGridOptions()
+    protected function buildJsGridOptions()
     {
         return 'hoverable: true';
     }
 
-    protected function generateLegendOptions()
+    protected function buildJsLegendOptions()
     {
         $output = '';
         if ($this->isPieChart()) {
@@ -224,7 +233,7 @@ HTML;
         }
     }
 
-    protected function generateSeriesData()
+    protected function buildJsSeriesData()
     {
         $output = '';
         if ($this->isPieChart()) {
@@ -232,16 +241,16 @@ HTML;
                 throw new TemplateUnsupportedWidgetPropertyWarning('The template "' . $this->getTemplate()->getAlias() . '" does not support pie charts with multiple series!');
             }
             
-            $output = $this->generateSeriesId($this->getWidget()->getSeries()[0]->getId());
+            $output = $this->sanitizeSeriesId($this->getWidget()->getSeries()[0]->getId());
         } else {
             foreach ($this->getWidget()->getSeries() as $series) {
                 if ($series->getChartType() == ChartSeries::CHART_TYPE_PIE) {
                     throw new TemplateUnsupportedWidgetPropertyWarning('The template "' . $this->getTemplate()->getAlias() . '" does not support pie charts with multiple series!');
                 }
-                $series_options = $this->generateSeriesOptions($series);
+                $series_options = $this->buildJsSeriesOptions($series);
                 $output .= ',
 								{
-									data: ' . $this->generateSeriesId($series->getId()) . ($series->getChartType() == ChartSeries::CHART_TYPE_BARS ? '.reverse()' : '') . '
+									data: ' . $this->sanitizeSeriesId($series->getId()) . ($series->getChartType() == ChartSeries::CHART_TYPE_BARS ? '.reverse()' : '') . '
 									, label: "' . $series->getCaption() . '"
 									, yaxis:' . $series->getAxisY()->getNumber() . '
 									, xaxis:' . $series->getAxisX()->getNumber() . '
@@ -265,11 +274,12 @@ HTML;
         $output = '';
         if (! $widget->getDataWidgetLink()) {
             
-            $url_params = '';
-            $url_params .= '&resource=' . $this->getPageId();
-            $url_params .= '&element=' . $widget->getData()->getId();
-            $url_params .= '&object=' . $widget->getMetaObject()->getId();
-            $url_params .= '&action=' . $widget->getLazyLoadingAction();
+            $url_params = '
+                            resource: "' . $this->getPageId() . '"
+                            , element: "' . $widget->getData()->getId(). '"
+                            , object: "' . $widget->getMetaObject()->getId(). '"
+                            , action: "' . $widget->getLazyLoadingAction(). '"
+            ';
             
             // send sort information
             if (count($widget->getData()->getSorters()) > 0) {
@@ -277,32 +287,30 @@ HTML;
                     $sort .= ',' . urlencode($sorter->attribute_alias);
                     $order .= ',' . urldecode($sorter->direction);
                 }
-                $url_params .= '&sort=' . substr($sort, 1);
-                $url_params .= '&order=' . substr($order, 1);
+                $url_params .= '
+                            , sort: "' . substr($sort, 1) . '"
+                            , order: "' . substr($order, 1) . '"';
             }
             
             // send pagination/limit information. Charts currently do not support real pagination, but just a TOP-X display.
             if ($widget->getData()->getPaginate()) {
-                $url_params .= '&page=1';
-                $url_params .= '&rows=' . (! is_null($widget->getData()->getPaginatePageSize()) ? $widget->getData()->getPaginatePageSize() : $this->getTemplate()->getConfig()->getOption('WIDGET.CHART.PAGE_SIZE'));
-            }
-            
-            // send preset filters
-            if ($widget->getData()->hasFilters()) {
-                foreach ($widget->getData()->getFilters() as $fnr => $fltr) {
-                    if ($fltr->getValue()) {
-                        $url_params .= '&fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '=' . $fltr->getComparator() . urlencode($fltr->getValue());
-                    }
-                }
+                $url_params .= '
+                            , page: 1
+                            , rows: ' . (! is_null($widget->getData()->getPaginatePageSize()) ? $widget->getData()->getPaginatePageSize() : $this->getTemplate()->getConfig()->getOption('WIDGET.CHART.PAGE_SIZE'));
             }
             
             // Loader function
             $output .= '
-				function ' . $this->buildJsFunctionPrefix() . 'load(urlParams){
+				function ' . $this->buildJsFunctionPrefix() . 'load(){
 					' . $this->buildJsBusyIconShow() . '
-					if (!urlParams) urlParams = "";
 					$.ajax({
-						url: "' . $this->getAjaxUrl() . $url_params . '"+urlParams,
+						url: "' . $this->getAjaxUrl() . '",
+                        method: "POST",
+                        data: {
+                            ' . $url_params . '
+                            , data: ' . $this->getTemplate()->getElement($widget->getConfiguratorWidget())->buildJsDataGetter() . '
+                            
+                        },
 						success: function(data){
 							' . $this->buildJsFunctionPrefix() . 'plot($.parseJSON(data));
 							' . $this->buildJsBusyIconHide() . '
@@ -314,29 +322,19 @@ HTML;
 					});
 				}';
             
-            // doSearch function with filters for the search button
-            $fltrs = array();
-            if ($widget->getData()->hasFilters()) {
-                foreach ($widget->getData()->getFilters() as $fnr => $fltr) {
-                    $fltr_impl = $this->getTemplate()->getElement($fltr, $this->getPageId());
-                    $output .= $fltr_impl->generateJs();
-                    $fltrs[] = "'&fltr" . str_pad($fnr, 2, 0, STR_PAD_LEFT) . "_" . urlencode($fltr->getAttributeAlias()) . "=" . $fltr->getComparator() . "'+" . $fltr_impl->buildJsValueGetter();
-                }
-                // build JS for the search function
-                $output .= '
-						function ' . $this->buildJsFunctionPrefix() . 'doSearch(){
-							' . $this->buildJsFunctionPrefix() . "load(" . implode("+", $fltrs) . ');
-						}';
-            }
-            
-            // align the filters
-            $output .= $this->buildJsLayouter() . ';';
-            
             // Call the data loader to populate the Chart initially
-            $output .= $this->buildJsFunctionPrefix() . 'load();';
+            $output .= $this->buildJsRefresh();
         }
         
         return $output;
+    }
+    
+    /**
+     * 
+     */
+    public function buildJsRefresh()
+    {
+        return $this->buildJsFunctionPrefix() . 'load();';
     }
 
     protected function buildJsTooltipInit()
@@ -366,7 +364,7 @@ HTML;
         return $output;
     }
 
-    public function generateSeriesId($string)
+    public function sanitizeSeriesId($string)
     {
         return str_replace(array(
             '.',
@@ -378,7 +376,7 @@ HTML;
         ), '_', $string);
     }
 
-    public function generateSeriesOptions(ChartSeries $series)
+    public function buildJsSeriesOptions(ChartSeries $series)
     {
         $options = '';
         switch ($series->getChartType()) {
@@ -466,7 +464,7 @@ HTML;
         return $includes;
     }
 
-    protected function generateSeriesConfig()
+    protected function buildJsSeriesConfig()
     {
         $output = '';
         $config_array = array();
@@ -533,52 +531,6 @@ HTML;
             $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();
-    }
-
-    /**
-     *
-     * {@inheritdoc}
-     *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
-     */
-    public function buildJsLayouterFunction()
-    {
-        $output = <<<JS
-
-    function {$this->getId()}_layouter() {
-        $("#{$this->getToolbarId()} .datagrid-filters").masonry({
-            columnWidth: "#{$this->getId()}_sizer",
-            itemSelector: ".{$this->getId()}_masonry_fitem"
-        });
-    }
-JS;
-        
-        return $output;
-    }
-
-    /**
-     * Returns the default number of columns to layout this widget.
-     *
-     * @return integer
-     */
-    public function getDefaultColumnNumber()
-    {
-        return $this->getTemplate()->getConfig()->getOption("WIDGET.CHART.COLUMNS_BY_DEFAULT");
-    }
-
-    /**
-     * Returns if the the number of columns of this widget depends on the number of columns
-     * of the parent layout widget.
-     *
-     * @return boolean
-     */
-    public function inheritsColumnNumber()
-    {
-        return true;
-    }
-    
-    protected function getMoreButtonsMenuCaption(){
-        return '...';
     }
 }
 ?>

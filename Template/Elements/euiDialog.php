@@ -60,7 +60,7 @@ HTML;
 		{$children_html}
 	</div>
 	<div id="{$this->buttons_div_id}">
-		{$this->buildHtmlButtons()}
+		{$this->buildHtmlToolbars()}
 	</div>
 	<div id="{$this->getId()}_window_tools">
 		{$window_tools}

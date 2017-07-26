@@ -8,6 +8,9 @@ use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
 use exface\Core\Widgets\MenuButton;
 use exface\Core\Widgets\Button;
+use exface\Core\Widgets\Tabs;
+use exface\Core\Interfaces\Widgets\iHaveContextMenu;
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryAlignmentTrait;
 
 /**
  * Implementation of a basic grid.
@@ -21,13 +24,11 @@ class euiData extends euiAbstractElement
 {
     use JqueryToolbarsTrait;
     
+    use JqueryAlignmentTrait;
+    
     private $toolbar_id = null;
 
     private $show_footer = null;
-
-    private $editable = false;
-
-    private $editors = array();
 
     private $on_before_load = '';
 
@@ -40,28 +41,43 @@ class euiData extends euiAbstractElement
     private $headers_colspan = array();
 
     private $headers_rowspan = array();
-
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::init()
+     */
+    protected function init()
+    {
+        parent::init();
+        $widget = $this->getWidget();
+        
+        // Prepare the configurator widget
+        $widget->getConfiguratorWidget()
+        ->setTabPosition(Tabs::TAB_POSITION_RIGHT)
+        ->setHideTabsCaptions(true);
+    }
+    
+    /**
+     * The Data element by itself does not generate anything - it just offers common utility methods.
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateHtml()
+     */
     public function generateHtml()
     {
         return '';
     }
-
+    
+    /**
+     * The Data element by itself does not generate anything - it just offers common utility methods.
+     *
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateJ()
+     */
     public function generateJs()
     {
         return '';
-    }
-
-    protected function init()
-    {
-        /* @var $col \exface\Core\Widgets\DataColumn */
-        foreach ($this->getWidget()->getColumns() as $col) {
-            // handle editors
-            if ($col->isEditable()) {
-                $editor = $this->getTemplate()->getElement($col->getEditor(), $this->getPageId());
-                $this->setEditable(true);
-                $this->editors[$col->getId()] = $editor;
-            }
-        }
     }
 
     /**
@@ -85,21 +101,6 @@ class euiData extends euiAbstractElement
             );
             foreach ($queryParams as $param => $val) {
                 $params[] = $param . ': "' . $val . '"';
-            }
-            
-            // Add filters
-            if ($this->getWidget()->hasFilters()) {
-                foreach ($this->getWidget()->getFilters() as $fnr => $fltr) {
-                    if ($link = $fltr->getValueWidgetLink()) {
-                        // If the filter is a live reference, add the code to use it to the onBeforeLoad event
-                        $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
-                        $live_filter_js .= 'param.fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '= "' . $fltr->getComparator() . '"+' . $linked_element->buildJsValueGetter() . ';';
-                        $this->addOnBeforeLoad($live_filter_js);
-                    } else {
-                        // If the filter has a static value, just set it here
-                        $params[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": "' . $fltr->getComparator() . urlencode(strpos($fltr->getValue(), '=') === 0 ? '' : $fltr->getValue()) . '"';
-                    }
-                }
             }
             
             // TODO why did this not work? It produces a result with most columns being empty
@@ -237,7 +238,7 @@ class euiData extends euiAbstractElement
                 $put_into_header_row = 0;
             }
             foreach ($column_group->getColumns() as $col) {
-                $header_rows[$put_into_header_row][] = $this->buildJsInitOptionsColumn($col);
+                $header_rows[$put_into_header_row][] = '{' . $this->buildJsInitOptionsColumn($col) . '}';
                 if ($col->hasFooter())
                     $this->setShowFooter(true);
             }
@@ -276,10 +277,9 @@ class euiData extends euiAbstractElement
         return $this->headers_rowspan[$column_id];
     }
 
-    public function buildJsInitOptionsColumn(\exface\Core\Widgets\DataColumn $col)
+    protected function buildJsInitOptionsColumn(\exface\Core\Widgets\DataColumn $col)
     {
         // set defaults
-        $editor = $this->editors[$col->getId()];
         // TODO Settig "field" to the id of the column is dirty, since the data sheet column has
         // the attribute name for id. I don't know, why this actually works, because the field in the
         // JSON is named by attribute id, not column id. However, when getting the data from the table
@@ -288,8 +288,15 @@ class euiData extends euiAbstractElement
         // FIXME Make compatible with column groups
         $colspan = $this->getColumnHeaderColspan($col->getId());
         $rowspan = $this->getColumnHeaderRowspan($col->getId());
-        $output = '{
-							title: "<span title=\"' . $this->buildHintText($col->getHint(), true) . '\">' . $col->getCaption() . '</span>"' . ($col->getAttributeAlias() ? ', field: "' . $col->getDataColumnName() . '"' : '') . ($colspan ? ', colspan: ' . intval($colspan) : '') . ($rowspan ? ', rowspan: ' . intval($rowspan) : '') . ($col->isHidden() ? ', hidden: true' : '') . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . ($editor ? ', editor: {type: "' . $editor->getElementType() . '"' . ($editor->buildJsInitOptions() ? ', options: {' . $editor->buildJsInitOptions() . '}' : '') . '}' : '') . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . ', align: "' . $col->getAlign() . '"' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false') . '}';
+        $output = '
+                        title: "<span title=\"' . $this->buildHintText($col->getHint(), true) . '\">' . $col->getCaption() . '</span>"
+                        ' . ($col->getAttributeAlias() ? ', field: "' . $col->getDataColumnName() . '"' : '') . "\n
+                        " . ($colspan ? ', colspan: ' . intval($colspan) : '') . ($rowspan ? ', rowspan: ' . intval($rowspan) : '') . "\n
+                        " . ($col->isHidden() ? ', hidden: true' : '') . "\n
+                        " . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . "\n
+                        " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "\n
+                        " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
+                        ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false');
         
         return $output;
     }
@@ -318,21 +325,6 @@ class euiData extends euiAbstractElement
     public function setShowFooter($value)
     {
         $this->show_footer = $value;
-    }
-
-    public function isEditable()
-    {
-        return $this->editable;
-    }
-
-    public function setEditable($value)
-    {
-        $this->editable = $value;
-    }
-
-    public function getEditors()
-    {
-        return $this->editors;
     }
 
     /**
@@ -457,22 +449,18 @@ JS;
         return $this->buildJsDataSource() . $this->buildJsInitOptionsHead();
     }
     
-    protected function getMoreButtonsMenuCaption(){
-        return '...';
-    }
-    
     protected function buildHtmlContextMenu()
     {
         $widget = $this->getWidget();
         $context_menu_html = '';
         if ($widget->hasButtons()) {
-            foreach ($widget->getToolbarMain()->getButtonGroupMain()->getButtons() as $button) {
+            foreach ($widget->getToolbarMain()->getButtonGroupFirst()->getButtons() as $button) {
                 $context_menu_html .= $this->buildHtmlContextMenuItem($button);
             }
             
             foreach ($widget->getToolbars() as $toolbar){
                 foreach ($toolbar->getButtonGroups() as $btn_group){
-                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupMain() && $btn_group->hasButtons()){
+                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupFirst() && $btn_group->hasButtons()){
                         $context_menu_html .= '<div class="menu-sep"></div>';
                         foreach ($btn_group->getButtons() as $button){
                             $context_menu_html .= $this->buildHtmlContextMenuItem($button);
@@ -510,6 +498,57 @@ JS;
     {
         return $this->getTemplate()->getConfig()->getOption('WIDGET.DATA.DEFAULT_BUTTON_ALIGNMENT');
     }
- 
+    
+    /**
+     * Creates the HTML for the header controls: filters, sorters, buttons, etc.
+     * @return string
+     */
+    protected function buildHtmlTableHeader($panel_options = "border: false, width: '100%'")
+    {
+        $widget = $this->getWidget();
+        
+        // Prepare the header with the configurator and the toolbars
+        $configurator_widget = $widget->getConfiguratorWidget();
+        /* @var $configurator_element \exface\JEasyUiTemplate\Template\Elements\euiDataConfigurator */
+        $configurator_element = $this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget())->setFitOption(false)->setStyleAsPills(true);
+        
+        if ($configurator_widget->isEmpty()){
+            $configurator_widget->setHidden(true);
+            $configurator_panel_collapsed = ', collapsed: true';
+        }
+        
+        // jEasyUI will not resize the configurator once the datagrid is resized
+        // (don't know why), so we need to do it manually.
+        // Wrapping the resize-call into a setTimeout( ,0) is another strange
+        // workaround, but if not done so, the configurator will get resized to
+        // the old size, not the new one.
+        $this->addOnResizeScript("
+            if(typeof $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "() !== 'undefined') {
+                setTimeout(function(){
+                    $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "('resize');
+                }, 0);
+            }
+        ");
+        
+        // Create a context menu if any items were found
+        $context_menu_html = $this->buildHtmlContextMenu();
+        if ($context_menu_html && ($widget instanceof iHaveContextMenu) && $widget->getContextMenuEnabled()) {
+            $context_menu_html = '<div id="' . $this->getId() . '_cmenu" class="easyui-menu">' . $context_menu_html . '</div>';
+        } else {
+            $context_menu_html = '';
+        }
+        
+        return <<<HTML
+        
+                <div class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', {$panel_options} {$configurator_panel_collapsed}">
+                    {$configurator_element->generateHtml()}
+                </div>
+                <div id="{$this->getToolbarId()}_footer" class="datatable-toolbar">
+                    {$this->buildHtmlToolbars()}
+                </div>
+                {$context_menu_html}
+                
+HTML;
+    } 
 }
 ?>

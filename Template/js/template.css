@@ -25,12 +25,14 @@ ul.nav_menu a:hover {color: white; font-weight: bold; text-decoration: none; dis
 .toolbar-element .fa {font-size: 14px; padding: 0; color: #999}
 
 /* Toolbars for widgets */
-.exf-toolbar {padding: 5px 2px;}
-.exf-data-toolbar, .panel-footer.exf-data-toolbar {border-width: 0}
+.exf-toolbar {padding: 5px 2px; min-height: 26px;}
+.exf-btn-group {display: inline-block}
+.exf-data-toolbar, .panel-footer.datatable-toolbar {border-width: 0;}
 .exf-data-header {padding: 0; border-width: 0}
 .exf-data-header .tabs-container, .exf-data-header .panel-body {background: #f5f5f5}
 .exf-data-header .tabs-panels .panel-body {padding-right: 5px;}
 .exf-data-header .tabs-header-right .tabs {border: 0}
+.dialog-button .exf-toolbar {padding: 0;}
 
 /* Inputs */
 .exf_input {box-sizing: border-box; padding:4px; text-align:right;}

@@ -2,12 +2,9 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\DataTypes\AbstractDataType;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
 
 class euiEditMatrix extends euiDataMatrixOld
-{
-    use JqueryToolbarsTrait;
-    
+{    
     private $label_values = array();
 
     protected function init()

@@ -268,13 +268,13 @@ JS;
         $widget = $this->getWidget();
         $context_menu_html = '';
         if ($widget->hasButtons()) {
-            foreach ($widget->getToolbarMain()->getButtonGroupMain()->getButtons() as $button) {
+            foreach ($widget->getToolbarMain()->getButtonGroupFirst()->getButtons() as $button) {
                 $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton'], ['<div id="' . $this->getId() . '_', '</div>', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());
             }
             
             foreach ($widget->getToolbars() as $toolbar){
                 foreach ($toolbar->getButtonGroups() as $btn_group){
-                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupMain() && $btn_group->hasButtons()){
+                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupFirst() && $btn_group->hasButtons()){
                         $context_menu_html .= '<div class="menu-sep"></div>';
                         foreach ($btn_group->getButtons() as $button){
                             $context_menu_html .= str_replace(['<a id="', '</a>', 'easyui-linkbutton'], ['<div id="' . $this->getId() . '_', '</div>', ''], $this->getTemplate()->getElement($button)->buildHtmlButton());

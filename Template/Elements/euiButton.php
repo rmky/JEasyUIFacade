@@ -71,9 +71,10 @@ class euiButton extends euiAbstractElement
         
         $style = '';
         if (! $widget->getParent() instanceof ButtonGroup){
-            switch ($this->buildCssTextAlignValue()) {
+            // TODO look for the default alignment for buttons for the input
+            // widget in the config of this template
+            switch ($this->buildCssTextAlignValue($widget->getAlign())) {
                 case 'left':
-                    //$style .= 'float: left;';
                     break;
                 case 'right':
                     $style .= 'float: right;';

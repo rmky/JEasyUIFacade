@@ -87,5 +87,12 @@ HTML;
         return $this->getTemplate()->getConfig()->getOption("WIDGET.TABS.COLUMNS_BY_DEFAULT");
     }
     
+    public function addOnResizeScript($js)
+    {
+        foreach ($this->getWidget()->getTabs() as $tab){
+            $this->getTemplate()->getElement($tab)->addOnResizeScript($js);
+        }
+        return $this;
+    }
 }
 ?>
