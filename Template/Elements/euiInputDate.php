@@ -1,6 +1,20 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
+// Es waere wuenschenswert die Formatierung des Datums abhaengig vom Locale zu machen.
+// Das Problem dabei ist folgendes: Wird im DateFormatter das Datum von DateJs ent-
+// sprechend dem Locale formatiert, so muss der DateParser kompatibel sein. Es kommt
+// sonst z.B. beim amerikanischen Format zu Problemen. Der 5.11.2015 wird als 11/5/2015
+// formatiert, dann aber entsprechend den alexa RMS Formaten als 11.5.2015 geparst. Der
+// Parser von DateJs kommt hingegen leider nicht mit allen alexa RMS Formaten zurecht.
+
+// Eine Loesung waere fuer die verschiedenen Locales verschiedene eigene Parser zu
+// schreiben, dann koennte man aber auch gleich verschiedene eigene Formatter
+// hinzufuegen. In der jetzt umgesetzten Loesung wird das Anzeigeformat in den
+// Uebersetzungsdateien festgelegt. Dabei ist darauf zu achten, dass es kompatibel zum
+// Parser ist, das amerikanische Format MM/dd/yyyy ist deshalb nicht moeglich, da es vom
+// Parser als dd/MM/yyyy interpretiert wird.
+
 class euiInputDate extends euiInput
 {
 
@@ -87,37 +101,22 @@ JS;
      */
     protected function getDateJsFileName()
     {
-        // Es waere wuenschenswert die Formatierung des Datums abhaengig vom Locale zu machen.
-        // Das Problem dabei ist folgendes: Wird im DateFormatter das Datum von DateJs ent-
-        // sprechend dem Locale formatiert, so muss der DateParser kompatibel sein. Es kommt
-        // sonst z.B. beim amerik. Format zu Problemen. Der 5.11.2015 wird als 11/5/2015
-        // formatiert, dann aber entspr. den alexa RMS Formaten als 11.5.2015 geparst. Der
-        // Parser von DateJs kommt leider nicht mit allen alexa RMS Formaten zurecht.
+        $dateJsBasepath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'npm-asset' . DIRECTORY_SEPARATOR . 'datejs' . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'production' . DIRECTORY_SEPARATOR;
         
-        // Eine Loesung waere fuer die verschiedenen Locales versch. eigene Parser zu
-        // schreiben, dann koennte man aber auch gleich versch. eigene Formatter hinzufuegen.
-        // In der jetzt umgesetzten Loesung wird das Anzeigeformat in den Uebersetzungsdateien
-        // festgelegt. Dabei ist darauf zu achten, dass es kompatibel zum Parser ist, das
-        // amerikanische Format MM/dd/yyyy ist deshalb nicht moeglich, da es vom Parser als
-        // dd/MM/yyyy interpretiert wird.
+        $locale = $this->getTemplate()->getApp()->getTranslator()->getLocale();
+        $filename = 'date-' . str_replace("_", "-", $locale) . '.min.js';
+        if (file_exists($dateJsBasepath . $filename)) {
+            return $filename;
+        }
         
-        /*
-         * $dateJsBasepath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'npm-asset' . DIRECTORY_SEPARATOR . 'datejs' . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'production' . DIRECTORY_SEPARATOR;
-         *
-         * $locale = $this->getTemplate()->getApp()->getTranslator()->getLocale();
-         * $filename = 'date-' . str_replace("_", "-", $locale) . '.min.js';
-         * if (file_exists($dateJsBasepath . $filename)) {
-         * return $filename;
-         * }
-         *
-         * $fallbackLocales = $this->getTemplate()->getApp()->getTranslator()->getFallbackLocales();
-         * foreach ($fallbackLocales as $fallbackLocale) {
-         * $filename = 'date-' . str_replace("_", "-", $fallbackLocale) . '.min.js';
-         * if (file_exists($dateJsBasepath . $filename)) {
-         * return $filename;
-         * }
-         * }
-         */
+        $fallbackLocales = $this->getTemplate()->getApp()->getTranslator()->getFallbackLocales();
+        foreach ($fallbackLocales as $fallbackLocale) {
+            $filename = 'date-' . str_replace("_", "-", $fallbackLocale) . '.min.js';
+            if (file_exists($dateJsBasepath . $filename)) {
+                return $filename;
+            }
+        }
+        
         return 'date.min.js';
     }
 
