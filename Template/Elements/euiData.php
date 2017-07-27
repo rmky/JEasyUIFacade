@@ -291,11 +291,11 @@ class euiData extends euiAbstractElement
         $rowspan = $this->getColumnHeaderRowspan($col->getId());
         $output = '
                         title: "<span title=\"' . $this->buildHintText($col->getHint(), true) . '\">' . $col->getCaption() . '</span>"
-                        ' . ($col->getAttributeAlias() ? ', field: "' . $col->getDataColumnName() . '"' : '') . "\n
-                        " . ($colspan ? ', colspan: ' . intval($colspan) : '') . ($rowspan ? ', rowspan: ' . intval($rowspan) : '') . "\n
-                        " . ($col->isHidden() ? ', hidden: true' : '') . "\n
-                        " . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . "\n
-                        " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "\n
+                        ' . ($col->getAttributeAlias() ? ', field: "' . $col->getDataColumnName() . '"' : '') . "
+                        " . ($colspan ? ', colspan: ' . intval($colspan) : '') . ($rowspan ? ', rowspan: ' . intval($rowspan) : '') . "
+                        " . ($col->isHidden() ? ', hidden: true' : '') . "
+                        " . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . "
+                        " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "
                         " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
                         ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false');
         
