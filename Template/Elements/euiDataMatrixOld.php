@@ -13,6 +13,18 @@ class euiDataMatrixOld extends euiDataTable
         parent::init();
         $this->setElementType('datagrid');
     }
+    
+    /**
+     * The DataMatrix does not have any layouter as it was causing very small row
+     * details height when the DataMatrix was used within row details.
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiDataTable::buildJsInitOptionsLayouter()
+     */
+    protected function buildJsInitOptionsLayouter()
+    {
+        return '';
+    }
 
     /**
      * This special data source renderer fetches data according to the filters an reorganizes the rows and column to fit the matrix.
@@ -127,6 +139,11 @@ class euiDataMatrixOld extends euiDataTable
         return parent::buildJsInitOptionsColumns(array(
             $new_cols
         ));
+    }
+    
+    public function buildHtmlContextMenu()
+    {
+        return '';
     }
 }
 ?>

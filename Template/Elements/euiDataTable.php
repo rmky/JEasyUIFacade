@@ -96,183 +96,26 @@ HTML;
         
         $grid_head = '';
         
-        // add dataGrid specific params
-        // row details (expandable rows)
+        // Add row details (expandable rows) if required
         if ($widget->hasRowDetails()) {
-            // Create a detail container
-            /* @var $details \exface\Core\Widgets\container */
-            $details = $widget->getRowDetailsContainer();
-            $details_element = $this->getTemplate()->getElement($widget->getRowDetailsContainer());
-            $details_height = (! $details->getHeight()->isUndefined() ? ", height: '" . $details_element->getHeight() . "'" : "");
-            
-            // Add the needed options to our datagrid
-            $grid_head .= <<<JS
-					, view: detailview
-					, detailFormatter: function(index,row){
-						return '<div id="{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAlias()}+'"></div>';
-					}
-					, onExpandRow: function(index,row){
-						$('#{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAlias()}).panel({
-			            	border: false,
-							href: '{$this->getAjaxUrl()}',
-			            	method: 'post',
-							queryParams: {
-								action: '{$widget->getRowDetailsAction()}',
-								resource: '{$this->getPageId()}',
-								element: '{$details->getId()}',
-								prefill: {
-									oId: "{$widget->getMetaObjectId()}", 
-									rows:[
-										{ {$widget->getMetaObject()->getUidAlias()} : row.{$widget->getMetaObject()->getUidAlias()} }
-									], 
-									filters: {$this->buildJsDataFilters()}
-								},
-								exfrid: row.{$widget->getMetaObject()->getUidAlias()}
-							},
-							onLoad: function(){
-			                   	$('#{$this->getId()}').{$this->getElementType()}('fixDetailRowHeight',index);
-			            	},
-			                onLoadError: function(response){
-			                	{$this->buildJsShowError('response.responseText', 'response.status + " " + response.statusText')} 
-							},
-			       			onResize: function(){
-			                	$('#{$this->getId()}').{$this->getElementType()}('fixDetailRowHeight',index);			
-                    		}
-			         	{$details_height}
-						});
-					}
-JS;
+            $grid_head .= $this->buildJsInitOptionsRowDetails();
         }
         
         // group rows if required
         if ($widget->hasRowGroups()) {
-            $grid_head .= ', view: groupview' . ",groupField: '" . $widget->getRowGroupsByColumnId() . "'" . ",groupFormatter:function(value,rows){ return value" . ($widget->getRowGroupsShowCount() ? " + ' (' + rows.length + ')'" : "") . ";}";
-            if ($widget->getRowGroupsExpand() == 'none' || $widget->getRowGroupsExpand() == 'first') {
-                $this->addOnLoadSuccess("$('#" . $this->getId() . "')." . $this->getElementType() . "('collapseGroup');");
-            }
-            if ($widget->getRowGroupsExpand() == 'first') {
-                $this->addOnLoadSuccess("$('#" . $this->getId() . "')." . $this->getElementType() . "('expandGroup', 0);");
-            }
+            $grid_head .= $this->buildJsInitOptionsRowGroups();
         }
         
-        // Double click actions. Currently only supports one double click action - the first one in the list of buttons
-        if ($dblclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_DOUBLE_CLICK)[0]) {
-            $grid_head .= ', onDblClickRow: function(index, row) {' . $this->getTemplate()->getElement($dblclick_button)->buildJsClickFunction() . '}';
-        }
-        
-        // Left click actions. Currently only supports one double click action - the first one in the list of buttons
-        if ($leftclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_LEFT_CLICK)[0]) {
-            $grid_head .= ', onClickRow: function(index, row) {' . $this->getTemplate()->getElement($leftclick_button)->buildJsClickFunction() . '}';
-        }
-        
-        // Right click actions or context menu
-        if ($rightclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_RIGHT_CLICK)[0]) {
-            $grid_head .= ', onClickRow: function(index, row) {' . $this->getTemplate()->getElement($rightclick_button)->buildJsClickFunction() . '}';
-        } else {
-            // Context menu
-            if ($widget->getContextMenuEnabled()) {
-                $grid_head .= ', onRowContextMenu: function(e, index, row) {
-    					e.preventDefault();
-    					e.stopPropagation();
-                        if (index >= 0){
-    					   $(this).' . $this->getElementType() . '("selectRow", index);
-                        }
-    	                $("#' . $this->getId() . '_cmenu").menu("show", {
-    	                    left: e.pageX,
-    	                    top: e.pageY
-    	                });
-    	                return false;
-    				}';
-            }
-        }
-        
+        // Add editors
         if ($this->isEditable()) {
-            $changes_col_array = array();
-            $this->addOnLoadSuccess($this->buildJsEditModeEnabler());
-            // add data and changes getter if the grid is editable
-            $output .= "
-						function " . $this->buildJsFunctionPrefix() . "getData(){
-							var data = [];
-							var rows = $('#" . $this->getId() . "')." . $this->getElementType() . "('getRows');
-							for (var i=0; i<rows.length; i++){
-								$('#" . $this->getId() . "')." . $this->getElementType() . "('endEdit', i);
-								data[$('#" . $this->getId() . "')." . $this->getElementType() . "('getRowIndex', rows[i])] = rows[i];
-							}
-							return data;
-						}";
-            foreach ($this->getEditors() as $col_id => $editor) {
-                $col = $widget->getColumn($col_id);
-                // Skip editors for columns, that are not attributes
-                if (! $col->getAttribute())
-                    continue;
-                    // For all other editors, that belong to related attributes, add some JS to update all rows with that
-                    // attribute, once the value of one of them changes. This makes sure, that the value of a related attribute
-                    // is the same, even if it is shown in multiple rows at all times!
-                $rel_path = $col->getAttribute()->getRelationPath();
-                if ($rel_path && ! $rel_path->isEmpty()) {
-                    $col_obj_uid = $rel_path->getRelationLast()->getRelatedObjectKeyAttribute()->getAliasWithRelationPath();
-                    $this->addOnLoadSuccess("$('td[field=\'" . $col->getDataColumnName() . "\'] input').change(function(){
-						var rows = $('#" . $this->getId() . "')." . $this->getElementType() . "('getRows');
-						var thisRowIdx = $(this).parents('tr.datagrid-row').attr('datagrid-row-index');
-						var thisRowUID = rows[thisRowIdx]['" . $col_obj_uid . "'];
-						for (var i=0; i<rows.length; i++){
-							if (rows[i]['" . $col_obj_uid . "'] == thisRowUID){
-								var ed = $('#" . $this->getId() . "')." . $this->getElementType() . "('getEditor', {index: i, field: '" . $col->getDataColumnName() . "'});
-								$(ed.target)." . $editor->buildJsValueSetterMethod("$(this)." . $editor->buildJsValueGetterMethod()) . ";
-							}
-						}
-					});");
-                }
-                
-                $changes_col_array[] = $widget->getColumn($col_id)->getDataColumnName();
-            }
-            
-            $changes_cols = implode("','", $changes_col_array);
-            
-            if ($changes_cols)
-                $changes_cols = "'" . $changes_cols . "'";
-            
-            foreach ($widget->getColumnsWithSystemAttributes() as $col) {
-                $changes_cols .= ",'" . $col->getDataColumnName() . "'";
-            }
-            $changes_cols = trim($changes_cols, ',');
-            
-            $output .= "
-						function " . $this->buildJsFunctionPrefix() . "getChanges(){
-							var data = [];
-							var cols = [" . $changes_cols . "];
-							var rowCount = $('#" . $this->getId() . "')." . $this->getElementType() . "('getRows').length;
-							for (var i=0; i<rowCount; i++){
-								$('#" . $this->getId() . "')." . $this->getElementType() . "('endEdit', i);
-							}
-							rows = $('#" . $this->getId() . "')." . $this->getElementType() . "('getChanges');
-							for (var i=0; i<rows.length; i++){
-								$('#" . $this->getId() . "')." . $this->getElementType() . "('endEdit', i);
-								var row = {};
-								for (var j=0; j<cols.length; j++){
-									row[cols[j]] = rows[i][cols[j]];
-								}
-								data.push(row);
-							}
-							return data;
-						}";
+            $output .= $this->buildJsEditableGridFunctions();
         }
+        
+        // Add scripts for layouting and resizing
+        $grid_head .= $this->buildJsInitOptionsLayouter();
         
         // get the standard params for grids and put them before the custom grid head
         $grid_head = $this->buildJsInitOptions() . $grid_head;
-        // Auf manchen Seiten (z.B. Kundenreklamation) kam es nach dem Laden zu Fehlern im Layout
-        // (Tabelle nimmt nicht den gesamten verfügbaren Raum ein -> weißer Rand darunter, Spalten-
-        // Header sind schmaler als die Inhalte -> verschoben). Durch den Aufruf von "autoSizeColumn"
-        // onResize wird das Layout nach dem Laden oder ausklappen der SideBar erneuert. (Auch
-        // möglich wäre ein Aufruf von "resize" (dann werden aber die Spaltenbreiten nicht
-        // korrigiert) oder "autoSizeColumn" onLoadSuccess ($this->addOnLoadSuccess()) und
-        // onLoadError u.U. mit setTimeout()). Durch diese Aenderung wird das Layout leider etwas
-        // traeger.
-        $resize_function = $this->getOnResizeScript();
-        $resize_function .= '
-					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';
-        $grid_head .= ', fit: true
-				, onResize: function(){' . $resize_function . '}' . ($this->getOnChangeScript() ? ', onSelect: function(index, row){' . $this->getOnChangeScript() . '}' : '') . ($widget->getCaption() ? ', title: "' . str_replace('"', '\"', $widget->getCaption()) . '"' : '');
         
         // instantiate the data grid
         $output .= '
@@ -282,45 +125,7 @@ JS;
         // build JS for the button actions
         $output .= $this->buildJsButtons();
         
-        // Add buttons to the pager at the bottom of the datagrid
-        $bottom_buttons = array();
-        
-        // If the top toolbar is hidden, add actions to the bottom toolbar
-        if ($widget->getHideHeader() && ! $widget->getHideFooter() && $widget->hasButtons()) {
-            foreach ($widget->getButtons() as $button) {
-                if ($button->isHidden() || $button instanceof MenuButton){
-                    continue;
-                }
-                
-                $bottom_buttons[] = '{
-					iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
-					title: "' . str_replace('"', '\"', $button->getCaption()) . '",
-					handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
-				}';
-                
-            }
-        }
-        
-        // Add the help button in the bottom toolbar
-        if (! $widget->getHideHelpButton()) {
-            $output .= $this->getTemplate()->generateJs($widget->getHelpButton());
-            $bottom_buttons[] = '{
-						iconCls:  "fa fa-question-circle-o",
-						title: "' . $this->translate('HELP') . '",
-						handler: ' . $this->getTemplate()->getElement($widget->getHelpButton())->buildJsClickFunctionName() . '
-					}';
-        }
-        
-        if (! empty($bottom_buttons)) {
-            $output .= '
-					
-							var pager = $("#' . $this->getId() . '").' . $this->getElementType() . '("getPager");
-	            			pager.pagination({
-								buttons: [' . implode(', ', $bottom_buttons) . ']
-							});
-										
-					';
-        }
+        $output .= $this->buildJsPagerButtons();
         
         return $output;
     }
@@ -452,6 +257,266 @@ JS;
         $output = parent::buildJsInitOptionsColumn($col);
         $output .= "\n
                         " . ($editor ? ', editor: {type: "' . $editor->getElementType() . '"' . ($editor->buildJsInitOptions() ? ', options: {' . $editor->buildJsInitOptions() . '}' : '') . '}' : '');
+        return $output;
+    }
+    
+    public function buildJsInitOptionsHead()
+    {
+        $widget = $this->getWidget();
+        $grid_head = parent::buildJsInitOptionsHead();
+        
+        // Double click actions. Currently only supports one double click action - the first one in the list of buttons
+        if ($dblclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_DOUBLE_CLICK)[0]) {
+            $grid_head .= ', onDblClickRow: function(index, row) {' . $this->getTemplate()->getElement($dblclick_button)->buildJsClickFunction() . '}';
+        }
+        
+        // Left click actions. Currently only supports one double click action - the first one in the list of buttons
+        if ($leftclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_LEFT_CLICK)[0]) {
+            $grid_head .= ', onClickRow: function(index, row) {' . $this->getTemplate()->getElement($leftclick_button)->buildJsClickFunction() . '}';
+        }
+        
+        // Right click actions or context menu
+        if ($rightclick_button = $widget->getButtonsBoundToMouseAction(EXF_MOUSE_ACTION_RIGHT_CLICK)[0]) {
+            $grid_head .= ', onClickRow: function(index, row) {' . $this->getTemplate()->getElement($rightclick_button)->buildJsClickFunction() . '}';
+        } else {
+            // Context menu
+            if ($widget->getContextMenuEnabled()) {
+                $grid_head .= ', onRowContextMenu: function(e, index, row) {
+    					e.preventDefault();
+    					e.stopPropagation();
+                        if (index >= 0){
+    					   $(this).' . $this->getElementType() . '("selectRow", index);
+                        }
+    	                $("#' . $this->getId() . '_cmenu").menu("show", {
+    	                    left: e.pageX,
+    	                    top: e.pageY
+    	                });
+    	                return false;
+    				}';
+            }
+        }
+        
+        $grid_head .= ($this->getOnChangeScript() ? ', onSelect: function(index, row){' . $this->getOnChangeScript() . '}' : '');
+        $grid_head .= ($widget->getCaption() ? ', title: "' . str_replace('"', '\"', $widget->getCaption()) . '"' : '');
+        
+        return $grid_head;
+    }
+    
+    protected function buildJsInitOptionsRowDetails()
+    {
+        $widget = $this->getWidget();
+        $grid_head = '';
+        
+        // Create a detail container
+        /* @var $details \exface\Core\Widgets\container */
+        $details = $widget->getRowDetailsContainer();
+        $details_element = $this->getTemplate()->getElement($widget->getRowDetailsContainer());
+        $details_height = (! $details->getHeight()->isUndefined() ? ", height: '" . $details_element->getHeight() . "'" : "");
+        
+        // Add the needed options to our datagrid
+        $grid_head .= <<<JS
+    				, view: detailview
+    				, detailFormatter: function(index,row){
+    					return '<div id="{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAlias()}+'"></div>';
+    				}
+    				, onExpandRow: function(index,row){
+    					$('#{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAlias()}).panel({
+    		            	border: false,
+    						href: '{$this->getAjaxUrl()}',
+    		            	method: 'post',
+    						queryParams: {
+    							action: '{$widget->getRowDetailsAction()}',
+    							resource: '{$this->getPageId()}',
+    							element: '{$details->getId()}',
+    							prefill: {
+    								oId: "{$widget->getMetaObjectId()}",
+    								rows:[
+    									{ {$widget->getMetaObject()->getUidAlias()} : row.{$widget->getMetaObject()->getUidAlias()} }
+    								],
+    								filters: {$this->buildJsDataFilters()}
+    							},
+    							exfrid: row.{$widget->getMetaObject()->getUidAlias()}
+    						},
+    						onLoad: function(){
+    		                   	$('#{$this->getId()}').{$this->getElementType()}('fixDetailRowHeight',index);
+    		            	},
+    		                onLoadError: function(response){
+    		                	{$this->buildJsShowError('response.responseText', 'response.status + " " + response.statusText')}
+    						},
+    		       			onResize: function(){
+    		                	$('#{$this->getId()}').{$this->getElementType()}('fixDetailRowHeight',index);
+                    		}
+    		         	{$details_height}
+    					});
+    				}
+JS;
+        
+	    return $grid_head; 
+    }
+    
+    protected function buildJsInitOptionsRowGroups()
+    {
+        $grid_head = '';
+        $widget = $this->getWidget();
+        
+        $grid_head .= ', view: groupview' . ",groupField: '" . $widget->getRowGroupsByColumnId() . "'" . ",groupFormatter:function(value,rows){ return value" . ($widget->getRowGroupsShowCount() ? " + ' (' + rows.length + ')'" : "") . ";}";
+        if ($widget->getRowGroupsExpand() == 'none' || $widget->getRowGroupsExpand() == 'first') {
+            $this->addOnLoadSuccess("$('#" . $this->getId() . "')." . $this->getElementType() . "('collapseGroup');");
+        }
+        if ($widget->getRowGroupsExpand() == 'first') {
+            $this->addOnLoadSuccess("$('#" . $this->getId() . "')." . $this->getElementType() . "('expandGroup', 0);");
+        }
+        return $grid_head;
+    }
+    
+    protected function buildJsEditableGridFunctions()
+    {
+        $output = '';
+        $widget = $this->getWidget();
+        
+        $changes_col_array = array();
+        $this->addOnLoadSuccess($this->buildJsEditModeEnabler());
+        // add data and changes getter if the grid is editable
+        $output .= "
+						function " . $this->buildJsFunctionPrefix() . "getData(){
+							var data = [];
+							var rows = $('#" . $this->getId() . "')." . $this->getElementType() . "('getRows');
+							for (var i=0; i<rows.length; i++){
+								$('#" . $this->getId() . "')." . $this->getElementType() . "('endEdit', i);
+								data[$('#" . $this->getId() . "')." . $this->getElementType() . "('getRowIndex', rows[i])] = rows[i];
+							}
+							return data;
+						}";
+        foreach ($this->getEditors() as $col_id => $editor) {
+            $col = $widget->getColumn($col_id);
+            // Skip editors for columns, that are not attributes
+            if (! $col->getAttribute())
+                continue;
+                // For all other editors, that belong to related attributes, add some JS to update all rows with that
+                // attribute, once the value of one of them changes. This makes sure, that the value of a related attribute
+                // is the same, even if it is shown in multiple rows at all times!
+                $rel_path = $col->getAttribute()->getRelationPath();
+                if ($rel_path && ! $rel_path->isEmpty()) {
+                    $col_obj_uid = $rel_path->getRelationLast()->getRelatedObjectKeyAttribute()->getAliasWithRelationPath();
+                    $this->addOnLoadSuccess("$('td[field=\'" . $col->getDataColumnName() . "\'] input').change(function(){
+						var rows = $('#" . $this->getId() . "')." . $this->getElementType() . "('getRows');
+						var thisRowIdx = $(this).parents('tr.datagrid-row').attr('datagrid-row-index');
+						var thisRowUID = rows[thisRowIdx]['" . $col_obj_uid . "'];
+						for (var i=0; i<rows.length; i++){
+							if (rows[i]['" . $col_obj_uid . "'] == thisRowUID){
+								var ed = $('#" . $this->getId() . "')." . $this->getElementType() . "('getEditor', {index: i, field: '" . $col->getDataColumnName() . "'});
+								$(ed.target)." . $editor->buildJsValueSetterMethod("$(this)." . $editor->buildJsValueGetterMethod()) . ";
+							}
+						}
+					});");
+                }
+                
+                $changes_col_array[] = $widget->getColumn($col_id)->getDataColumnName();
+        }
+        
+        $changes_cols = implode("','", $changes_col_array);
+        
+        if ($changes_cols){
+            $changes_cols = "'" . $changes_cols . "'";
+        }
+            
+        foreach ($widget->getColumnsWithSystemAttributes() as $col) {
+            $changes_cols .= ",'" . $col->getDataColumnName() . "'";
+        }
+        $changes_cols = trim($changes_cols, ',');
+        
+        $output .= "
+					function " . $this->buildJsFunctionPrefix() . "getChanges(){
+						var data = [];
+						var cols = [" . $changes_cols . "];
+						var rowCount = $('#" . $this->getId() . "')." . $this->getElementType() . "('getRows').length;
+						for (var i=0; i<rowCount; i++){
+							$('#" . $this->getId() . "')." . $this->getElementType() . "('endEdit', i);
+						}
+						rows = $('#" . $this->getId() . "')." . $this->getElementType() . "('getChanges');
+						for (var i=0; i<rows.length; i++){
+							$('#" . $this->getId() . "')." . $this->getElementType() . "('endEdit', i);
+							var row = {};
+							for (var j=0; j<cols.length; j++){
+								row[cols[j]] = rows[i][cols[j]];
+							}
+							data.push(row);
+						}
+						return data;
+					}";
+        
+        return $output;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function buildJsInitOptionsLayouter()
+    {
+        $grid_head = '';
+        
+        // Auf manchen Seiten (z.B. Kundenreklamation) kam es nach dem Laden zu Fehlern im Layout
+        // (Tabelle nimmt nicht den gesamten verfügbaren Raum ein -> weißer Rand darunter, Spalten-
+        // Header sind schmaler als die Inhalte -> verschoben). Durch den Aufruf von "autoSizeColumn"
+        // onResize wird das Layout nach dem Laden oder ausklappen der SideBar erneuert. (Auch
+        // möglich wäre ein Aufruf von "resize" (dann werden aber die Spaltenbreiten nicht
+        // korrigiert) oder "autoSizeColumn" onLoadSuccess ($this->addOnLoadSuccess()) und
+        // onLoadError u.U. mit setTimeout()). Durch diese Aenderung wird das Layout leider etwas
+        // traeger.
+        $resize_function = $this->getOnResizeScript();
+        $resize_function .= '
+					$("#' . $this->getId() . '").' . $this->getElementType() . '("autoSizeColumn");';
+        $grid_head .= ', fit: true
+				, onResize: function(){' . $resize_function . '}';
+        return $grid_head;
+    }
+    
+    protected function buildJsPagerButtons()
+    {
+        $widget = $this->getWidget();
+        $output = '';
+        
+        // Add buttons to the pager at the bottom of the datagrid
+        $bottom_buttons = array();
+        
+        // If the top toolbar is hidden, add actions to the bottom toolbar
+        if ($widget->getHideHeader() && ! $widget->getHideFooter() && $widget->hasButtons()) {
+            foreach ($widget->getButtons() as $button) {
+                if ($button->isHidden() || $button instanceof MenuButton){
+                    continue;
+                }
+                
+                $bottom_buttons[] = '{
+					iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
+					title: "' . str_replace('"', '\"', $button->getCaption()) . '",
+					handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
+				}';
+                
+            }
+        }
+        
+        // Add the help button in the bottom toolbar
+        if (! $widget->getHideHelpButton()) {
+            $output .= $this->getTemplate()->generateJs($widget->getHelpButton());
+            $bottom_buttons[] = '{
+						iconCls:  "fa fa-question-circle-o",
+						title: "' . $this->translate('HELP') . '",
+						handler: ' . $this->getTemplate()->getElement($widget->getHelpButton())->buildJsClickFunctionName() . '
+					}';
+        }
+        
+        if (! empty($bottom_buttons)) {
+            $output .= '
+                
+							var pager = $("#' . $this->getId() . '").' . $this->getElementType() . '("getPager");
+	            			pager.pagination({
+								buttons: [' . implode(', ', $bottom_buttons) . ']
+							});
+								    
+					';
+        }
+        
         return $output;
     }
 }
