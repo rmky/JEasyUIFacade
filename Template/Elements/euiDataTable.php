@@ -173,7 +173,9 @@ JS;
                 $grid_head .= ', onRowContextMenu: function(e, index, row) {
     					e.preventDefault();
     					e.stopPropagation();
-    					$(this).' . $this->getElementType() . '("selectRow", index);
+                        if (index >= 0){
+    					   $(this).' . $this->getElementType() . '("selectRow", index);
+                        }
     	                $("#' . $this->getId() . '_cmenu").menu("show", {
     	                    left: e.pageX,
     	                    top: e.pageY
