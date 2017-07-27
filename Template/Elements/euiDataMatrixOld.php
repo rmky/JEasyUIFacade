@@ -31,7 +31,7 @@ class euiDataMatrixOld extends euiDataTable
      * It basically transposes the data column (data_column_id) using values of the label column (label_column_id) as new column headers.
      * The other columns remain untouched.
      *
-     * @see \exface\JEasyUiTemplate\Template\Elements\grid::buildJsDataSource()
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiData::buildJsDataSource()
      */
     public function buildJsDataSource()
     {
