@@ -4,13 +4,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>jQuery EasyUI</title>
 	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
-	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
-	<style type="text/css">
-		.datagrid-header-rownumber,.datagrid-cell-rownumber{
-			width:40px;
-		}
-	</style>
-	<script type="text/javascript" src="../../jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="../../jquery.min.js"></script>
 	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
 	<script type="text/javascript" src="datagrid-scrollview.js"></script>
 	<script>
@@ -29,14 +23,14 @@
 					note: 'Note '+i
 				});
 			}
-			$('#tt').datagrid('loadData', rows);
+			$('#dg').datagrid('loadData', rows);
 		});
 	</script>
 </head>
 <body>
 	<h1>DataGrid - VirtualScrollView</h1>
 	
-	<table id="tt" class="easyui-datagrid" style="width:700px;height:250px"
+	<table id="dg" class="easyui-datagrid" style="width:700px;height:250px"
 			title="DataGrid - VirtualScrollView"
 			data-options="view:scrollview,rownumbers:true,singleSelect:true,autoRowHeight:false,pageSize:50">
 		<thead>
