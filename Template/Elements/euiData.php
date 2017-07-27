@@ -11,6 +11,7 @@ use exface\Core\Widgets\Button;
 use exface\Core\Widgets\Tabs;
 use exface\Core\Interfaces\Widgets\iHaveContextMenu;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryAlignmentTrait;
+use exface\Core\Widgets\ButtonGroup;
 
 /**
  * Implementation of a basic grid.
@@ -476,7 +477,14 @@ JS;
     {
         $menu_item = '';
         if ($button instanceof MenuButton){
-            $menu_item .= '<div><span>' . $button->getCaption() . '</span><div>' . $this->getTemplate()->getElement($button)->buildHtmlMenuItems(). '</div></div>';
+            if ($button->getParent() instanceof ButtonGroup && $button === $this->getTemplate()->getElement($button->getParent())->getMoreButtonsMenu()){
+                $menu_item .= '<div class="menu-sep"></div>';
+                foreach ($button->getButtons() as $btn){
+                    $menu_item .= $this->buildHtmlContextMenuItem($btn);
+                }
+            } else {
+                $menu_item .= '<div><span>' . $button->getCaption() . '</span><div>' . $this->getTemplate()->getElement($button)->buildHtmlMenuItems(). '</div></div>';
+            }
         } else {
             $menu_item .= $this->getTemplate()->getElement($button)->buildHtmlButton();
         }

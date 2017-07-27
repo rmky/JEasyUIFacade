@@ -6,6 +6,7 @@ use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
 use exface\Core\Interfaces\Actions\iReadData;
 use exface\Core\Widgets\DataColumn;
+use exface\Core\Widgets\MenuButton;
 
 /**
  *
@@ -287,15 +288,16 @@ JS;
         // If the top toolbar is hidden, add actions to the bottom toolbar
         if ($widget->getHideHeader() && ! $widget->getHideFooter() && $widget->hasButtons()) {
             foreach ($widget->getButtons() as $button) {
-                if ($button->isHidden())
+                if ($button->isHidden() || $button instanceof MenuButton){
                     continue;
-                if ($button->getAction()->getInputRowsMin() == 0) {
-                    $bottom_buttons[] = '{
-						iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
-						title: "' . str_replace('"', '\"', $button->getCaption()) . '",
-						handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
-					}';
                 }
+                
+                $bottom_buttons[] = '{
+					iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
+					title: "' . str_replace('"', '\"', $button->getCaption()) . '",
+					handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
+				}';
+                
             }
         }
         
