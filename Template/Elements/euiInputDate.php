@@ -10,10 +10,11 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 // Eine Loesung waere fuer die verschiedenen Locales verschiedene eigene Parser zu
 // schreiben, dann koennte man aber auch gleich verschiedene eigene Formatter
-// hinzufuegen. In der jetzt umgesetzten Loesung wird das Anzeigeformat in den
-// Uebersetzungsdateien festgelegt. Dabei ist darauf zu achten, dass es kompatibel zum
-// Parser ist, das amerikanische Format MM/dd/yyyy ist deshalb nicht moeglich, da es vom
-// Parser als dd/MM/yyyy interpretiert wird.
+// hinzufuegen.
+// In der jetzt umgesetzten Loesung wird das Anzeigeformat in den Uebersetzungsdateien
+// festgelegt. Dabei ist darauf zu achten, dass es kompatibel zum Parser ist, das
+// amerikanische Format MM/dd/yyyy ist deshalb nicht moeglich, da es vom Parser als
+// dd/MM/yyyy interpretiert wird.
 
 class euiInputDate extends euiInput
 {
@@ -155,66 +156,73 @@ JS;
         // Variablen initialisieren
         var {$this->getId()}_jquery = $("#{$this->getId()}");
         var match = null;
+        var dateParsed = false;
         
         // dd.MM.yyyy, dd-MM-yyyy, dd/MM/yyyy, d.M.yyyy, d-M-yyyy, d/M/yyyy
-        match = /(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/.exec(date);
-        if (match != null) {
-            var output = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+        if (!dateParsed && (match = /(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/.exec(date)) != null) {
+            var yyyy = Number(match[3]);
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[1]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
         }
         // yyyy.MM.dd, yyyy-MM-dd, yyyy/MM/dd, yyyy.M.d, yyyy-M-d, yyyy/M/d
-        match = /(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/.exec(date);
-        if (match != null) {
-            var output = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+        if (!dateParsed && (match = /(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/.exec(date)) != null) {
+            var yyyy = Number(match[1]);
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[3]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
         }
         // dd.MM.yy, dd-MM-yy, dd/MM/yy, d.M.yy, d-M-yy, d/M/yy
-        match = /(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2})/.exec(date);
-        if (match != null) {
-            var output = new Date(2000 + Number(match[3]), Number(match[2]) - 1, Number(match[1]));
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+        if (!dateParsed && (match = /(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2})/.exec(date)) != null) {
+            var yyyy = 2000 + Number(match[3]);
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[1]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
         }
         // yy.MM.dd, yy-MM-dd, yy/MM/dd, yy.M.d, yy-M-d, yy/M/d
-        match = /(\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})/.exec(date);
-        if (match != null) {
-            var output = new Date(2000 + Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+        if (!dateParsed && (match = /(\d{2})[.\-/](\d{1,2})[.\-/](\d{1,2})/.exec(date)) != null) {
+            var yyyy = 2000 + Number(match[1]);
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[3]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
         }
         // dd.MM, dd-MM, dd/MM, d.M, d-M, d/M
-        match = /(\d{1,2})[.\-/](\d{1,2})/.exec(date);
-        if (match != null) {
-            var output = new Date((new Date()).getFullYear(), Number(match[2]) - 1, Number(match[1]));
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+        if (!dateParsed && (match = /(\d{1,2})[.\-/](\d{1,2})/.exec(date)) != null) {
+            var yyyy = (new Date()).getFullYear();
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[1]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
         }
         // ddMMyyyy
-        match = /^(\d{2})(\d{2})(\d{4})$/.exec(date);
-        if (match != null) {
-            var output = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+        if (!dateParsed && (match = /^(\d{2})(\d{2})(\d{4})$/.exec(date)) != null) {
+            var yyyy = Number(match[3]);
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[1]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
         }
         // ddMMyy
-        match = /^(\d{2})(\d{2})(\d{2})$/.exec(date);
-        if (match != null) {
-            var output = new Date(2000 + Number(match[3]), Number(match[2]) - 1, Number(match[1]));
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+        if (!dateParsed && (match = /^(\d{2})(\d{2})(\d{2})$/.exec(date)) != null) {
+            var yyyy = 2000 + Number(match[3]);
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[1]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
         }
         // ddMM
-        match = /^(\d{2})(\d{2})$/.exec(date);
-        if (match != null) {
-            var output = new Date((new Date()).getFullYear(), Number(match[2]) - 1, Number(match[1]));
+        if (!dateParsed && (match = /^(\d{2})(\d{2})$/.exec(date)) != null) {
+            var yyyy = (new Date()).getFullYear();
+            var MM = Number(match[2]) - 1;
+            var dd = Number(match[1]);
+            dateParsed = Date.validateYear(yyyy) && Date.validateMonth(MM) && Date.validateDay(dd, yyyy, MM);
+        }
+        // Ausgabe des geparsten Wertes
+        if (dateParsed) {
+            var output = new Date(yyyy, MM, dd);
             {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
             return output;
         }
+        
         // +/- ... T/D/W/M/J/Y
-        match = /^([+\-]?\d+)([TtDdWwMmJjYy])$/.exec(date);
-        if (match != null) {
+        if (!dateParsed && (match = /^([+\-]?\d+)([TtDdWwMmJjYy])$/.exec(date)) != null) {
             var output = Date.today();
             switch (match[2].toUpperCase()) {
                 case "T":
@@ -231,34 +239,37 @@ JS;
                 case "Y":
                     output.addYears(Number(match[1]));
             }
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-            return output;
+            dateParsed = true;
         }
         // TODAY, HEUTE, NOW, JETZT, YESTERDAY, GESTERN, TOMORROW, MORGEN
-        switch (date.toUpperCase()) {
-            case "TODAY":
-            case "HEUTE":
-            case "NOW":
-            case "JETZT":
-                var output = Date.today();
-                {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-                return output;
-                break;
-            case "YESTERDAY":
-            case "GESTERN":
-                var output = Date.today().addDays(-1);
-                {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-                return output;
-                break;
-            case "TOMORROW":
-            case "MORGEN":
-                var output = Date.today().addDays(1);
-                {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
-                return output;
+        if (!dateParsed) {
+            switch (date.toUpperCase()) {
+                case "TODAY":
+                case "HEUTE":
+                case "NOW":
+                case "JETZT":
+                    var output = Date.today();
+                    dateParsed = true;
+                    break;
+                case "YESTERDAY":
+                case "GESTERN":
+                    var output = Date.today().addDays(-1);
+                    dateParsed = true;
+                    break;
+                case "TOMORROW":
+                case "MORGEN":
+                    var output = Date.today().addDays(1);
+                    dateParsed = true;
+            }
         }
-        
-        {$this->getId()}_jquery.data("_internalValue", "");
-        return null;
+        // Ausgabe des geparsten Wertes
+        if (dateParsed) {
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            return output;
+        } else {
+            {$this->getId()}_jquery.data("_internalValue", "");
+            return null;
+        }
     }
 JS;
         
