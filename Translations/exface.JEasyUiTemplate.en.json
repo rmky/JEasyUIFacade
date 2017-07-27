@@ -10,5 +10,10 @@
 	"MESSAGE.SUCCESS_TITLE": "Success",
 	"MESSAGE.FILL_REQUIRED_ATTRIBUTES": "Please fill in the required fields: ",
 	
-	"WIDGET.SEARCH": "Search"
+	"WIDGET.SEARCH": "Search",
+	
+	"DATE.FORMAT.SCREEN": "yyyy-MM-dd",
+	"DATE.FORMAT.INTERNAL": "yyyy-MM-dd",
+	"DATETIME.FORMAT.SCREEN": "yyyy-MM-dd HH:mm:ss",
+	"DATETIME.FORMAT.INTERNAL": "yyyy-MM-dd HH:mm:ss"
 }
