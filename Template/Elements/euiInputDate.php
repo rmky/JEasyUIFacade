@@ -1,6 +1,8 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
+use exface\AbstractAjaxTemplate\Template\Elements\JqueryInputDateTrait;
+
 // Es waere wuenschenswert die Formatierung des Datums abhaengig vom Locale zu machen.
 // Das Problem dabei ist folgendes: Wird im DateFormatter das Datum von DateJs ent-
 // sprechend dem Locale formatiert, so muss der DateParser kompatibel sein. Es kommt
@@ -15,13 +17,10 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 // festgelegt. Dabei ist darauf zu achten, dass es kompatibel zum Parser ist, das
 // amerikanische Format MM/dd/yyyy ist deshalb nicht moeglich, da es vom Parser als
 // dd/MM/yyyy interpretiert wird.
-
 class euiInputDate extends euiInput
 {
-
-    private $dateFormatScreen;
-
-    private $dateFormatInternal;
+    
+    use JqueryInputDateTrait;
 
     protected function init()
     {
@@ -91,55 +90,13 @@ JS;
     public function generateHeaders()
     {
         $headers = parent::generateHeaders();
-        $headers[] = '<script type="text/javascript" src="exface/vendor/npm-asset/datejs/build/production/' . $this->getDateJsFileName() . '"></script>';
+        $headers[] = '<script type="text/javascript" src="exface/vendor/npm-asset/datejs/build/production/' . $this->buildDateJsLocaleFilename() . '"></script>';
         return $headers;
-    }
-
-    /**
-     * Generates the DateJs filename based on the locale provided by the translator.
-     *
-     * @return string
-     */
-    protected function getDateJsFileName()
-    {
-        $dateJsBasepath = MODX_BASE_PATH . 'exface' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'npm-asset' . DIRECTORY_SEPARATOR . 'datejs' . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'production' . DIRECTORY_SEPARATOR;
-        
-        $locale = $this->getTemplate()->getApp()->getTranslator()->getLocale();
-        $filename = 'date-' . str_replace("_", "-", $locale) . '.min.js';
-        if (file_exists($dateJsBasepath . $filename)) {
-            return $filename;
-        }
-        
-        $fallbackLocales = $this->getTemplate()->getApp()->getTranslator()->getFallbackLocales();
-        foreach ($fallbackLocales as $fallbackLocale) {
-            $filename = 'date-' . str_replace("_", "-", $fallbackLocale) . '.min.js';
-            if (file_exists($dateJsBasepath . $filename)) {
-                return $filename;
-            }
-        }
-        
-        return 'date.min.js';
     }
 
     public function buildJsValueGetter()
     {
         return '$("#' . $this->getId() . '").data("_internalValue")';
-    }
-
-    protected function buildJsScreenDateFormat()
-    {
-        if (is_null($this->dateFormatScreen)) {
-            $this->dateFormatScreen = $this->translate("DATE.FORMAT.SCREEN");
-        }
-        return $this->dateFormatScreen;
-    }
-
-    protected function buildJsInternalDateFormat()
-    {
-        if (is_null($this->dateFormatInternal)) {
-            $this->dateFormatInternal = $this->translate("DATE.FORMAT.INTERNAL");
-        }
-        return $this->dateFormatInternal;
     }
 
     protected function buildJsDateParser()
@@ -217,7 +174,7 @@ JS;
         // Ausgabe des geparsten Wertes
         if (dateParsed) {
             var output = new Date(yyyy, MM, dd);
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsDateFormatInternal()}"));
             return output;
         }
         
@@ -264,7 +221,7 @@ JS;
         }
         // Ausgabe des geparsten Wertes
         if (dateParsed) {
-            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsInternalDateFormat()}"));
+            {$this->getId()}_jquery.data("_internalValue", output.toString("{$this->buildJsDateFormatInternal()}"));
             return output;
         } else {
             {$this->getId()}_jquery.data("_internalValue", "");
@@ -291,7 +248,7 @@ JS;
         // Das Format in dateFormatScreen muss mit dem DateParser kompatibel sein. Das
         // amerikanische Format MM/dd/yyyy wird vom Parser als dd/MM/yyyy interpretiert und
         // kann deshalb nicht verwendet werden. Loesung waere den Parser anzupassen.
-        return date.toString("{$this->buildJsScreenDateFormat()}");
+        return date.toString("{$this->buildJsDateFormatScreen()}");
     }
 JS;
         

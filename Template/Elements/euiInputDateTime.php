@@ -17,7 +17,7 @@ class euiInputDateTime extends euiInputDate
         }
         return $this->dateFormatScreen;
     }
-    
+
     protected function buildJsInternalDateFormat()
     {
         if (is_null($this->dateFormatInternal)) {
@@ -25,7 +25,7 @@ class euiInputDateTime extends euiInputDate
         }
         return $this->dateFormatInternal;
     }
-    
+
     protected function buildJsDateParser()
     {
         // TODO: Muss angepasst werden um auch eingegebene Zeiten zu verarbeiten. Momentan
