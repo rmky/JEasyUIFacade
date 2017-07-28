@@ -52,8 +52,21 @@ HTML;
 
     function generateJs()
     {
+        // Validator-Regel fuer InputDates hinzufuegen. Jetzt fuer jedes Widget einmal.
+        // Einmal wuerde eigentlich reichen, geht aber in template.js nicht, weil die
+        // message uebersetzt werden muss.
         $output = <<<JS
 
+    // Validator-Regel fuer InputDates hinzufuegen.
+    $.extend($.fn.validatebox.defaults.rules, {
+        date: {
+            validator: function(value, param) {
+                return $(param[0]).data("_isValid");
+            },
+            message: "{$this->translate("MESSAGE.INVALID.INPUTDATE")}"
+        }
+    });
+    
     $("#{$this->getId()}").{$this->getElementType()}({
         {$this->buildJsDataOptions()}
     });
@@ -84,7 +97,8 @@ JS;
             if (currentDate) {
                 {$this->getId()}_jquery.{$this->getElementType()}("setValue", {$this->getId()}_dateFormatter(currentDate));
             }
-        }
+        },
+        validType: "date['#{$this->getId()}']"
 JS;
     }
 
