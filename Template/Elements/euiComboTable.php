@@ -99,7 +99,7 @@ JS;
         
         // Make sure, the table in the combo has a smaller default page size than regular (big) tables
         // This makes combotables faster with large data sets.
-        if (is_null($this->getWidget()->getTable()->getPaginatePageSize())){
+        if (is_null($this->getWidget()->getTable()->getPaginatePageSize())) {
             $this->getWidget()->getTable()->setPaginatePageSize($this->getTemplate()->getConfig()->getOption('WIDGET.COMBOTABLE.PAGE_SIZE'));
         }
     }
@@ -169,7 +169,7 @@ HTML;
 
             // Globale Variablen initialisieren.
             {$this->buildJsInitGlobalsFunction()}
-            {$this->getId()}_initGlobals();
+            {$this->buildJsFunctionPrefix()}initGlobals();
             // Debug-Funktionen hinzufuegen.
             {$debug_function}
 			
@@ -198,7 +198,7 @@ JS;
             foreach ($this->getWidget()->getTable()->getFilters() as $fltr) {
                 $output .= <<<JS
 
-            function {$this->getTemplate()->getElement($fltr->getWidget())->getId()}_valueSetter(value){}
+            function {$this->getTemplate()->getElement($fltr->getWidget())->buildJsFunctionPrefix()}valueSetter(value){}
 JS;
             }
         }
@@ -301,7 +301,7 @@ JS;
                             if (newValueArray.length == 0) {
                                 {$this->getId()}_jquery.data("_lastValidValue", "");
                                 {$filterSetterUpdateScript}
-                                {$this->getId()}_onChange();
+                                {$this->buildJsFunctionPrefix()}onChange();
                             }
                             // Anschließend an onChange wird neu geladen -> onBeforeLoad
                         }
@@ -312,7 +312,7 @@ JS;
                             // Aktualisieren von lastValidValue. Loeschen von currentText. Funktion
                             // dieser Werte siehe onHidePanel.
                             //{$this->getId()}_jquery.data("_lastValidValue", {$this->getId()}_jquery.combogrid("getValues").join());
-                            {$this->getId()}_jquery.data("_lastValidValue", {$this->getId()}_valueGetter());
+                            {$this->getId()}_jquery.data("_lastValidValue", {$this->buildJsFunctionPrefix()}valueGetter());
                             {$this->getId()}_jquery.data("_currentText", "");
                             
                             // Wichtig fuer lazy_loading_groups, da sonst ein sich widersprechender Filter-
@@ -326,7 +326,7 @@ JS;
                             }
                             
                             //Referenzen werden aktualisiert.
-                            {$this->getId()}_onChange();
+                            {$this->buildJsFunctionPrefix()}onChange();
                         }
                         , onShowPanel: function() {
                             // Wird firstLoad verhindert, wuerde man eine leere Tabelle sehen. Um das zu
@@ -355,10 +355,10 @@ JS;
                             if (selectedRows.length == 0 && currentText) {
                                 if (lastValidValue){
                                     {$this->getId()}_jquery.data("_currentText", "");
-                                    {$this->getId()}_valueSetter(lastValidValue);
+                                    {$this->buildJsFunctionPrefix()}valueSetter(lastValidValue);
                                 } else {
                                     {$this->getId()}_jquery.data("_currentText", "");
-                                    {$this->getId()}_clear(true);
+                                    {$this->buildJsFunctionPrefix()}clear(true);
                                     if (currentValue != lastValidValue) {
                                         {$this->getId()}_datagrid.datagrid("reload");
                                     }
@@ -387,7 +387,7 @@ JS;
     {
         $params = $column ? '"' . $column . '"' : '';
         $params = $row ? ($params ? $params . ', ' . $row : $row) : $params;
-        return $this->getId() . '_valueGetter(' . $params . ')';
+        return $this->buildJsFunctionPrefix() . 'valueGetter(' . $params . ')';
     }
 
     /**
@@ -432,10 +432,10 @@ JS;
         
         $output = <<<JS
 
-                function {$this->getId()}_valueGetter(column, row){
+                function {$this->buildJsFunctionPrefix()}valueGetter(column, row){
                     // Der value-Getter wird in manchen Faellen aufgerufen, bevor die globalen
                     // Variablen definiert sind. Daher hier noch einmal initialisieren.
-                    {$this->getId()}_initGlobals();
+                    {$this->buildJsFunctionPrefix()}initGlobals();
                     
                     {$this->buildJsDebugMessage('valueGetter()')}
                     
@@ -480,7 +480,7 @@ JS;
      */
     function buildJsValueSetter($value)
     {
-        return $this->getId() . '_valueSetter(' . $value . ')';
+        return $this->buildJsFunctionPrefix() . 'valueSetter(' . $value . ')';
     }
 
     /**
@@ -506,7 +506,7 @@ JS;
         
         $output = <<<JS
 
-                function {$this->getId()}_valueSetter(value){
+                function {$this->buildJsFunctionPrefix()}valueSetter(value){
                     {$this->buildJsDebugMessage('valueSetter()')}
                     var valueArray;
                     if ({$this->getId()}_jquery.data("combogrid")) {
@@ -553,7 +553,7 @@ JS;
         
         $output = <<<JS
 
-                function {$this->getId()}_onChange(){
+                function {$this->buildJsFunctionPrefix()}onChange(){
                     {$this->buildJsDebugMessage('onChange()')}
                     // Diese Werte koennen gesetzt werden damit, wenn der Wert der ComboTable
                     // geaendert wird, nur ein Teil oder gar keine verlinkten Elemente aktualisiert
@@ -677,7 +677,7 @@ JS;
                     // OnBeforeLoad ist das erste Event, das nach der Erzeugung des Objekts getriggert
                     // wird. Daher werden hier globale Variablen initialisiert (_datagrid kann vorher
                     // nicht initialisiert werden, da das combogrid-Objekt noch nicht existiert).
-                    {$this->getId()}_initGlobals();
+                    {$this->buildJsFunctionPrefix()}initGlobals();
                     
                     {$this->buildJsDebugMessage('onBeforeLoad')}
                     
@@ -793,10 +793,10 @@ JS;
                         // anzuzeigen und das onChange-Skript wird ausgefuehrt.
                         var selectedRows = {$this->getId()}_datagrid.datagrid("getSelections");
                         if (selectedRows.length > 0) {
-                            {$this->getId()}_jquery.combogrid("setText", {$this->getId()}_valueGetter("{$textColumnName}"));
+                            {$this->getId()}_jquery.combogrid("setText", {$this->buildJsFunctionPrefix()}valueGetter("{$textColumnName}"));
                         }
                         
-                        {$this->getId()}_onChange();
+                        {$this->buildJsFunctionPrefix()}onChange();
                     } else if ({$this->getId()}_jquery.data("_clearFilterSetterUpdate")) {
                         // Leeren durch eine filter-Referenz.
                         
@@ -804,7 +804,7 @@ JS;
                         {$this->getId()}_jquery.removeData("_clearFilterSetterUpdate");
                         {$this->getId()}_jquery.removeData("_filterSetterUpdate");
                         
-                        {$this->getId()}_clear(false);
+                        {$this->buildJsFunctionPrefix()}clear(false);
                         
                         // Neu geladen werden muss nicht, denn die Filter waren beim vorangegangenen Laden schon
                         // entsprechend gesetzt.
@@ -819,8 +819,8 @@ JS;
                         // gesetzt ist, widerspricht der gesetzte Wert wahrscheinlich den gesetzten Filtern.
                         // Deshalb wird der Wert der ComboTable geloescht und anschliessend neu geladen.
                         var rows = {$this->getId()}_datagrid.datagrid("getData");
-                        if (rows["total"] == 0 && {$this->getId()}_valueGetter()) {
-                            {$this->getId()}_clear(true);
+                        if (rows["total"] == 0 && {$this->buildJsFunctionPrefix()}valueGetter()) {
+                            {$this->buildJsFunctionPrefix()}clear(true);
                             {$this->getId()}_datagrid.datagrid("reload");
                         }
                         
@@ -850,7 +850,7 @@ JS;
                             var selectedRows = {$this->getId()}_datagrid.datagrid("getSelections");
                             if (selectedRows.length == 0 || selectedRows.length > 1 || selectedRows[0]["{$uidColumnName}"] != rows["rows"][0]["{$uidColumnName}"]) {
                                 // Fuer multi_select werden erst alle angewaehlten Werte entfernt.
-                                {$this->getId()}_clear(true);
+                                {$this->buildJsFunctionPrefix()}clear(true);
                                 {$suppressLazyLoadingGroupUpdateScript}
                                 // Beim Autoselect wurde ja zuvor schon geladen und es gibt nur noch einen Vorschlag
                                 // im Resultat (im Gegensatz zur manuellen Auswahl eines Ergebnisses aus einer Liste).
@@ -906,7 +906,7 @@ JS;
         
         $output = <<<JS
 
-                function {$this->getId()}_clear(suppressAllUpdates) {
+                function {$this->buildJsFunctionPrefix()}clear(suppressAllUpdates) {
                     {$this->buildJsDebugMessage('clear()')}
                     
                     // Bestimmt ob durch das Leeren andere verlinkte Elemente aktualisiert werden sollen. 
@@ -975,7 +975,7 @@ JS;
                 break;
             case 3:
                 $output = <<<JS
-                if (window.console) { console.debug(Date.now() + "|{$this->getId()}.{$source}|" + {$this->getId()}_debugDataToString()); }
+                if (window.console) { console.debug(Date.now() + "|{$this->getId()}.{$source}|" + {$this->buildJsFunctionPrefix()}debugDataToString()); }
 JS;
                 break;
             default:
@@ -997,7 +997,7 @@ JS;
     {
         $output = <<<JS
 		
-                function {$this->getId()}_debugDataToString() {
+                function {$this->buildJsFunctionPrefix()}debugDataToString() {
                     var currentValue = {$this->getId()}_jquery.data("combogrid") ? {$this->getId()}_jquery.combogrid("getValues").join() : {$this->getId()}_jquery.val();;
                     var output =
                         "_valueSetterUpdate: " + {$this->getId()}_jquery.data("_valueSetterUpdate") + ", " +
@@ -1028,7 +1028,7 @@ JS;
     {
         $output = <<<JS
 
-                function {$this->getId()}_initGlobals() {
+                function {$this->buildJsFunctionPrefix()}initGlobals() {
                     window.{$this->getId()}_jquery = $("#{$this->getId()}");
                     if ({$this->getId()}_jquery.data("combogrid")) {
                         window.{$this->getId()}_datagrid = {$this->getId()}_jquery.combogrid("grid");

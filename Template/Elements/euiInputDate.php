@@ -87,15 +87,15 @@ JS;
         // dann zweimal ausgefuehrt (beim Schliessen des Panels ohne Enter einmal).
         return <<<JS
 
-        formatter: {$this->getId()}_dateFormatter,
-        parser: {$this->getId()}_dateParser,
+        formatter: {$this->buildJsFunctionPrefix()}dateFormatter,
+        parser: {$this->buildJsFunctionPrefix()}dateParser,
         onHidePanel: function() {
             // onHidePanel wird der Inhalt formatiert (beim Verlassen des Feldes), der
             // ausgefuehrte Code entspricht dem beim Druecken der Enter-Taste.
             {$this->getId()}_jquery = $("#{$this->getId()}");
             currentDate = {$this->getId()}_jquery.{$this->getElementType()}("calendar").calendar("options").current;
             if (currentDate) {
-                {$this->getId()}_jquery.{$this->getElementType()}("setValue", {$this->getId()}_dateFormatter(currentDate));
+                {$this->getId()}_jquery.{$this->getElementType()}("setValue", {$this->buildJsFunctionPrefix()}dateFormatter(currentDate));
             }
         },
         validType: "date['#{$this->getId()}']"
@@ -127,7 +127,7 @@ JS;
         // return date.toString("d");
         $output = <<<JS
 
-    function {$this->getId()}_dateFormatter(date) {
+    function {$this->buildJsFunctionPrefix()}dateFormatter(date) {
         // date ist ein date-Objekt und wird zu einem String geparst
         return date.toString("{$this->buildJsDateFormatScreen()}");
     }
