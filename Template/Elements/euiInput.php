@@ -5,7 +5,6 @@ use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\Core\Widgets\Input;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
 use exface\Core\Factories\WidgetLinkFactory;
-use exface\Core\Interfaces\Widgets\iLayoutWidgets;
 
 /**
  *

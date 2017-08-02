@@ -94,12 +94,6 @@ HTML;
 						}';
         }
         
-        // Layout-Funktion hinzufuegen
-        $output .= $this->buildJsLayouterFunction();
-        
-        // align the filters
-        $output .= $this->buildJsLayouter() . ';';
-        
         return $output;
     }
 
