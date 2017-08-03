@@ -13,31 +13,33 @@ class euiInputJson extends euiInputText
 
     function generateHtml()
     {
-        $output = ' <input type="hidden"
-							name="' . $this->getWidget()->getAttributeAlias() . '"
-							id="' . $this->getId() . '">
-					<div id="' . $this->getId() . '_editor" style="height: 100%; width: 100%;"></div>';
+        $output = '<div id="' . $this->getId() . '" style="height: 100%; width: 100%;"></div>';
         return $this->buildHtmlWrapperDiv($output);
     }
 
     function generateJs()
     {
-        $init_value = $this->getWidget()->getValue() ? 'editor.set(' . $this->getWidget()->getValue() . ');' : '';
+        $init_value = $this->getValueWithDefaults() ? $this->getId() . '_JSONeditor.set(' . $this->getWidget()->getValue() . ');' : '';
         $script = <<<JS
-	var container = document.getElementById("{$this->getId()}_editor");
-    var editor = new JSONEditor(container, 
-    				{
-    					mode: 'tree',
-   						modes: ['code', 'form', 'text', 'tree', 'view'],
-   						change: function(){ $('#{$this->getId()}').val(editor.getText()); }
-					}
-    	);
-    {$init_value}
-    editor.expandAll();
-    $(container).parents('.exf_input').children('label').css('vertical-align', 'top');
-	$('#{$this->getId()}').val(editor.getText());
+            var {$this->getId()}_JSONeditor = new JSONEditor(document.getElementById("{$this->getId()}"), {
+                            					mode: 'tree',
+                           						modes: ['code', 'form', 'text', 'tree', 'view']
+                        					});
+            {$init_value}
+            {$this->getId()}_JSONeditor.expandAll();
+            $('#{$this->getId()}').parents('.exf_input').children('label').css('vertical-align', 'top');
 JS;
         return $script;
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsValueGetter()
+     */
+    public function buildJsValueGetter()
+    {
+        return $this->getId() . '_JSONeditor.getText()';
     }
 
     public function generateHeaders()
