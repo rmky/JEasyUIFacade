@@ -163,9 +163,7 @@ HTML;
     public function generateHeaders()
     {
         $includes = parent::generateHeaders();
-        if ($this->getWidget()->getNumberOfColumns() != 1) {
-            $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
-        }
+        $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
         return $includes;
     }
 
