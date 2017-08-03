@@ -127,7 +127,11 @@ HTML;
         
         if ($widget->getNumberOfColumns() != 1) {
             $this->addOnLoadScript($this->buildJsLayouter() . ';');
-            $this->addOnResizeScript($this->buildJsLayouter() . ';');
+            // Need to wrap the layouter in setTimeout because the resize-script
+            // seems to get called to early if the panel is loaded via AJAX
+            // (e.g. within a dialog). This was preventing error widgets from
+            // AJAX requests to be shown in some cases.
+            $this->addOnResizeScript('setTimeout(function(){' . $this->buildJsLayouter() . '}, 0);');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
         $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
