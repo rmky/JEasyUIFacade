@@ -199,6 +199,8 @@ JS;
         }
         
         if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() == 1))) && ($widget->countWidgetsVisible() > 1)) {
+            // Wird ein masonry_grid-wrapper hinzugefuegt, sieht die Layout-Funktion etwas
+            // anders aus als wenn der wrapper fehlt. Siehe auch oben in generateHtml().
             $output = <<<JS
 
     function {$this->buildJsFunctionPrefix()}layouter() {
