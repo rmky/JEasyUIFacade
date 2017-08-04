@@ -22,7 +22,7 @@
         "bower-asset/jsoneditor": "^4.2",
         "bower-asset/paste.js": "~0.0.15",
         "bower-asset/google-diff-match-patch-js": "^1.0.0",
-        "bower-asset/font-awesome" : "^4.7",
+        "bower-asset/font-awesome": "^4.7",
         "npm-asset/flot-charts": "~0.8",
         "npm-asset/jquery-prettytextdiff": "^1.0.3",
         "npm-asset/Datejs": "1.0.0.0-beta2",
@@ -32,12 +32,14 @@
         "app": {
             "app_uid": "0x11e6c930ff1f486693cce4b318306b9a",
             "app_alias": "exface.JEasyUiTemplate",
-            "model_md5": "9ddff40b26324b5fcca65acf751b013d",
-            "model_timestamp": "2017-05-12 08:59:10"
+            "model_md5": "fb90a91b2221bbae6b3b65ddbece8129",
+            "model_timestamp": "2017-08-02 09:18:58"
         }
     },
     "autoload": {
-        "psr-4": { "exface\\JEasyUiTemplate\\": "" },
+        "psr-4": {
+            "exface\\JEasyUiTemplate\\": ""
+        },
         "exclude-from-classmap": [
             "/Config/",
             "/Translations/",

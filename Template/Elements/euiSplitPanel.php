@@ -40,23 +40,29 @@ class euiSplitPanel extends euiPanel
         
         $style = ($height ? 'height: ' . $height . ';' : '') . ($width ? 'width: ' . $width . ';' : '');
         
-        $children_html = $this->buildHtmlForChildren();
+        $children_html = <<<HTML
+
+                        {$this->buildHtmlForChildren()}
+                        <div id="{$this->getId()}_sizer" style="width:calc(100% / {$this->getNumberOfColumns()});min-width:{$this->getMinWidth()};"></div>
+HTML;
         
         // Wrap children widgets with a grid for masonry layouting - but only if there is something to be layed out
         if ($this->getWidget()->countWidgetsVisible() > 1) {
             $children_html = <<<HTML
 
-        <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
-            {$children_html}
-        </div>
+                    <div class="grid" id="{$this->getId()}_masonry_grid" style="width:100%;height:100%;">
+                        {$children_html}
+                    </div>
 HTML;
         }
         
-        $output = '
-				<div id="' . $this->getId() . '" data-options="' . $this->buildJsDataOptions() . '"' . ($style ? ' style="' . $style . '"' : '') . '>
-					' . $children_html . '
-				</div>
-				';
+        $output = <<<HTML
+
+                <div id="{$this->getId()}" data-options="{$this->buildJsDataOptions()}" style="{$style}">
+                    {$children_html}
+                </div>
+HTML;
+        
         return $output;
     }
 
@@ -81,6 +87,33 @@ HTML;
     {
         $this->region = $value;
         return $this;
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiPanel::buildJsLayouterFunction()
+     */
+    public function buildJsLayouterFunction()
+    {
+        $output = <<<JS
+
+    function {$this->getId()}_layouter() {
+        if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
+            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
+                $("#{$this->getId()}_masonry_grid").masonry({
+                    columnWidth: "#{$this->getId()}_sizer",
+                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                });
+            }
+        } else {
+            $("#{$this->getId()}_masonry_grid").masonry("reloadItems");
+            $("#{$this->getId()}_masonry_grid").masonry();
+        }
+    }
+JS;
+        
+        return $output;
     }
 }
 ?>

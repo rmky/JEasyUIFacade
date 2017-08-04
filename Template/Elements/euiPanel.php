@@ -127,7 +127,19 @@ HTML;
         
         if ($widget->getNumberOfColumns() != 1) {
             $this->addOnLoadScript($this->buildJsLayouter() . ';');
-            $this->addOnResizeScript($this->buildJsLayouter() . ';');
+            // The resize-script seems to get called too early sometimes if the 
+            // panel is loaded via AJAX, so we need to add a timeout if the
+            // laouter function is not defined yet. This was preventing error 
+            // widgets from AJAX requests to be shown if loading an editor with
+            // a corrupted attribute_alias. Just using setTimeout() every time
+            // is not an option either as it introduces a visible delay in those
+            // cases, when a direct call would have worked.
+            $this->addOnResizeScript('
+                try {
+                    ' . $this->buildJsLayouter() . '
+                } catch (e) {
+                    setTimeout(function(){' . $this->buildJsLayouter() . '}, 0);
+                }');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
         $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
@@ -151,9 +163,7 @@ HTML;
     public function generateHeaders()
     {
         $includes = parent::generateHeaders();
-        if ($this->getWidget()->getNumberOfColumns() != 1) {
-            $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
-        }
+        $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
         return $includes;
     }
 

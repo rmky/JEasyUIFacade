@@ -96,7 +96,11 @@ JS;
 
     public function buildJsDataOptions()
     {
-        return "panelHeight: 'auto'" . ($this->getWidget()->getMultiSelect() ? ", multiple:true" : '') . ($this->getWidget()->getMultiSelect() && count($this->getWidget()->getValues()) > 1 ? ", value:['" . implode("'" . $this->getWidget()->getMultiSelectValueDelimiter() . "'", $this->getWidget()->getValues()) . "']" : '');
+        $widget = $this->getWidget();
+        return "panelHeight: 'auto'" 
+            . ($this->getWidget()->getMultiSelect() ? ", multiple:true" : '')  
+            . ($widget->getHeight()->isRelative() && $widget->getHeight()->getValue() > 1 ? ", multiline:true" : '') 
+            . ($this->getWidget()->getMultiSelect() && count($this->getWidget()->getValues()) > 1 ? ", value:['" . implode("'" . $this->getWidget()->getMultiSelectValueDelimiter() . "'", $this->getWidget()->getValues()) . "']" : '');
     }
 }
 ?>
