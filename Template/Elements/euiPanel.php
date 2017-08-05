@@ -209,9 +209,11 @@ JS;
         }
         
         if ((is_null($widget->getParent()) || (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() == 1))) && ($widget->countWidgetsVisible() > 1)) {
+            // Wird ein masonry_grid-wrapper hinzugefuegt, sieht die Layout-Funktion etwas
+            // anders aus als wenn der wrapper fehlt. Siehe auch oben in generateHtml().
             $output = <<<JS
 
-    function {$this->getId()}_layouter() {
+    function {$this->buildJsFunctionPrefix()}layouter() {
         if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
             if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
                 $("#{$this->getId()}_masonry_grid").masonry({
@@ -229,7 +231,7 @@ JS;
         } else {
             $output = <<<JS
 
-    function {$this->getId()}_layouter() {
+    function {$this->buildJsFunctionPrefix()}layouter() {
         if (!$("#{$this->getId()}").data("masonry")) {
             if ($("#{$this->getId()}").find(".{$this->getId()}_masonry_fitem").length > 0) {
                 $("#{$this->getId()}").masonry({

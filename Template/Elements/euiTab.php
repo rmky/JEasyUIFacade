@@ -33,7 +33,7 @@ HTML;
         </div>
 HTML;
         }
-            
+        
         $title = $widget->getHideCaption() ? '' : ' title="' . $widget->getCaption() . '"';
         
         $output = <<<HTML
@@ -63,7 +63,7 @@ HTML;
     {
         $output = <<<JS
 
-    function {$this->getId()}_layouter() {
+    function {$this->buildJsFunctionPrefix()}layouter() {
         if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
             if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
                 $("#{$this->getId()}_masonry_grid").masonry({
@@ -80,7 +80,7 @@ JS;
         
         return $output;
     }
-    
+
     /**
      * The default column number for tabs is defined for the tabs widget or its derivatives.
      *
@@ -89,7 +89,7 @@ JS;
     public function getDefaultColumnNumber()
     {
         $parent_element = $this->getTemplate()->getElement($this->getWidget()->getParent());
-        if (method_exists($parent_element, 'getDefaultColumnNumber')){
+        if (method_exists($parent_element, 'getDefaultColumnNumber')) {
             return $parent_element->getDefaultColumnNumber();
         }
         return parent::getDefaultColumnNumber();

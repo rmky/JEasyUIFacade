@@ -14,10 +14,13 @@ class euiSplitVertical extends euiContainer
 
     function generateHtml()
     {
-        $output = '	<div class="easyui-layout" id="' . $this->getId() . '" data-options="fit:true">
-				' . $this->buildHtmlForWidgets() . '
-					</div>
-				';
+        $output = <<<HTML
+
+                    <div class="easyui-layout" id="{$this->getId()}" data-options="fit:true">
+                        {$this->buildHtmlForWidgets()}
+                    </div>
+HTML;
+        
         return $output;
     }
 
