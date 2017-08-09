@@ -486,9 +486,11 @@ JS;
         $menu_item = '';
         if ($button instanceof MenuButton){
             if ($button->getParent() instanceof ButtonGroup && $button === $this->getTemplate()->getElement($button->getParent())->getMoreButtonsMenu()){
-                $menu_item .= '<div class="menu-sep"></div>';
-                foreach ($button->getButtons() as $btn){
-                    $menu_item .= $this->buildHtmlContextMenuItem($btn);
+                foreach ($button->getMenu()->getButtonGroups() as $grp){
+                    $menu_item .= '<div class="menu-sep"></div>';
+                    foreach ($grp->getButtons() as $btn){
+                        $menu_item .= $this->buildHtmlContextMenuItem($btn);
+                    }
                 }
             } else {
                 $menu_item .= '<div><span>' . $button->getCaption() . '</span><div>' . $this->getTemplate()->getElement($button)->buildHtmlMenuItems(). '</div></div>';
