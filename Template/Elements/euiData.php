@@ -12,8 +12,6 @@ use exface\Core\Widgets\Tabs;
 use exface\Core\Interfaces\Widgets\iHaveContextMenu;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
-use exface\Core\Interfaces\Widgets\iHaveHeader;
-use exface\Core\Interfaces\Widgets\iHaveFooter;
 
 /**
  * Implementation of a basic grid.
@@ -23,7 +21,7 @@ use exface\Core\Interfaces\Widgets\iHaveFooter;
  * @author Andrej Kabachnik
  *        
  */
-class euiData extends euiAbstractElement implements  iHaveHeader, iHaveFooter
+class euiData extends euiAbstractElement
 {
     use JqueryToolbarsTrait;
     
