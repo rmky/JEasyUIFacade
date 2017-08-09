@@ -19,7 +19,7 @@ class euiDataList extends euiDataTable
         $this->setElementType('datalist');
         
         $widget = $this->getWidget();
-        if($widget->getConfiguratorWidget()->isEmpty() && is_null($widget->getHideSearchButton())){
+        if($widget->getConfiguratorWidget()->isEmpty() && is_null($widget->getToolbarMain()->setIncludeSearchActions(false))){
             $widget->setHideSearchButton(true);
         }
     }
