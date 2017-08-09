@@ -63,7 +63,7 @@ class euiMenuButton extends euiAbstractElement
 			</div>
 HTML;
         
-        if ($this->getWidget()->getInputWidget() instanceof Dialog && ! $this->getWidget()->getParent() instanceof Dialog) {
+        if (! $this->getWidget()->getParent()->is('ButtonGroup')) {
             // Hier wird versucht zu unterscheiden wo sich der Knopf befindet. Der Wrapper wird nur benoetigt
             // wenn er sich in einem Dialog befindet, aber nicht als Knopf im Footer, sondern im Inhalt.
             $output = $this->buildHtmlWrapperDiv($output);
@@ -79,7 +79,7 @@ HTML;
 
     /**
      *
-     * @param unknown $html            
+     * @param string $html            
      * @return string
      */
     protected function buildHtmlWrapperDiv($html)
