@@ -12,6 +12,8 @@ use exface\Core\Widgets\Tabs;
 use exface\Core\Interfaces\Widgets\iHaveContextMenu;
 use exface\AbstractAjaxTemplate\Template\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
+use exface\Core\Interfaces\Widgets\iHaveHeader;
+use exface\Core\Interfaces\Widgets\iHaveFooter;
 
 /**
  * Implementation of a basic grid.
@@ -21,7 +23,7 @@ use exface\Core\Widgets\ButtonGroup;
  * @author Andrej Kabachnik
  *        
  */
-class euiData extends euiAbstractElement
+class euiData extends euiAbstractElement implements  iHaveHeader, iHaveFooter
 {
     use JqueryToolbarsTrait;
     
@@ -455,13 +457,21 @@ JS;
         $widget = $this->getWidget();
         $context_menu_html = '';
         if ($widget->hasButtons()) {
-            foreach ($widget->getToolbarMain()->getButtonGroupFirst()->getButtons() as $button) {
+            $main_toolbar = $widget->getToolbarMain();
+            foreach ($main_toolbar->getButtonGroupFirst()->getButtons() as $button) {
                 $context_menu_html .= $this->buildHtmlContextMenuItem($button);
             }
             
+            
+            
             foreach ($widget->getToolbars() as $toolbar){
+                if ($toolbar->getIncludeSearchActions()){
+                    $search_button_group = $toolbar->getButtonGroupForSearchActions();
+                } else {
+                    $search_button_group = null;
+                }
                 foreach ($toolbar->getButtonGroups() as $btn_group){
-                    if ($btn_group !== $widget->getToolbarMain()->getButtonGroupFirst() && $btn_group->hasButtons()){
+                    if ($btn_group !== $main_toolbar->getButtonGroupFirst() && $btn_group !== $search_button_group && $btn_group->hasButtons()){
                         $context_menu_html .= '<div class="menu-sep"></div>';
                         foreach ($btn_group->getButtons() as $button){
                             $context_menu_html .= $this->buildHtmlContextMenuItem($button);
@@ -514,6 +524,7 @@ JS;
     protected function buildHtmlTableHeader($panel_options = "border: false, width: '100%'")
     {
         $widget = $this->getWidget();
+        $toolbar_style = '';
         
         // Prepare the header with the configurator and the toolbars
         $configurator_widget = $widget->getConfiguratorWidget();
@@ -546,12 +557,17 @@ JS;
             $context_menu_html = '';
         }
         
+        if ($widget->getHideHeader()){
+            $panel_options .= ', collapsed: true';
+            $toolbar_style .= 'display: none; height: 0;';
+        }
+        
         return <<<HTML
         
                 <div class="easyui-panel exf-data-header" data-options="footer: '#{$this->getToolbarId()}_footer', {$panel_options} {$configurator_panel_collapsed}">
                     {$configurator_element->generateHtml()}
                 </div>
-                <div id="{$this->getToolbarId()}_footer" class="datatable-toolbar">
+                <div id="{$this->getToolbarId()}_footer" class="datatable-toolbar" style="{$toolbar_style}">
                     {$this->buildHtmlToolbars()}
                 </div>
                 {$context_menu_html}

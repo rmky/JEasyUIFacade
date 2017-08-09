@@ -27,50 +27,44 @@ class euiChart extends euiData
     protected function init()
     {
         parent::init();
+        $widget = $this->getWidget();
         // Connect to an external data widget if a data link is specified for this chart
         $this->registerLiveReferenceAtLinkedElement();
         
         // Disable global buttons because jEasyUI charts do not have data getters yet
-        $this->getWidget()->getToolbarMain()->setIncludeGlobalActions(false);
+        $widget->getToolbarMain()->setIncludeGlobalActions(false);
         
         // Make the configurator resize together with the chart layout.
-        $configurator_element = $this->getTemplate()->getElement($this->getWidget()->getConfiguratorWidget());
+        $configurator_element = $this->getTemplate()->getElement($widget->getConfiguratorWidget());
+        // FIXME how to make the configurator resize when the chart is resized?
         $this->addOnResizeScript("
-            if(typeof $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "() !== 'undefined') {
+            /*if(typeof $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "() !== 'undefined') {
                 setTimeout(function(){
                     $('#" . $configurator_element->getId() . "')." . $configurator_element->getElementType() . "('resize');
-                }, 0);       
-            }
+                }, 0);     
+            }*/
         ");
+        
+        if ($widget->getHideHeader()){
+            $this->addOnResizeScript("
+                 var newHeight = $('#{$this->getId()}_wrapper > .panel').height();
+                 $('#{$this->getId()}').height($('#{$this->getId()}').parent().height()-newHeight);
+            ");
+        }
     }
 
     function generateHtml()
     {
         $output = '';
-        $toolbar = '';
         $widget = $this->getWidget();
         
-        // Create the toolbar if the chart has it's own controls and is not bound to another data widget
+        // Create the header if the chart has it's own controls and is not bound to another data widget
+        $header_html = '';
         if (! $widget->getDataWidgetLink()) {
-            
-            if ($widget->getHideHeader()) {
-                $toolbar_panel_options = ', collapsible: true, collapsed: true';
-                $chart_panel_options = ", title: '{$this->getWidget()->getCaption()}'";
-            } else {
-                $toolbar_panel_options = ", collapsible: true, collapsed: false, title: '{$this->getWidget()->getCaption()}'";
-            }
-            
-            // create a container for the toolbar
-            if (($widget->getData()->hasFilters() || $widget->hasButtons())) {
-                
-                $toolbar = <<<HTML
-
-        <div id="{$this->getId()}_header" data-options="region: 'north', onResize: function(){ {$this->getOnResizeScript()} }{$toolbar_panel_options}">
-            {$this->buildHtmlTableHeader()}
-        </div>
-HTML;
-            }
+            $header_html = $this->buildHtmlTableHeader();
         }
+        
+        $chart_panel_options = ", title: '{$this->getWidget()->getCaption()}'";
         
         // Create the panel for the chart
         // overflow: hidden loest ein Problem im JavaFX WebView-Browser, bei dem immer wieder
@@ -79,13 +73,10 @@ HTML;
         // das Layout umgebrochen hat. Da sich die Groesse des Charts sowieso an den Container
         // anpasst sollte overflow: hidden keine weiteren Auswirkungen haben.
         $output = <<<HTML
-
 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
-    <div class="easyui-layout" style="height: auto;"  id="{$this->getId()}_wrapper" data-options="fit: true">
-    	{$toolbar}
-    	<div data-options="region: 'center' {$chart_panel_options}">
-    		<div id="{$this->getId()}" style="height:calc(100% - 15px); min-height: 100px; overflow: hidden;"></div>
-    	</div>
+    <div class="easyui-panel" style="height: auto;" id="{$this->getId()}_wrapper" data-options="fit: true {$chart_panel_options}, onResize: function(){ {$this->getOnResizeScript()} }">
+    	{$header_html}
+    	<div id="{$this->getId()}" style="height:auto; min-height: 100px; overflow: hidden;"></div>
     </div>
 </div>
 HTML;
@@ -112,21 +103,14 @@ HTML;
         // Add scripts for the buttons
         $output .= $this->buildJsButtons();
         
-        // TODO this ugly hack makes sure, the north panel of the layout is reduced
-        // in height after masonry finishes rendering the configurator. The
-        // trouble is, that this triggers a resize of the layout and that, in turn,
-        // leads to another resize of the configurator and so on. 
         $output .= <<<JS
                     $('#{$configurator_element->getId()}').find('.grid').on( 'layoutComplete', function( event, items ) {
                         setTimeout(function(){
-                            var newHeight = $('#Chart_header > .panel').height()+3;
-                            var p = $('#{$this->getId()}_wrapper').layout('panel','north');  // get the west panel
-                            if (p.height()+2 != newHeight){
-                                p.panel('resize',{height: newHeight});  // change the width of west panel
-                                $('#{$this->getId()}_wrapper').layout('resize');
-                            }
-                        }, 0);
-                                                    
+                            var newHeight = $('#{$this->getId()}_wrapper > .panel').height();
+                            console.log(newHeight);
+                            $('#{$this->getId()}').height($('#{$this->getId()}').parent().height()-newHeight);
+                            console.log($('#{$this->getId()}').height());
+                        }, 0);               
                     });
                     
 JS;
@@ -349,12 +333,16 @@ JS;
 		    }).appendTo("body");
 		    $("#' . $this->getId() . '").bind("plothover", function (event, pos, item) {
 		      if (item) {
-		        var x = new Date(item.datapoint[0]),
-		            y = item.datapoint[1].toFixed(2);
-		
-		        $("#' . $this->getId() . '_tooltip").html(item.series.xaxis.options.axisLabel + ": " + x.toLocaleDateString() + "<br/>" + item.series.label + ": " + y)
-		            .css({top: item.pageY + 5, left: item.pageX + 5})
-		            .fadeIn(200);
+                try {
+    		        var x = new Date(item.datapoint[0]),
+    		            y = item.datapoint[1].toFixed(2);
+    		
+    		        $("#' . $this->getId() . '_tooltip").html(item.series.xaxis.options.axisLabel + ": " + x.toLocaleDateString() + "<br/>" + item.series.label + ": " + y)
+    		            .css({top: item.pageY + 5, left: item.pageX + 5})
+    		            .fadeIn(200);
+                } catch (e) {
+                    // ignore errors
+                }
 		      } else {
 		        $("#' . $this->getId() . '_tooltip").hide();
 		      }
