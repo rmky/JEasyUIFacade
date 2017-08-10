@@ -470,7 +470,7 @@ JS;
                 }
                 foreach ($toolbar->getButtonGroups() as $btn_group){
                     if ($btn_group !== $main_toolbar->getButtonGroupFirst() && $btn_group !== $search_button_group && $btn_group->hasButtons()){
-                        $context_menu_html .= '<div class="menu-sep"></div>';
+                        $context_menu_html = $context_menu_html ? $context_menu_html . '<div class="menu-sep"></div>' : $context_menu_html;
                         foreach ($btn_group->getButtons() as $button){
                             $context_menu_html .= $this->buildHtmlContextMenuItem($button);
                         }
