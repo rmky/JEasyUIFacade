@@ -18,20 +18,7 @@ class euiMenu extends euiAbstractElement
      * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateHtml()
      */
     public function generateHtml()
-    {
-        switch ($this->getWidget()->getAlign()) {
-            case EXF_ALIGN_LEFT:
-                $align_style = 'float: left;';
-                break;
-            case EXF_ALIGN_RIGHT:
-                $align_style = 'float: right;';
-                break;
-            default:
-                $align_style = '';
-        }
-        
-        $title = $this->getWidget()->getCaption() ? '<div class="panel-header"><span class="panel-title">' . $this->getWidget()->getCaption() . '</span></div>' : '';
-        
+    {        
         return <<<HTML
 <div class="easyui-panel" data-options="fit:true, title:'{$this->getWidget()->getCaption()}'">
     <div class="easyui-menu" data-options="inline:true, fit:true, lines:true" style="position:relative; border:none">
