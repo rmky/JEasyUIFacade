@@ -482,17 +482,26 @@ JS;
         
         // If the top toolbar is hidden, add actions to the bottom toolbar
         if ($widget->getHideHeader() && ! $widget->getHideFooter() && $widget->hasButtons()) {
-            foreach ($widget->getButtons() as $button) {
-                if ($button->isHidden() || $button instanceof MenuButton){
-                    continue;
-                }
-                
-                $bottom_buttons[] = '{
-					iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
-					title: "' . str_replace('"', '\"', $button->getCaption()) . '",
-					handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
-				}';
-                
+            foreach ($widget->getToolbars() as $toolbar) {
+                foreach ($toolbar->getButtonGroups() as $button_group){
+                    if ($toolbar->getIncludeSearchActions() && $button_group === $toolbar->getButtonGroupForSearchActions()){
+                        continue;
+                    }
+                    if (! empty($bottom_buttons) && ! $button_group->isEmpty()){
+                        $bottom_buttons[] = '"-"';
+                    }
+                    foreach ($button_group->getButtons() as $button){
+                        if ($button->isHidden() || $button instanceof MenuButton){
+                            continue;
+                        }
+                        
+                        $bottom_buttons[] = '{
+        					iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
+        					title: "' . str_replace('"', '\"', $button->getCaption()) . '",
+        					handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
+        				}';
+                    }
+                }                
             }
         }
         
