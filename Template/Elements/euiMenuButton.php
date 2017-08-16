@@ -13,7 +13,7 @@ use exface\Core\Widgets\MenuButton;
  * @author Andrej Kabachnik
  *        
  */
-class euiMenuButton extends euiAbstractElement
+class euiMenuButton extends euiButton
 {
     
     use JqueryButtonTrait;
@@ -37,10 +37,10 @@ class euiMenuButton extends euiAbstractElement
     public function generateHtml()
     {
         $output = '';
+        $widget = $this->getWidget();
         $buttons_html = $this->buildHtmlMenuItems();
         
-        $icon = $this->getWidget()->getIconName() ? ',iconCls:\'' . $this->buildCssIconClass($this->getWidget()->getIconName()) . '\'' : '';
-        switch ($this->getWidget()->getAlign()) {
+        switch ($widget->getAlign()) {
             case EXF_ALIGN_LEFT:
                 $align_style = 'float: left;';
                 break;
@@ -50,26 +50,35 @@ class euiMenuButton extends euiAbstractElement
             default:
                 $align_style = '';
         }
-        // Disable the menu button if empty or explicitly disabled
-        $menu_disabled = $this->getWidget()->isDisabled() || ! $this->getWidget()->hasButtons() ? 'disabled="disabled"' : '';
         
         // Render jEasyUI menubutton
         $output .= <<<HTML
-            <a href="javascript:void(0)" id="{$this->getId()}" class="easyui-{$this->getElementType()}" data-options="menu:'#{$this->buildHtmlMenuId()}' {$icon}" style="{$align_style}" {$menu_disabled}>
-				{$this->getWidget()->getCaption()}
+            <a href="javascript:void(0)" id="{$this->getId()}" class="easyui-{$this->getElementType()}" data-options="menu:'#{$this->buildHtmlMenuId()}', {$this->buildJsDataOptions()}" style="{$align_style}" {$menu_disabled}>
+				{$widget->getCaption()}
 			</a>
 			<div id="{$this->buildHtmlMenuId()}">
 				{$buttons_html}
 			</div>
 HTML;
         
-        if (! $this->getWidget()->getParent()->is('ButtonGroup')) {
+        if (! $widget->getParent()->is('ButtonGroup')) {
             // Hier wird versucht zu unterscheiden wo sich der Knopf befindet. Der Wrapper wird nur benoetigt
             // wenn er sich in einem Dialog befindet, aber nicht als Knopf im Footer, sondern im Inhalt.
             $output = $this->buildHtmlWrapperDiv($output);
         }
         
         return $output;
+    }
+    
+    protected function buildJsDataOptions()
+    {
+        $options = parent::buildJsDataOptions();
+        
+        if ($this->getWidget()->getMenu()->isEmpty()) {
+            $options .= ', disabled: true, plain: true';
+        }
+        
+        return $options;
     }
     
     public function buildHtmlMenuItems()

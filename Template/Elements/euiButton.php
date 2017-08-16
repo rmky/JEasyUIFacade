@@ -82,6 +82,16 @@ class euiButton extends euiAbstractElement
             }
         }
         
+        $output = '
+				<a id="' . $this->getId() . '" title="' . str_replace('"', '\"', $widget->getHint()) . '" href="#" class="easyui-linkbutton" data-options="' . $this->buildJsDataOptions() . '" style="' . $style . '" onclick="' . $this->buildJsFunctionPrefix() . 'click();">
+						' . $widget->getCaption() . '
+				</a>';
+        return $output;
+    }
+    
+    protected function buildJsDataOptions()
+    {
+        $widget = $this->getWidget();
         $data_options = '';
         if ($widget->getVisibility() != EXF_WIDGET_VISIBILITY_PROMOTED) {
             $data_options .= 'plain: true';
@@ -89,17 +99,12 @@ class euiButton extends euiAbstractElement
             $data_options .= 'plain: false';
         }
         if ($widget->isDisabled()) {
-            $data_options .= ', disabled: true';
+            $data_options .= ', disabled: true, plain: true';
         }
         if ($widget->getIconName() && !$widget->getHideButtonIcon()) {
             $data_options .= ", iconCls: '" . $this->buildCssIconClass($widget->getIconName()) . "'";
         }
-        
-        $output = '
-				<a id="' . $this->getId() . '" title="' . str_replace('"', '\"', $widget->getHint()) . '" href="#" class="easyui-linkbutton" data-options="' . $data_options . '" style="' . $style . '" onclick="' . $this->buildJsFunctionPrefix() . 'click();">
-						' . $widget->getCaption() . '
-				</a>';
-        return $output;
+        return $data_options;
     }
 
     protected function buildJsClickShowDialog(ActionInterface $action, AbstractJqueryElement $input_element)
