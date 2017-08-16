@@ -3,7 +3,7 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Interfaces\Actions\ActionInterface;
 use exface\Core\Widgets\Input;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryLiveReferenceTrait;
 use exface\Core\Factories\WidgetLinkFactory;
 
 /**
@@ -119,7 +119,7 @@ class euiInput extends euiAbstractElement
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsDataGetter($action, $custom_body_js)
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJsDataGetter($action, $custom_body_js)
      */
     public function buildJsDataGetter(ActionInterface $action = null)
     {
@@ -134,7 +134,7 @@ class euiInput extends euiAbstractElement
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsValidator()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJsValidator()
      */
     function buildJsValidator()
     {
@@ -154,7 +154,7 @@ class euiInput extends euiAbstractElement
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLiveReferenceTrait::buildJsDisableCondition()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryLiveReferenceTrait::buildJsDisableCondition()
      */
     public function buildJsDisableCondition()
     {
@@ -200,7 +200,7 @@ JS;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsEnabler()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJsEnabler()
      */
     function buildJsEnabler()
     {
@@ -211,7 +211,7 @@ JS;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsDisabler()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJsDisabler()
      */
     function buildJsDisabler()
     {

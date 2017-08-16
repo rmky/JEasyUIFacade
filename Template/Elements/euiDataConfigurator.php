@@ -2,7 +2,7 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\DataConfigurator;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataConfiguratorTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryDataConfiguratorTrait;
 
 /**
  * 

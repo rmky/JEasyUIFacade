@@ -2,8 +2,8 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\Panel;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryLayoutInterface;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryLayoutTrait;
 use exface\Core\DataTypes\BooleanDataType;
 
 /**
@@ -193,7 +193,7 @@ HTML;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryLayoutInterface::buildJsLayouterFunction()
      */
     public function buildJsLayouterFunction()
     {

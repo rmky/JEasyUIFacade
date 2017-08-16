@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement;
 use exface\JEasyUiTemplate\Template\JEasyUiTemplate;
 use exface\Core\Interfaces\Widgets\iLayoutWidgets;
 use exface\Core\Interfaces\Widgets\iFillEntireContainer;
@@ -88,7 +88,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsShowMessageSuccess($message_body_js, $title)
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJsShowMessageSuccess($message_body_js, $title)
      */
     public function buildJsShowMessageError($message_body_js, $title = null)
     {
@@ -100,7 +100,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsShowMessageSuccess($message_body_js, $title)
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJsShowMessageSuccess($message_body_js, $title)
      */
     public function buildJsShowMessageSuccess($message_body_js, $title = null)
     {
@@ -135,7 +135,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getWidth()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::getWidth()
      */
     public function getWidth()
     {
@@ -185,7 +185,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getHeight()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::getHeight()
      */
     public function getHeight()
     {

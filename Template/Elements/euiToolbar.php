@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryToolbarTrait;
 
 /**
  * The jEasyUI implementation of the Toolbar widget

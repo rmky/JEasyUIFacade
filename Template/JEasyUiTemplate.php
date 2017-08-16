@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template;
 
-use exface\AbstractAjaxTemplate\Template\AbstractAjaxTemplate;
+use exface\Core\Templates\AbstractAjaxTemplate\AbstractAjaxTemplate;
 use exface\Core\Exceptions\DependencyNotFoundError;
 
 class JEasyUiTemplate extends AbstractAjaxTemplate

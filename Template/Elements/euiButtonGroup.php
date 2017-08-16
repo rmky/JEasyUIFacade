@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonGroupTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryButtonGroupTrait;
 
 /**
  * The jEasyUI implementation of the ButtonGroup widget

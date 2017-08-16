@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryContainerTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryContainerTrait;
 
 class euiContainer extends euiAbstractElement
 {

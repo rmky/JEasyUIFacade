@@ -3,9 +3,9 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\DialogButton;
 use exface\Core\Interfaces\Actions\ActionInterface;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryAlignmentTrait;
-use exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryButtonTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryAlignmentTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement;
 use exface\Core\Widgets\Dialog;
 use exface\Core\Widgets\Button;
 use exface\Core\Widgets\ButtonGroup;
@@ -187,7 +187,7 @@ JS;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateHeaders()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::generateHeaders()
      */
     public function generateHeaders()
     {

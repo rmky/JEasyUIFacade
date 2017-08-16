@@ -5,8 +5,8 @@ use exface\Core\Widgets\ChartAxis;
 use exface\Core\Widgets\ChartSeries;
 use exface\Core\Widgets\Chart;
 use exface\Core\Exceptions\Templates\TemplateUnsupportedWidgetPropertyWarning;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryFlotTrait;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryFlotTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryToolbarsTrait;
 
 /**
  * 

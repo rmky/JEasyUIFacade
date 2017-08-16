@@ -5,12 +5,12 @@ use exface\Core\Widgets\DataColumnGroup;
 use exface\Core\Widgets\Data;
 use exface\Core\CommonLogic\DataSheets\DataSheet;
 use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryToolbarsTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryToolbarsTrait;
 use exface\Core\Widgets\MenuButton;
 use exface\Core\Widgets\Button;
 use exface\Core\Widgets\Tabs;
 use exface\Core\Interfaces\Widgets\iHaveContextMenu;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryAlignmentTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
 
 /**
@@ -46,7 +46,7 @@ class euiData extends euiAbstractElement
     /**
      * 
      * {@inheritDoc}
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::init()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::init()
      */
     protected function init()
     {
@@ -63,7 +63,7 @@ class euiData extends euiAbstractElement
      * The Data element by itself does not generate anything - it just offers common utility methods.
      * 
      * {@inheritDoc}
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateHtml()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::generateHtml()
      */
     public function generateHtml()
     {
@@ -74,7 +74,7 @@ class euiData extends euiAbstractElement
      * The Data element by itself does not generate anything - it just offers common utility methods.
      *
      * {@inheritDoc}
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateJ()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::generateJ()
      */
     public function generateJs()
     {

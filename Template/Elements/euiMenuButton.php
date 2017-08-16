@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryButtonTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryButtonTrait;
 use exface\Core\Widgets\Dialog;
 use exface\Core\Widgets\MenuButton;
 
@@ -22,7 +22,7 @@ class euiMenuButton extends euiButton
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::init()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::init()
      */
     protected function init()
     {
@@ -104,7 +104,7 @@ HTML;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateJs()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::generateJs()
      */
     public function generateJs()
     {

@@ -3,7 +3,7 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\DataTable;
 use exface\Core\Interfaces\Actions\ActionInterface;
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryDataTableTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryDataTableTrait;
 use exface\Core\Interfaces\Actions\iReadData;
 use exface\Core\Widgets\DataColumn;
 use exface\Core\Widgets\MenuButton;
@@ -198,7 +198,7 @@ HTML;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::buildJsRefresh()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJsRefresh()
      */
     public function buildJsRefresh($keep_pagination_position = false)
     {
@@ -209,7 +209,7 @@ HTML;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::generateHeaders()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::generateHeaders()
      */
     public function generateHeaders()
     {

@@ -48,7 +48,7 @@ HTML;
      *
      * {@inheritdoc}
      *
-     * @see \exface\AbstractAjaxTemplate\Template\Elements\AbstractJqueryElement::getWidget()
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::getWidget()
      * @return Planogram
      */
     public function getWidget()

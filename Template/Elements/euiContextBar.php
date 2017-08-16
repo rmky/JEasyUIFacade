@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\AbstractAjaxTemplate\Template\Elements\JqueryContextBarAjaxTrait;
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryContextBarAjaxTrait;
 
 class euiContextBar extends euiAbstractElement
 {
