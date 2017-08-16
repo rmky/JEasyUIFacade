@@ -49,7 +49,7 @@ HTML;
         foreach ($this->getWidget()->getButtons() as $b) {
             // Insert separators between button groups (neighbouring buttons with
             // different parents.
-            if (!is_null($last_parent) && $last_parent != $b->getParent()){
+            if (!is_null($last_parent) && $last_parent !== $b->getParent()){
                 $buttons_html .= '<div class="menu-sep"></div>';
             }
             $last_parent = $b->getParent();
