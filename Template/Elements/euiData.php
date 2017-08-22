@@ -174,12 +174,12 @@ class euiData extends euiAbstractElement
 				, fitColumns: true
 				, multiSort: ' . ($widget->getHeaderSortMultiple() ? 'true' : 'false') . '
 				' . $sortColumn . $sortOrder . '
-				, showFooter: "' . ($this->getShowFooter() ? 'true' : 'false') . '"
+				, showFooter: ' . ($this->getShowFooter() ? 'true' : 'false') . '
 				' . ($widget->getUidColumnId() ? ', idField: "' . $widget->getUidColumn()->getDataColumnName() . '"' : '') . '
 				' . (! $widget->getMultiSelect() ? ', singleSelect: true' : '') . '
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
-				, pageList: ' . json_encode($page_sizes) . '
+				' . ($widget->getPaginate() ? ', pageList: ' . json_encode($page_sizes) : '') . '
 				, pageSize: ' . $default_page_size . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
@@ -416,7 +416,7 @@ JS;
 		try {
 			var data = {$this->getTemplate()->encodeData($this->prepareData($data, false))};
 		} catch (err){
-			error();
+            error();
 			return;
 		}
 		
@@ -439,9 +439,16 @@ JS;
 			}
 		}
 		data.total = data.rows.length;
-		success(data);	
+        success(data);	
 		return;
 JS;
+        
+        // This is a strange fix for jEasyUI rendering wrong height in non-ajax
+        // data widgets...
+        if (! $this->getWidget()->getHideHeader()){
+            $this->addOnLoadSuccess("setTimeout(function(){ $('#" . $this->getId() . "').datagrid('resize'); }, 0);");
+        }
+        
         return $js;
     }
 
@@ -456,11 +463,10 @@ JS;
         $context_menu_html = '';
         if ($widget->hasButtons()) {
             $main_toolbar = $widget->getToolbarMain();
+            
             foreach ($main_toolbar->getButtonGroupFirst()->getButtons() as $button) {
                 $context_menu_html .= $this->buildHtmlContextMenuItem($button);
             }
-            
-            
             
             foreach ($widget->getToolbars() as $toolbar){
                 if ($toolbar->getIncludeSearchActions()){
@@ -549,6 +555,11 @@ JS;
             }
         ");
         
+        // Build the HTML for the button toolbars.
+        // IMPORTANT: do it BEFORE the context menu since buttons may be moved
+        // between toolbars and hidden in menus when rendering.
+        $toolbars_html = $this->buildHtmlToolbars();
+        
         // Create a context menu if any items were found
         $context_menu_html = $this->buildHtmlContextMenu();
         if ($context_menu_html && ($widget instanceof iHaveContextMenu) && $widget->getContextMenuEnabled()) {
@@ -568,7 +579,7 @@ JS;
                     {$configurator_element->generateHtml()}
                 </div>
                 <div id="{$this->getToolbarId()}_footer" class="datatable-toolbar" style="{$toolbar_style}">
-                    {$this->buildHtmlToolbars()}
+                    {$toolbars_html}
                 </div>
                 {$context_menu_html}
                 
