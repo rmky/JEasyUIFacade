@@ -24,5 +24,10 @@ class euiDataConfigurator extends euiTabs
     {
         return $this->getTemplate()->getConfig()->getOption("WIDGET.DATACONFIGURATOR.COLUMNS_BY_DEFAULT");
     }
+    
+    public function generateJs()
+    {
+        return parent::generateJs() . $this->buildJsRefreshOnEnter();
+    }
 }
 ?>
