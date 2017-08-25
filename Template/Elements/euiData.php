@@ -281,14 +281,12 @@ class euiData extends euiAbstractElement
     protected function buildJsInitOptionsColumn(\exface\Core\Widgets\DataColumn $col)
     {
         // set defaults
-        // TODO Settig "field" to the id of the column is dirty, since the data sheet column has
-        // the attribute name for id. I don't know, why this actually works, because the field in the
-        // JSON is named by attribute id, not column id. However, when getting the data from the table
-        // via java script, the fields are named by the column id (as configured here).
+        $sortOrder = $col->getDataType()->is(EXF_DATA_TYPE_NUMBER) || $col->getDataType()->is(EXF_DATA_TYPE_TIMESTAMP) ? 'desc' : 'asc';
         
         // FIXME Make compatible with column groups
         $colspan = $this->getColumnHeaderColspan($col->getId());
         $rowspan = $this->getColumnHeaderRowspan($col->getId());
+        
         $output = '
                         title: "<span title=\"' . $this->buildHintText($col->getHint(), true) . '\">' . $col->getCaption() . '</span>"
                         ' . ($col->getAttributeAlias() ? ', field: "' . $col->getDataColumnName() . '"' : '') . "
@@ -297,7 +295,8 @@ class euiData extends euiAbstractElement
                         " . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . "
                         " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "
                         " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
-                        ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false');
+                        ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false') . "
+                        " . ($col->getSortable() ? ", order: '" . $sortOrder . "'" : '');
         
         return $output;
     }
