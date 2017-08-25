@@ -12,6 +12,7 @@ use exface\Core\Widgets\Tabs;
 use exface\Core\Interfaces\Widgets\iHaveContextMenu;
 use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
+use exface\Core\CommonLogic\Constants\SortingDirections;
 
 /**
  * Implementation of a basic grid.
@@ -280,12 +281,11 @@ class euiData extends euiAbstractElement
 
     protected function buildJsInitOptionsColumn(\exface\Core\Widgets\DataColumn $col)
     {
-        // set defaults
-        $sortOrder = $col->getDataType()->is(EXF_DATA_TYPE_NUMBER) || $col->getDataType()->is(EXF_DATA_TYPE_TIMESTAMP) ? 'desc' : 'asc';
-        
         // FIXME Make compatible with column groups
         $colspan = $this->getColumnHeaderColspan($col->getId());
         $rowspan = $this->getColumnHeaderRowspan($col->getId());
+        
+        $dt = $col->getDefaultSortingDirection();
         
         $output = '
                         title: "<span title=\"' . $this->buildHintText($col->getHint(), true) . '\">' . $col->getCaption() . '</span>"
@@ -296,7 +296,7 @@ class euiData extends euiAbstractElement
                         " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "
                         " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
                         ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false') . "
-                        " . ($col->getSortable() ? ", order: '" . $sortOrder . "'" : '');
+                        " . ($col->getSortable() ? ", order: '" . ($col->getDefaultSortingDirection() == SortingDirections::ASC() ? 'asc' : 'desc') . "'" : '');
         
         return $output;
     }
