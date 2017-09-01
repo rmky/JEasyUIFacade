@@ -314,7 +314,7 @@ class euiData extends euiAbstractElement
         $this->toolbar_id = $value;
     }
 
-    public function getShowColumnFooters()
+    protected function getShowColumnFooters()
     {
         if (is_null($this->show_footer)) {
             return false;
@@ -322,7 +322,7 @@ class euiData extends euiAbstractElement
         return $this->show_footer;
     }
 
-    public function setShowColumnFooters($value)
+    protected function setShowColumnFooters($value)
     {
         $this->show_footer = $value;
     }
