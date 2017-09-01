@@ -3,7 +3,6 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\DataColumnGroup;
 use exface\Core\Widgets\Data;
-use exface\Core\CommonLogic\DataSheets\DataSheet;
 use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
 use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryToolbarsTrait;
 use exface\Core\Widgets\MenuButton;
@@ -13,6 +12,7 @@ use exface\Core\Interfaces\Widgets\iHaveContextMenu;
 use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
 use exface\Core\CommonLogic\Constants\SortingDirections;
+use exface\Core\Interfaces\DataSheets\DataSheetInterface;
 
 /**
  * Implementation of a basic grid.
@@ -180,7 +180,8 @@ class euiData extends euiAbstractElement
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
 				' . ($widget->getPaginate() ? ', pageList: ' . json_encode($page_sizes) : '') . '
-				, pageSize: ' . $default_page_size . '
+				, showFooter: ' . ($widget->hasColumnFooters() ? 'true' : 'false') . '
+                , pageSize: ' . $default_page_size . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
 				, toolbar: "#' . $this->getToolbarId() . '"
@@ -198,8 +199,7 @@ class euiData extends euiAbstractElement
 					' . $this->getLoadFilterScript() . '
 					return data;
 				}' : '') . '
-				, columns: [ ' . implode(',', $this->buildJsInitOptionsColumns()) . ' ]
-                , showFooter: ' . ($this->getShowColumnFooters() ? 'true' : 'false');
+				, columns: [ ' . implode(',', $this->buildJsInitOptionsColumns()) . ' ]';
         return $output;
     }
 
@@ -241,8 +241,6 @@ class euiData extends euiAbstractElement
             }
             foreach ($column_group->getColumns() as $col) {
                 $header_rows[$put_into_header_row][] = '{' . $this->buildJsInitOptionsColumn($col) . '}';
-                if ($col->hasFooter())
-                    $this->setShowColumnFooters(true);
             }
         }
         
@@ -285,8 +283,6 @@ class euiData extends euiAbstractElement
         $colspan = $this->getColumnHeaderColspan($col->getId());
         $rowspan = $this->getColumnHeaderRowspan($col->getId());
         
-        $dt = $col->getDefaultSortingDirection();
-        
         $output = '
                         title: "<span title=\"' . $this->buildHintText($col->getHint(), true) . '\">' . $col->getCaption() . '</span>"
                         ' . ($col->getAttributeAlias() ? ', field: "' . $col->getDataColumnName() . '"' : '') . "
@@ -312,19 +308,6 @@ class euiData extends euiAbstractElement
     public function setToolbarId($value)
     {
         $this->toolbar_id = $value;
-    }
-
-    protected function getShowColumnFooters()
-    {
-        if (is_null($this->show_footer)) {
-            return false;
-        }
-        return $this->show_footer;
-    }
-
-    protected function setShowColumnFooters($value)
-    {
-        $this->show_footer = $value;
     }
 
     /**
@@ -408,7 +391,7 @@ JS;
         return $this->load_filter_script;
     }
 
-    public function buildJsDataLoaderWithoutAjax(DataSheet $data)
+    public function buildJsDataLoaderWithoutAjax(DataSheetInterface $data)
     {
         $js = <<<JS
 		
