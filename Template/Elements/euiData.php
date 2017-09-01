@@ -175,7 +175,6 @@ class euiData extends euiAbstractElement
 				, fitColumns: true
 				, multiSort: ' . ($widget->getHeaderSortMultiple() ? 'true' : 'false') . '
 				' . $sortColumn . $sortOrder . '
-				, showFooter: ' . ($this->getShowFooter() ? 'true' : 'false') . '
 				' . ($widget->getUidColumnId() ? ', idField: "' . $widget->getUidColumn()->getDataColumnName() . '"' : '') . '
 				' . (! $widget->getMultiSelect() ? ', singleSelect: true' : '') . '
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
@@ -199,7 +198,8 @@ class euiData extends euiAbstractElement
 					' . $this->getLoadFilterScript() . '
 					return data;
 				}' : '') . '
-				, columns: [ ' . implode(',', $this->buildJsInitOptionsColumns()) . ' ]';
+				, columns: [ ' . implode(',', $this->buildJsInitOptionsColumns()) . ' ]
+                , showFooter: ' . ($this->getShowColumnFooters() ? 'true' : 'false');
         return $output;
     }
 
@@ -242,7 +242,7 @@ class euiData extends euiAbstractElement
             foreach ($column_group->getColumns() as $col) {
                 $header_rows[$put_into_header_row][] = '{' . $this->buildJsInitOptionsColumn($col) . '}';
                 if ($col->hasFooter())
-                    $this->setShowFooter(true);
+                    $this->setShowColumnFooters(true);
             }
         }
         
@@ -314,15 +314,15 @@ class euiData extends euiAbstractElement
         $this->toolbar_id = $value;
     }
 
-    public function getShowFooter()
+    public function getShowColumnFooters()
     {
         if (is_null($this->show_footer)) {
-            $this->show_footer = ($this->getTemplate()->getConfig()->getOption('DATAGRID_SHOW_FOOTER_BY_DEFAULT') ? true : false);
+            return false;
         }
         return $this->show_footer;
     }
 
-    public function setShowFooter($value)
+    public function setShowColumnFooters($value)
     {
         $this->show_footer = $value;
     }
