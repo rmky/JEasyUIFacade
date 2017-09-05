@@ -191,7 +191,7 @@ HTML;
         } else {
             $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getSelections')";
         }
-        return "{oId: '" . $this->getWidget()->getMetaObjectId() . "'" . ($rows ? ", rows: " . $rows : '') . ($filters ? ", filters: " . $filters : "") . "}";
+        return "{oId: '" . $this->getWidget()->getMetaObject()->getId() . "'" . ($rows ? ", rows: " . $rows : '') . ($filters ? ", filters: " . $filters : "") . "}";
     }
 
     /**
@@ -329,7 +329,7 @@ HTML;
     							resource: '{$this->getPageId()}',
     							element: '{$details->getId()}',
     							prefill: {
-    								oId: "{$widget->getMetaObjectId()}",
+    								oId: "{$widget->getMetaObject()->getId()}",
     								rows:[
     									{ {$widget->getMetaObject()->getUidAttributeAlias()} : row.{$widget->getMetaObject()->getUidAttributeAlias()} }
     								],

@@ -23,7 +23,7 @@ class euiDiagramShapeData extends euiAbstractElement
         } else {
             // TODO
         }
-        return "{oId: '" . $this->getWidget()->getMetaObjectId() . "', rows: " . $rows . "}";
+        return "{oId: '" . $this->getWidget()->getMetaObject()->getId() . "', rows: " . $rows . "}";
     }
 
     public function buildJsValueGetter()
