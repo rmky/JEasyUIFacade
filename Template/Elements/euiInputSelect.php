@@ -20,16 +20,18 @@ class euiInputSelect extends euiInput
         $this->setElementType('combobox');
     }
 
-    function generateHtml()
+    public function generateHtml()
     {
         $widget = $this->getWidget();
         $options = '';
         $selected_cnt = count($this->getWidget()->getValues());
         foreach ($widget->getSelectableOptions() as $value => $text) {
-            if ($this->getWidget()->getMultiSelect() && $selected_cnt > 1) {
-                $selected = in_array($value, $this->getWidget()->getValues());
-            } else {
-                $selected = strcasecmp($this->getValueWithDefaults(), $value) == 0 ? true : false;
+            if ($value !== '' && !is_null($value)){
+                if ($this->getWidget()->getMultiSelect() && $selected_cnt > 1) {
+                    $selected = in_array($value, $this->getWidget()->getValues());
+                } else {
+                    $selected = strcasecmp($this->getValueWithDefaults(), $value) == 0 ? true : false;
+                }
             }
             $options .= '
 					<option value="' . $value . '"' . ($selected ? ' selected="selected"' : '') . '>' . $text . '</option>';
@@ -47,7 +49,7 @@ class euiInputSelect extends euiInput
         return $this->buildHtmlWrapperDiv($output);
     }
 
-    function generateJs()
+    public function generateJs()
     {
         $output = '';
         return $output;
@@ -98,9 +100,13 @@ JS;
     {
         $widget = $this->getWidget();
         return "panelHeight: 'auto'" 
-            . ($this->getWidget()->getMultiSelect() ? ", multiple:true" : '')  
+            // Enable multiselect. Make sure the "none" element is never selected and the selection is cleared when the user clicks on it.
+            . ($this->getWidget()->getMultiSelect() ? ", multiple:true, onShowPanel: function(){ $(this).{$this->getElementType()}('unselect',''); }, onSelect: function(record){ if(record.value == '') $(this).{$this->getElementType()}('clear'); }" : '')  
+            // Increase hight automatically for multiline selects
             . ($widget->getHeight()->isRelative() && $widget->getHeight()->getValue() > 1 ? ", multiline:true" : '') 
-            . ($this->getWidget()->getMultiSelect() && count($this->getWidget()->getValues()) > 1 ? ", value:['" . implode("'" . $this->getWidget()->getMultiSelectValueDelimiter() . "'", $this->getWidget()->getValues()) . "']" : '');
+            // Set the value programmatically
+            . ($this->getWidget()->getMultiSelect() && count($this->getWidget()->getValues()) > 1 ? ", value:['" . implode("'" . $this->getWidget()->getMultiSelectValueDelimiter() . "'", $this->getWidget()->getValues()) . "']" : '')
+            ;
     }
 }
 ?>
