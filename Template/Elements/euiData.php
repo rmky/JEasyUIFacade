@@ -134,7 +134,7 @@ class euiData extends euiAbstractElement
         $direction = array();
         if ($widget->getLazyLoading() && count($widget->getSorters()) > 0) {
             foreach ($widget->getSorters() as $sort) {
-                $sort_by[] = urlencode($sort->getProperty('getattribute_alias'));
+                $sort_by[] = urlencode($sort->getProperty('attribute_alias'));
                 $direction[] = urlencode($sort->getProperty('direction'));
             }
             $sortColumn = ", sortName: '" . implode(',', $sort_by) . "'";
