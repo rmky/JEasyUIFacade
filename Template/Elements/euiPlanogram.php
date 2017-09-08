@@ -113,7 +113,7 @@ HTML;
         }
         
         if ($widget->getAddRowLinkButtonId()) {
-            $add_row_function = $this->getTemplate()->getElementByWidgetId($widget->getAddRowLinkButtonId(), $this->getPageId())->buildJsClickFunction();
+            $add_row_function = $this->getTemplate()->getElementByWidgetId($widget->getAddRowLinkButtonId(), $this->getPageAlias())->buildJsClickFunction();
             $add_row_function = preg_replace([
                 '/var requestData = {.*?};\r?\n/',
                 '/, prefill: {.*?}\r?\n/'
@@ -195,7 +195,7 @@ function {$this->buildJsFunctionPrefix()}shapeLoader(){
 	{$this->buildJsBusyIconShow()}
 	var data = {};
 	var diagram = this;
-	data.resource = "{$this->getPageId()}";
+	data.resource = "{$this->getPageAlias()}";
 	data.element = "{$shape->getId()}";
 	data.object = "{$shape->getMetaObject()->getId()}";
 	data.action = "{$widget->getLazyLoadingAction()}";
@@ -217,7 +217,7 @@ function {$this->buildJsFunctionPrefix()}dataLoader(){
 	var data = {};
 	var result = [];
 	var diagram = this;
-	data.resource = "{$this->getPageId()}";
+	data.resource = "{$this->getPageAlias()}";
 	data.element = "{$shape->getData()->getId()}";
 	data.object = "{$shape->getData()->getMetaObject()->getId()}";
 	data.action = "{$shape->getData()->getLazyLoadingAction()}";

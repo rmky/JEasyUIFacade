@@ -42,7 +42,7 @@ class euiDataTable extends euiData
         /* @var $col \exface\Core\Widgets\DataColumn */
         foreach ($widget->getColumns() as $col) {
             if ($col->isEditable()) {
-                $editor = $this->getTemplate()->getElement($col->getEditor(), $this->getPageId());
+                $editor = $this->getTemplate()->getElement($col->getEditor());
                 $this->setEditable(true);
                 $this->editors[$col->getId()] = $editor;
             }
@@ -326,7 +326,7 @@ HTML;
     		            	method: 'post',
     						queryParams: {
     							action: '{$widget->getRowDetailsAction()}',
-    							resource: '{$this->getPageId()}',
+    							resource: '{$this->getPageAlias()}',
     							element: '{$details->getId()}',
     							prefill: {
     								oId: "{$widget->getMetaObjectId()}",

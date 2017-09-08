@@ -162,7 +162,7 @@ class euiInput extends euiAbstractElement
         if (($condition = $this->getWidget()->getDisableCondition()) && $condition->widget_link) {
             $link = WidgetLinkFactory::createFromAnything($this->getWorkbench(), $condition->widget_link);
             $link->setWidgetIdSpace($this->getWidget()->getIdSpace());
-            $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
+            $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageAlias());
             if ($linked_element) {
                 switch ($condition->comparator) {
                     case EXF_COMPARATOR_IS_NOT: // !=
