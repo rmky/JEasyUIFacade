@@ -3,7 +3,6 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\Widgets\DataColumnGroup;
 use exface\Core\Widgets\Data;
-use exface\Core\CommonLogic\DataSheets\DataSheet;
 use exface\Core\Exceptions\Configuration\ConfigOptionNotFoundError;
 use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryToolbarsTrait;
 use exface\Core\Widgets\MenuButton;
@@ -13,6 +12,7 @@ use exface\Core\Interfaces\Widgets\iHaveContextMenu;
 use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
 use exface\Core\CommonLogic\Constants\SortingDirections;
+use exface\Core\Interfaces\DataSheets\DataSheetInterface;
 
 /**
  * Implementation of a basic grid.
@@ -134,8 +134,8 @@ class euiData extends euiAbstractElement
         $direction = array();
         if ($widget->getLazyLoading() && count($widget->getSorters()) > 0) {
             foreach ($widget->getSorters() as $sort) {
-                $sort_by[] = urlencode($sort->attribute_alias);
-                $direction[] = urlencode($sort->direction);
+                $sort_by[] = urlencode($sort->getProperty('attribute_alias'));
+                $direction[] = urlencode($sort->getProperty('direction'));
             }
             $sortColumn = ", sortName: '" . implode(',', $sort_by) . "'";
             $sortOrder = ", sortOrder: '" . implode(',', $direction) . "'";
@@ -151,7 +151,7 @@ class euiData extends euiAbstractElement
             }
         }
         
-        $page_sizes = $this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE');
+        $page_sizes = $this->getTemplate()->getApp()->getConfig()->getOption('WIDGET.DATATABLE.PAGE_SIZES_SELECTABLE')->toArray();
         if (!in_array($default_page_size, $page_sizes)){
             $page_sizes[] = $default_page_size;
             sort($page_sizes);
@@ -175,13 +175,13 @@ class euiData extends euiAbstractElement
 				, fitColumns: true
 				, multiSort: ' . ($widget->getHeaderSortMultiple() ? 'true' : 'false') . '
 				' . $sortColumn . $sortOrder . '
-				, showFooter: ' . ($this->getShowFooter() ? 'true' : 'false') . '
 				' . ($widget->getUidColumnId() ? ', idField: "' . $widget->getUidColumn()->getDataColumnName() . '"' : '') . '
 				' . (! $widget->getMultiSelect() ? ', singleSelect: true' : '') . '
 				' . ($this->getWidth() ? ', width: "' . $this->getWidth() . '"' : '') . '
 				, pagination: ' . ($widget->getPaginate() ? 'true' : 'false') . '
 				' . ($widget->getPaginate() ? ', pageList: ' . json_encode($page_sizes) : '') . '
-				, pageSize: ' . $default_page_size . '
+				, showFooter: ' . ($widget->hasColumnFooters() ? 'true' : 'false') . '
+                , pageSize: ' . $default_page_size . '
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
 				, toolbar: "#' . $this->getToolbarId() . '"
@@ -241,8 +241,6 @@ class euiData extends euiAbstractElement
             }
             foreach ($column_group->getColumns() as $col) {
                 $header_rows[$put_into_header_row][] = '{' . $this->buildJsInitOptionsColumn($col) . '}';
-                if ($col->hasFooter())
-                    $this->setShowFooter(true);
             }
         }
         
@@ -285,8 +283,6 @@ class euiData extends euiAbstractElement
         $colspan = $this->getColumnHeaderColspan($col->getId());
         $rowspan = $this->getColumnHeaderRowspan($col->getId());
         
-        $dt = $col->getDefaultSortingDirection();
-        
         $output = '
                         title: "<span title=\"' . $this->buildHintText($col->getHint(), true) . '\">' . $col->getCaption() . '</span>"
                         ' . ($col->getAttributeAlias() ? ', field: "' . $col->getDataColumnName() . '"' : '') . "
@@ -312,19 +308,6 @@ class euiData extends euiAbstractElement
     public function setToolbarId($value)
     {
         $this->toolbar_id = $value;
-    }
-
-    public function getShowFooter()
-    {
-        if (is_null($this->show_footer)) {
-            $this->show_footer = ($this->getTemplate()->getConfig()->getOption('DATAGRID_SHOW_FOOTER_BY_DEFAULT') ? true : false);
-        }
-        return $this->show_footer;
-    }
-
-    public function setShowFooter($value)
-    {
-        $this->show_footer = $value;
     }
 
     /**
@@ -408,7 +391,7 @@ JS;
         return $this->load_filter_script;
     }
 
-    public function buildJsDataLoaderWithoutAjax(DataSheet $data)
+    public function buildJsDataLoaderWithoutAjax(DataSheetInterface $data)
     {
         $js = <<<JS
 		

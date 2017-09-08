@@ -19,11 +19,11 @@ class euiDiagramShapeData extends euiAbstractElement
     public function buildJsDataGetter(ActionInterface $action = null)
     {
         if ($action) {
-            $rows = "[{'" . $this->getMetaObject()->getUidAlias() . "': " . $this->buildJsValueGetter() . "}]";
+            $rows = "[{'" . $this->getMetaObject()->getUidAttributeAlias() . "': " . $this->buildJsValueGetter() . "}]";
         } else {
             // TODO
         }
-        return "{oId: '" . $this->getWidget()->getMetaObjectId() . "', rows: " . $rows . "}";
+        return "{oId: '" . $this->getWidget()->getMetaObject()->getId() . "', rows: " . $rows . "}";
     }
 
     public function buildJsValueGetter()

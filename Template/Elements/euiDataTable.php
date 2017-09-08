@@ -157,7 +157,7 @@ HTML;
             $output .= "." . $this->getElementType() . "('getSelected')";
         }
         if (is_null($column)) {
-            $column = $this->getWidget()->getMetaObject()->getUidAlias();
+            $column = $this->getWidget()->getMetaObject()->getUidAttributeAlias();
         }
         return "(" . $output . " ? " . $output . "['" . $column . "'] : '')";
     }
@@ -191,7 +191,7 @@ HTML;
         } else {
             $rows = "$('#" . $this->getId() . "')." . $this->getElementType() . "('getSelections')";
         }
-        return "{oId: '" . $this->getWidget()->getMetaObjectId() . "'" . ($rows ? ", rows: " . $rows : '') . ($filters ? ", filters: " . $filters : "") . "}";
+        return "{oId: '" . $this->getWidget()->getMetaObject()->getId() . "'" . ($rows ? ", rows: " . $rows : '') . ($filters ? ", filters: " . $filters : "") . "}";
     }
 
     /**
@@ -317,10 +317,10 @@ HTML;
         $grid_head .= <<<JS
     				, view: detailview
     				, detailFormatter: function(index,row){
-    					return '<div id="{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAlias()}+'"></div>';
+    					return '<div id="{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAttributeAlias()}+'"></div>';
     				}
     				, onExpandRow: function(index,row){
-    					$('#{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAlias()}).panel({
+    					$('#{$details_element->getId()}_'+row.{$widget->getMetaObject()->getUidAttributeAlias()}).panel({
     		            	border: false,
     						href: '{$this->getAjaxUrl()}',
     		            	method: 'post',
@@ -329,13 +329,13 @@ HTML;
     							resource: '{$this->getPageAlias()}',
     							element: '{$details->getId()}',
     							prefill: {
-    								oId: "{$widget->getMetaObjectId()}",
+    								oId: "{$widget->getMetaObject()->getId()}",
     								rows:[
-    									{ {$widget->getMetaObject()->getUidAlias()} : row.{$widget->getMetaObject()->getUidAlias()} }
+    									{ {$widget->getMetaObject()->getUidAttributeAlias()} : row.{$widget->getMetaObject()->getUidAttributeAlias()} }
     								],
     								filters: {$this->buildJsDataFilters()}
     							},
-    							exfrid: row.{$widget->getMetaObject()->getUidAlias()}
+    							exfrid: row.{$widget->getMetaObject()->getUidAttributeAlias()}
     						},
     						onLoad: function(){
     		                   	$('#{$this->getId()}').{$this->getElementType()}('fixDetailRowHeight',index);

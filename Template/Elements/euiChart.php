@@ -268,8 +268,8 @@ JS;
             // send sort information
             if (count($widget->getData()->getSorters()) > 0) {
                 foreach ($widget->getData()->getSorters() as $sorter) {
-                    $sort .= ',' . urlencode($sorter->attribute_alias);
-                    $order .= ',' . urldecode($sorter->direction);
+                    $sort .= ',' . urlencode($sorter->getProperty('attribute_alias'));
+                    $order .= ',' . urldecode($sorter->getProperty('direction'));
                 }
                 $url_params .= '
                             , sort: "' . substr($sort, 1) . '"

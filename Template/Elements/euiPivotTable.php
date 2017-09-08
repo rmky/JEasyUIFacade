@@ -100,7 +100,7 @@ class euiPivotTable extends euiDataTable
         $result = parent::buildJsDataSource();
         
         $result = substr($result, 0, - 1);
-        // $result .= ', fltr99_' . $this->getMetaObject()->getUidAlias() . ': ($("#' . $this->getId() . '").data("layouted") ? "" : -1)}';
+        // $result .= ', fltr99_' . $this->getMetaObject()->getUidAttributeAlias() . ': ($("#' . $this->getId() . '").data("layouted") ? "" : -1)}';
         $result .= ', page: (!$("#' . $this->getId() . '").data("layouted") ? "" : 1), rows: (!$("#' . $this->getId() . '").data("layouted") ? "" : 1)}';
         
         return $result;
