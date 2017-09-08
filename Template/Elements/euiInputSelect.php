@@ -26,12 +26,10 @@ class euiInputSelect extends euiInput
         $options = '';
         $selected_cnt = count($this->getWidget()->getValues());
         foreach ($widget->getSelectableOptions() as $value => $text) {
-            if ($value !== '' && !is_null($value)){
-                if ($this->getWidget()->getMultiSelect() && $selected_cnt > 1) {
-                    $selected = in_array($value, $this->getWidget()->getValues());
-                } else {
-                    $selected = strcasecmp($this->getValueWithDefaults(), $value) == 0 ? true : false;
-                }
+            if ($this->getWidget()->getMultiSelect() && $selected_cnt > 1 && $value !== '' && ! is_null($value)) {
+                $selected = in_array($value, $this->getWidget()->getValues());
+            } else {
+                $selected = strcasecmp($this->getValueWithDefaults(), $value) == 0 ? true : false;
             }
             $options .= '
 					<option value="' . $value . '"' . ($selected ? ' selected="selected"' : '') . '>' . $text . '</option>';
