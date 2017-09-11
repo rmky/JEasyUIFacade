@@ -228,8 +228,9 @@ JS;
         
         // Add explicitly specified values to every return data
         foreach ($widget->getSelectableOptions() as $key => $value) {
-            if ($key === '' || is_null($key))
+            if ($key === '' || $key === EXF_COMPARATOR_IS_EMPTY || is_null($key)){
                 continue;
+            }
             $table->addLoadFilterScript('data.rows.unshift({' . $widget->getTable()->getUidColumn()->getDataColumnName() . ': "' . $key . '", ' . $widget->getTextColumn()->getDataColumnName() . ': "' . $value . '"});');
         }
         
