@@ -2,6 +2,10 @@
 namespace exface\JEasyUiTemplate\Template\Elements;
 
 use exface\Core\DataTypes\AbstractDataType;
+use exface\Core\DataTypes\BooleanDataType;
+use exface\Core\DataTypes\DateDataType;
+use exface\Core\DataTypes\PriceDataType;
+use exface\Core\DataTypes\NumberDataType;
 
 class euiEditMatrix extends euiDataMatrixOld
 {    
@@ -272,13 +276,13 @@ HTML;
 
     public function renderDataType(AbstractDataType $data_type)
     {
-        if ($data_type->is(EXF_DATA_TYPE_BOOLEAN)) {
+        if ($data_type instanceof BooleanDataType) {
             return 'type: "checkbox"';
-        } elseif ($data_type->is(EXF_DATA_TYPE_DATE)) {
+        } elseif ($data_type instanceof DateDataType) {
             return 'type: "date"';
-        } elseif ($data_type->is(EXF_DATA_TYPE_PRICE)) {
+        } elseif ($data_type instanceof PriceDataType) {
             return 'type: "numeric", format: "0.00"';
-        } elseif ($data_type->is(EXF_DATA_TYPE_NUMBER)) {
+        } elseif ($data_type instanceof NumberDataType) {
             return 'type: "numeric"';
         } else {
             return 'type: "text"';
