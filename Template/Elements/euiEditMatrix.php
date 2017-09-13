@@ -223,7 +223,7 @@ HTML;
         }
         // add aggregators
         foreach ($widget->getAggregations() as $aggr) {
-            $ds->getAggregators()->addFromString($aggr);
+            $ds->getAggregations()->addFromString($aggr);
         }
         
         // get the data
