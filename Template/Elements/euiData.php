@@ -490,6 +490,13 @@ JS;
         return $menu_item;
     }
     
+    protected function buildJsContextMenu()
+    {
+        // Prevent context menu on context menu. Otherwise the browser-menu keeps popping up
+        // over the context menu from time to time.
+        return '$("#' . $this->getId() . '_cmenu").contextmenu(function(e){e.stopPropagation(); e.preventDefault(); return false;})';
+    }
+    
     /**
      * Returns the base HTML element to construct the widget from: e.g. div, table, etc.
      * 
