@@ -1,29 +1,15 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
+use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryHtmlTrait;
+
 class euiHtml extends euiText
 {
-
-    function init()
-    {}
-
-    function generateHtml()
+    use JqueryHtmlTrait;
+    
+    protected function init()
     {
-        $output = '';
-        if ($this->getWidget()->getCss()) {
-            $output .= '<style>' . $this->getWidget()->getCss() . '</style>';
-        }
-        if ($this->getWidget()->getCaption() && ! $this->getWidget()->getHideCaption()) {
-            $output .= '<label for="' . $this->getId() . '">' . $this->getWidget()->getCaption() . '</label>';
-        }
-        
-        $output .= '<div id="' . $this->getId() . '">' . $this->getWidget()->getHtml() . '</div>';
-        return $output;
-    }
-
-    function generateJs()
-    {
-        return $this->getWidget()->getJavascript();
+        return;
     }
 }
 ?>
