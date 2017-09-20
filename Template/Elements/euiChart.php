@@ -335,7 +335,7 @@ JS;
 		      if (item) {
                 try {
     		        var x = new Date(item.datapoint[0]),
-    		            y = item.datapoint[1].toFixed(2);
+    		            y = isNaN(item.datapoint[1]) ? item.datapoint[1] : item.datapoint[1].toFixed(2);
     		
     		        $("#' . $this->getId() . '_tooltip").html(item.series.xaxis.options.axisLabel + ": " + x.toLocaleDateString() + "<br/>" + item.series.label + ": " + y)
     		            .css({top: item.pageY + 5, left: item.pageX + 5})
