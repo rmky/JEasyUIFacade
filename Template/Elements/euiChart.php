@@ -520,5 +520,15 @@ JS;
         }
         return parent::getHeight();
     }
+    
+    public function buildJsBusyIconShow()
+    {
+        return "$('#{$this->getId()}_wrapper').prepend('<div class=\"panel-loading\" style=\"height: 15px;\"></div>');";
+    }
+    
+    public function buildJsBusyIconHide()
+    {
+        return "$('#{$this->getId()}_wrapper .panel-loading').remove();";
+    }
 }
 ?>
