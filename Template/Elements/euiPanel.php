@@ -151,7 +151,7 @@ HTML;
     
     public function setFitOption($value)
     {
-        $this->fit_option = BooleanDataType::parse($value);
+        $this->fit_option = BooleanDataType::cast($value);
         return $this;
     }
     

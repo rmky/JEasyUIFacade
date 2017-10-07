@@ -51,7 +51,7 @@ HTML;
 
     public function setFitOption($value)
     {
-        $this->fit_option = BooleanDataType::parse($value);
+        $this->fit_option = BooleanDataType::cast($value);
         return $this;
     }
 
@@ -67,7 +67,7 @@ HTML;
 
     public function setStyleAsPills($style_as_pills)
     {
-        $this->style_as_pills = BooleanDataType::parse($style_as_pills);
+        $this->style_as_pills = BooleanDataType::cast($style_as_pills);
         return $this;
     }
 
