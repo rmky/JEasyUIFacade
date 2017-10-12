@@ -22,17 +22,17 @@ class euiCheckBox extends euiInput
         return $this->buildHtmlWrapperDiv($output);
     }
 
-    function generateJs()
+    public function generateJs()
     {
-        return '';
+        return $this->buildJsEventScripts();
     }
 
-    function buildJsValueGetter()
+    public function buildJsValueGetter()
     {
         return '$("#' . $this->getId() . '_checkbox").' . $this->buildJsValueGetterMethod();
     }
 
-    function buildJsValueGetterMethod()
+    public function buildJsValueGetterMethod()
     {
         return 'prop(\'checked\')';
     }
