@@ -134,7 +134,13 @@ class euiData extends euiAbstractElement
         $direction = array();
         if ($widget->getLazyLoading() && count($widget->getSorters()) > 0) {
             foreach ($widget->getSorters() as $sort) {
-                $sort_by[] = urlencode($sort->getProperty('attribute_alias'));
+                // Check if sorting over a column and use the column name in this case
+                // to ensure, the sorting indicator lights up in the column header.
+                if ($col = $widget->getColumnByAttributeAlias($sort->getProperty('attribute_alias'))){
+                    $sort_by[] = urlencode($col->getDataColumnName());
+                } else {
+                    $sort_by[] = urlencode($sort->getProperty('attribute_alias'));
+                }
                 $direction[] = urlencode($sort->getProperty('direction'));
             }
             $sortColumn = ", sortName: '" . implode(',', $sort_by) . "'";
@@ -488,6 +494,13 @@ JS;
         }
         $menu_item = str_replace(['<a id="', '</a>', 'easyui-linkbutton', ' href="#"'], ['<div id="' . $this->getId() . '_', '</div>', '', ''], $menu_item);
         return $menu_item;
+    }
+    
+    protected function buildJsContextMenu()
+    {
+        // Prevent context menu on context menu. Otherwise the browser-menu keeps popping up
+        // over the context menu from time to time.
+        return '$("#' . $this->getId() . '_cmenu").contextmenu(function(e){e.stopPropagation(); e.preventDefault(); return false;})';
     }
     
     /**

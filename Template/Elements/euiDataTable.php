@@ -127,6 +127,8 @@ HTML;
         
         $output .= $this->buildJsPagerButtons();
         
+        $output .= $this->buildJsContextMenu();
+        
         return $output;
     }
 

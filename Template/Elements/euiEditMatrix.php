@@ -219,11 +219,11 @@ HTML;
         }
         // add the sorters
         foreach ($widget->getSorters() as $sort) {
-            $ds->getSorters()->addFromString($sort->attribute_alias, $sort->direction);
+            $ds->getSorters()->addFromString($sort->getProperty('attribute_alias'), $sort->getProperty('direction'));
         }
         // add aggregators
         foreach ($widget->getAggregations() as $aggr) {
-            $ds->getAggregators()->addFromString($aggr);
+            $ds->getAggregations()->addFromString($aggr);
         }
         
         // get the data

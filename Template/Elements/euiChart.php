@@ -335,7 +335,7 @@ JS;
 		      if (item) {
                 try {
     		        var x = new Date(item.datapoint[0]),
-    		            y = item.datapoint[1].toFixed(2);
+    		            y = isNaN(item.datapoint[1]) ? item.datapoint[1] : item.datapoint[1].toFixed(2);
     		
     		        $("#' . $this->getId() . '_tooltip").html(item.series.xaxis.options.axisLabel + ": " + x.toLocaleDateString() + "<br/>" + item.series.label + ": " + y)
     		            .css({top: item.pageY + 5, left: item.pageX + 5})
@@ -519,6 +519,16 @@ JS;
             $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
         }
         return parent::getHeight();
+    }
+    
+    public function buildJsBusyIconShow()
+    {
+        return "$('#{$this->getId()}_wrapper').prepend('<div class=\"panel-loading\" style=\"height: 15px;\"></div>');";
+    }
+    
+    public function buildJsBusyIconHide()
+    {
+        return "$('#{$this->getId()}_wrapper .panel-loading').remove();";
     }
 }
 ?>
