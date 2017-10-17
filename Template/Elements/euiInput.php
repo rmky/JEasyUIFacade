@@ -82,16 +82,28 @@ class euiInput extends euiAbstractElement
         $output .= "
 				$('#" . $this->getId() . "')." . $this->getElementType() . "(" . ($this->buildJsDataOptions() ? '{' . $this->buildJsDataOptions() . '}' : '') . ");//.textbox('addClearBtn', 'icon-clear');
 				";
+        $output .= $this->buildJsEventScripts();
+        return $output;
+    }
+    
+    /**
+     * Returns JS scripts for event handling like live references, onChange-handlers,
+     * disable conditions, etc.
+     * 
+     * @return string
+     */
+    protected function buildJsEventScripts()
+    {
+        $output = '';
         $output .= $this->buildJsLiveReference();
         $output .= $this->buildJsOnChangeHandler();
         
         // Initialize the disabled state of the widget if a disabled condition is set.
         $output .= $this->buildJsDisableConditionInitializer();
-        
-        return $output;
+        return $output;        
     }
 
-    function buildJsInitOptions()
+    public function buildJsInitOptions()
     {
         return $this->buildJsDataOptions();
     }

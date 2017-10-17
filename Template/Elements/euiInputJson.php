@@ -39,7 +39,7 @@ JS;
      */
     public function buildJsValueGetter()
     {
-        return $this->getId() . '_JSONeditor.getText()';
+        return 'function(){var text = ' . $this->getId() . '_JSONeditor.getText(); if (text === "{}" || text === "[]") { return ""; } else { return text;}}';
     }
 
     public function generateHeaders()
