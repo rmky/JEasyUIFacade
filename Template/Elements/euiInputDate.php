@@ -80,13 +80,9 @@ JS;
 
     protected function buildJsDataOptions()
     {
-        // onHidePanel
-        // Known Issue: Wird sehr schnell Enter oder Tab gedrueckt (bevor das Datum im
-        // Kalender angezeigt wird), so wird auf das vorherige Datum zurueckgesetzt. Da
-        // beim Druecken der Enter-Taste das Panel auch geschlossen wird, wird der Code
-        // dann zweimal ausgefuehrt (beim Schliessen des Panels ohne Enter einmal).
         return <<<JS
 
+        delay: 0,
         formatter: {$this->buildJsFunctionPrefix()}dateFormatter,
         parser: {$this->buildJsFunctionPrefix()}dateParser,
         onHidePanel: function() {
