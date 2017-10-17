@@ -310,10 +310,8 @@ JS;
                             {$this->getId()}_jquery.data("_currentText", newValueArray.join());
                             if (newValueArray.length == 0) {
                                 {$this->getId()}_jquery.data("_lastValidValue", "");
-                                if (oldValueArray.length > 0) {
-                                    // Das Objekt hatte einen Wert, der geloescht wurde.
-                                    {$this->getId()}_jquery.data("_clear", true);
-                                }
+                                // Das Objekt hatte einen Wert, der geloescht wurde.
+                                {$this->getId()}_jquery.data("_clear", true);
                                 {$filterSetterUpdateScript}
                                 {$this->buildJsFunctionPrefix()}onChange();
                             }
