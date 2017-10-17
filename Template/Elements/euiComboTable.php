@@ -24,6 +24,7 @@ class euiComboTable extends euiInput
      * _clearFilterSetterUpdate ist gesetzt wenn das Objekt durch eine Filter-Referenz geleert
      * werden soll
      * _firstLoad ist nur beim ersten Laden gesetzt
+     * _clear ist gesetzt wenn der Wert des Objekts geloescht wurde
      * _otherSuppressFilterSetterUpdate ist gesetzt wenn die durch eine Filter-Referenz abhaengigen
      * Objekte nicht aktualisiert werden sollen
      * _otherSupressLazyLoadingGroupUpdate ist gesetzt wenn die Objekte der gleichen LazyLoadingGroup
@@ -279,28 +280,40 @@ JS;
                         , onChange: function(newValue, oldValue) {
                             // Wird getriggert durch manuelle Eingabe oder durch setValue().
                             {$this->buildJsDebugMessage('onChange')}
-                            // newValue kann eine Number/String sein oder ein Array (bei multi_select).
-                            var newValueArray;
-                            switch ($.type(newValue)) {
-                                case "number":
-                                    newValueArray = [newValue]; break;
-                                case "string":
-                                    if (newValue) {
-                                        newValueArray = $.map(newValue.split(","), $.trim); break;
-                                    } else {
-                                        newValueArray = []; break;
-                                    }
-                                case "array":
-                                    newValueArray = newValue; break;
-                                default:
-                                    newValueArray = [];
+                            
+                            function getValueArray(value) {
+                                var valueArray;
+                                switch ($.type(value)) {
+                                    case "number":
+                                        valueArray = [value]; break;
+                                    case "string":
+                                        if (value) {
+                                            valueArray = $.map(value.split(","), $.trim); break;
+                                        } else {
+                                            valueArray = []; break;
+                                        }
+                                    case "array":
+                                        valueArray = value; break;
+                                    default:
+                                        valueArray = [];
+                                }
+                                return valueArray;
                             }
+                            
+                            // newValue kann eine Number/String sein oder ein Array (bei multi_select).
+                            var newValueArray = getValueArray(newValue);
+                            var oldValueArray = getValueArray(oldValue);
+                            
                             // Akualisieren von currentText. Es gibt keine andere gute Moeglichkeit
                             // an den gerade eingegebenen Text zu kommen (combogrid("getText") liefert
                             // keinen aktuellen Wert). Funktion dieses Wertes siehe onHidePanel.
                             {$this->getId()}_jquery.data("_currentText", newValueArray.join());
                             if (newValueArray.length == 0) {
                                 {$this->getId()}_jquery.data("_lastValidValue", "");
+                                if (oldValueArray.length > 0) {
+                                    // Das Objekt hatte einen Wert, der geloescht wurde.
+                                    {$this->getId()}_jquery.data("_clear", true);
+                                }
                                 {$filterSetterUpdateScript}
                                 {$this->buildJsFunctionPrefix()}onChange();
                             }
@@ -709,9 +722,7 @@ JS;
                         param._firstLoad = true;
                         {$first_load_script}
                     } else {
-                        if (!param.q) {
-                            currentFilterSet.q = {$this->getId()}_jquery.combogrid("getText");
-                        }
+                        currentFilterSet.q = {$this->getId()}_jquery.data("_currentText");
                         {$filters_script}
                     }
                     
@@ -724,6 +735,7 @@ JS;
                         {$this->getId()}_jquery.removeData("_valueSetterUpdate");
                         {$this->getId()}_jquery.removeData("_clearFilterSetterUpdate");
                         {$this->getId()}_jquery.removeData("_filterSetterUpdate");
+                        {$this->getId()}_jquery.removeData("_clear");
                         
                         return false;
                     } else {
@@ -789,6 +801,7 @@ JS;
                         {$this->getId()}_jquery.removeData("_valueSetterUpdate");
                         {$this->getId()}_jquery.removeData("_clearFilterSetterUpdate");
                         {$this->getId()}_jquery.removeData("_filterSetterUpdate");
+                        {$this->getId()}_jquery.removeData("_clear");
                         
                         // Nach einem Value-Setter-Update wird der Text neu gesetzt um das Label ordentlich
                         // anzuzeigen und das onChange-Skript wird ausgefuehrt.
@@ -804,6 +817,7 @@ JS;
                         {$this->getId()}_jquery.removeData("_valueSetterUpdate");
                         {$this->getId()}_jquery.removeData("_clearFilterSetterUpdate");
                         {$this->getId()}_jquery.removeData("_filterSetterUpdate");
+                        {$this->getId()}_jquery.removeData("_clear");
                         
                         {$this->buildJsFunctionPrefix()}clear(false);
                         
@@ -828,12 +842,24 @@ JS;
                         {$this->getId()}_jquery.removeData("_valueSetterUpdate");
                         {$this->getId()}_jquery.removeData("_clearFilterSetterUpdate");
                         {$this->getId()}_jquery.removeData("_filterSetterUpdate");
+                        {$this->getId()}_jquery.removeData("_clear");
                         
                         // Wurde das Widget ueber eine Filter-Referenz befuellt (lazy-loading-group), werden
                         // keine Filter-Referenzen aktualisiert, denn alle Elemente der Gruppe werden vom
                         // Orginalobjekt bedient (wurde es hingegen manuell befuellt (autoselect) muessen
                         // die Filter-Referenzen bedient werden).
                         suppressLazyLoadingGroupUpdate = true;
+                    } else if ({$this->getId()}_jquery.data("_clear")) {
+                        // Loeschen des Wertes
+                        
+                        {$this->getId()}_jquery.removeData("_valueSetterUpdate");
+                        {$this->getId()}_jquery.removeData("_clearFilterSetterUpdate");
+                        {$this->getId()}_jquery.removeData("_filterSetterUpdate");
+                        {$this->getId()}_jquery.removeData("_clear");
+                        
+                        // Wurde das Widget manuell geloescht, soll nicht wieder automatisch der einzige Suchvorschlag
+                        // ausgewaehlt werden.
+                        suppressAutoSelectSingleSuggestion = true;
                     }
                     
                     // Das resultSet wurde neu geladen und ist daher unveraendert. Ein erneutes Laden mit
@@ -887,6 +913,7 @@ JS;
                     {$this->getId()}_jquery.removeData("_valueSetterUpdate");
                     {$this->getId()}_jquery.removeData("_clearFilterSetterUpdate");
                     {$this->getId()}_jquery.removeData("_filterSetterUpdate");
+                    {$this->getId()}_jquery.removeData("_clear");
 JS;
         
         return $output;
