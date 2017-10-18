@@ -114,7 +114,7 @@ class euiButton extends euiAbstractElement
         /* @var $prefill_link \exface\Core\CommonLogic\WidgetLink */
         $prefill = '';
         if ($prefill_link = $this->getAction()->getPrefillWithDataFromWidgetLink()) {
-            if ($prefill_link->getPageAlias() == $widget->getPageAlias()) {
+            if ($prefill_link->getPage()->getAliasWithNamespace == $this->getPageAlias()) {
                 $prefill = ", prefill: " . $this->getTemplate()->getElement($prefill_link->getWidget())->buildJsDataGetter($this->getAction());
             }
         }
@@ -128,7 +128,7 @@ class euiButton extends euiAbstractElement
 							dataType: 'html',
 							data: {
 								action: '{$widget->getActionAlias()}',
-								resource: '{$widget->getPageAlias()}',
+								resource: '{$this->getPageAlias()}',
 								element: '{$widget->getId()}',
 								data: requestData
 								{$prefill}
