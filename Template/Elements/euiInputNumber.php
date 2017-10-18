@@ -37,11 +37,12 @@ class euiInputNumber extends euiInput
     {
         $widget = $this->getWidget();
         if (is_null($widget->getPrecisionMax()) || $widget->getPrecisionMin() === $widget->getPrecisionMax()){
+            $separator_regex = preg_quote($widget->getDecimalSeparator());
             $js = <<<JS
             
             if ({$value_js_var} !== undefined && {$value_js_var} !== ''){
     			var {$value_js_var} = $.fn.numberbox.defaults.formatter.call(this,{$value_js_var});
-                {$value_js_var} = {$value_js_var}.replace(/{$widget->getDecimalSeparator()}/g, '.');
+                {$value_js_var} = {$value_js_var}.replace(/{$separator_regex}/g, '.');
     			var number = parseFloat({$value_js_var});
                 {$value_js_var} = number.toString().replace(/\./g, '{$widget->getDecimalSeparator()}');
     			return {$value_js_var};
