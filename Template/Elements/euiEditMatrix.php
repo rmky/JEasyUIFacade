@@ -1,7 +1,7 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
-use exface\Core\DataTypes\AbstractDataType;
+use exface\Core\CommonLogic\DataTypes\AbstractDataType;
 use exface\Core\DataTypes\BooleanDataType;
 use exface\Core\DataTypes\DateDataType;
 use exface\Core\DataTypes\PriceDataType;

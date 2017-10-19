@@ -11,7 +11,7 @@ use exface\Core\Widgets\Tabs;
 use exface\Core\Interfaces\Widgets\iHaveContextMenu;
 use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
-use exface\Core\CommonLogic\Constants\SortingDirections;
+use exface\Core\DataTypes\SortingDirectionsDataType;
 use exface\Core\Interfaces\DataSheets\DataSheetInterface;
 
 /**
@@ -298,7 +298,7 @@ class euiData extends euiAbstractElement
                         " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "
                         " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
                         ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false') . "
-                        " . ($col->getSortable() ? ", order: '" . ($col->getDefaultSortingDirection() == SortingDirections::ASC() ? 'asc' : 'desc') . "'" : '');
+                        " . ($col->getSortable() ? ", order: '" . ($col->getDefaultSortingDirection() === SortingDirectionsDataType::ASC($this->getWorkbench()) ? 'asc' : 'desc') . "'" : '');
         
         return $output;
     }
