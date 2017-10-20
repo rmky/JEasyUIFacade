@@ -13,6 +13,9 @@ use exface\Core\Templates\AbstractAjaxTemplate\Elements\JqueryAlignmentTrait;
 use exface\Core\Widgets\ButtonGroup;
 use exface\Core\DataTypes\SortingDirectionsDataType;
 use exface\Core\Interfaces\DataSheets\DataSheetInterface;
+use exface\Core\Factories\DataColumnFactory;
+use exface\Core\Widgets\DataColumn;
+use exface\Core\Interfaces\DataTypes\EnumDataTypeInterface;
 
 /**
  * Implementation of a basic grid.
@@ -296,6 +299,7 @@ class euiData extends euiAbstractElement
                         " . ($col->isHidden() ? ', hidden: true' : '') . "
                         " . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . "
                         " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "
+                        " . (($formatter = $this->buildJsColumnFormatter($col, 'value', 'row', 'index')) ? ', formatter: function(value,row,index){' . $formatter . '}' : '') . "
                         " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
                         ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false') . "
                         " . ($col->getSortable() ? ", order: '" . ($col->getDefaultSortingDirection() === SortingDirectionsDataType::ASC($this->getWorkbench()) ? 'asc' : 'desc') . "'" : '');
@@ -580,5 +584,23 @@ JS;
                 
 HTML;
     } 
+                
+    protected function buildJsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index) 
+    {
+        $type = $col->getDataType();
+        $js = '';
+        switch (true) {
+            case $type instanceof EnumDataTypeInterface :
+                $js_value_labels = json_encode($type->getLabels());
+                $js = <<<JS
+
+    var labels = {$js_value_labels};
+    return labels[{$js_var_value}] ? labels[{$js_var_value}] : {$js_var_value};
+
+JS;
+                break;
+        }
+        return $js;
+    }
 }
 ?>
