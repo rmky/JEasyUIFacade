@@ -298,8 +298,7 @@ class euiData extends euiAbstractElement
                         " . ($colspan ? ', colspan: ' . intval($colspan) : '') . ($rowspan ? ', rowspan: ' . intval($rowspan) : '') . "
                         " . ($col->isHidden() ? ', hidden: true' : '') . "
                         " . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . "
-                        " . ($col->getCellStylerScript() ? ', styler: function(value,row,index){' . $col->getCellStylerScript() . '}' : '') . "
-                        " . (($formatter = $this->buildJsColumnFormatter($col, 'value', 'row', 'index')) ? ', formatter: function(value,row,index){' . $formatter . '}' : '') . "
+                        " . (($format_options = $this->buildJsOptionsColumnFormatter($col, 'value', 'row', 'index')) ? ', ' . $format_options . '' : '') . "
                         " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
                         ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false') . "
                         " . ($col->getSortable() ? ", order: '" . ($col->getDefaultSortingDirection() === SortingDirectionsDataType::ASC($this->getWorkbench()) ? 'asc' : 'desc') . "'" : '');
@@ -584,11 +583,29 @@ JS;
                 
 HTML;
     } 
-                
-    protected function buildJsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index) 
+    
+    /**
+     * Creates column options formatter:function(value,row,idx) and styler:function(value,row,idx) from the data
+     * of a given column.
+     * 
+     * The names of the JS variables "value", "row" and "index" must be passed along with with column widget.
+     * 
+     * @param DataColumn $col
+     * @param string $js_var_value
+     * @param string $js_var_row
+     * @param string $js_var_index
+     * @return string
+     */
+    protected function buildJsOptionsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index) 
     {
+        if ($col->getDisableFormatters()) {
+            return '';
+        }
+        
+        $options = '';
+        
+        // Data type specific formatting
         $type = $col->getDataType();
-        $js = '';
         switch (true) {
             case $type instanceof EnumDataTypeInterface :
                 $js_value_labels = json_encode($type->getLabels());
@@ -600,7 +617,18 @@ HTML;
 JS;
                 break;
         }
-        return $js;
+        
+        // Formatter option
+        if ($js) {
+            $options = "formatter: function({$js_var_value},{$js_var_row},{$js_var_index}){" . $js . "}";
+        }
+        
+        // Styler option
+        if ($styler = $col->getCellStylerScript()) {
+            $options = ($options ?  ', ' : '') . "styler: function({$js_var_value},{$js_var_row},{$js_var_index}){" . $styler . "}";
+        }
+        
+        return $options;
     }
 }
 ?>
