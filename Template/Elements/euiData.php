@@ -16,6 +16,7 @@ use exface\Core\Interfaces\DataSheets\DataSheetInterface;
 use exface\Core\Factories\DataColumnFactory;
 use exface\Core\Widgets\DataColumn;
 use exface\Core\Interfaces\DataTypes\EnumDataTypeInterface;
+use exface\Core\DataTypes\NumberDataType;
 
 /**
  * Implementation of a basic grid.
@@ -615,6 +616,13 @@ HTML;
     return labels[{$js_var_value}] ? labels[{$js_var_value}] : {$js_var_value};
 
 JS;
+                break;
+            case $type instanceof NumberDataType :
+                $translator = $this->getWorkbench()->getCoreApp()->getTranslator();
+                $decimal_separator = $translator->translate('LOCALIZATION.NUMBER.DECIMAL_SEPARATOR');
+                $thousands_separator = $translator->translate('LOCALIZATION.NUMBER.THOUSANDS_SEPARATOR');
+                $locale = $this->getWorkbench()->context()->getScopeSession()->getSessionLocale();
+                $js = euiInputNumber::buildJsNumberFormatter($js_var_value, $type->getPrecisionMin(), $type->getPrecisionMax(), $decimal_separator, $thousands_separator, $locale);
                 break;
         }
         

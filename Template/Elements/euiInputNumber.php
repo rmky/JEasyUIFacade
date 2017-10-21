@@ -24,32 +24,48 @@ class euiInputNumber extends euiInput
         $output = parent::buildJsDataOptions();
         $output = ($output ? ',' : '') . $output;
         
-        $formatter = $this->buildJsFormatter('value');
+        $precision_max = $widget->getPrecisionMax();
+        $precision_min = $widget->getPrecisionMin();
+        $locale = $this->getWorkbench()->context()->getScopeSession()->getSessionLocale();
+        if (is_null($precision_max) || $precision_min === $precision_max) {
+            $formatter = static::buildJsNumberFormatter('value', $widget->getPrecisionMin(), $widget->getPrecisionMax(), $widget->getDecimalSeparator(), $widget->getThousandsSeparator(), $locale);
+        }
         
-        $output .= "precision: " . ($widget->getPrecisionMax() ? $widget->getPrecisionMax() : 10)
+        $output .= "precision: " . ($precision_max ? $precision_max : 10)
                 . ", decimalSeparator: '{$widget->getDecimalSeparator()}'"
                 . ($formatter ?  ", formatter:function(value){" . $formatter . "}" : "")
 				;
         return trim($output, ',');
     }
     
-    protected function buildJsFormatter($value_js_var)
+    public static function buildJsNumberFormatter($value_js_var, $precision_min, $precision_max, $decimal_separator, $thousands_separator, $locale = null)
     {
-        $widget = $this->getWidget();
-        if (is_null($widget->getPrecisionMax()) || $widget->getPrecisionMin() === $widget->getPrecisionMax()){
-            $separator_regex = preg_quote($widget->getDecimalSeparator());
-            $js = <<<JS
+        $separator_regex = preg_quote($decimal_separator);
+        $precision_max = is_null($precision_max) ? 'undefined' : $precision_max;
+        $precision_min = is_null($precision_min) ? 'undefined' : $precision_min;
+        $locale = is_null($locale) ? 'undefined' : "'" . str_replace('_', '-', $locale) . "'";
+        
+        $js = <<<JS
             
-            if ({$value_js_var} !== undefined && {$value_js_var} !== ''){
-    			var {$value_js_var} = $.fn.numberbox.defaults.formatter.call(this,{$value_js_var});
+            if ({$value_js_var} !== null && {$value_js_var} !== undefined && {$value_js_var} !== ''){
+    			if (this.nodeType > 0) {
+                     // TODO check if the element is an instantiated numberbox somehow!
+    			     {$value_js_var} = $.fn.numberbox.defaults.formatter.call(this,{$value_js_var});
+                }
                 {$value_js_var} = {$value_js_var}.replace(/{$separator_regex}/g, '.');
     			var number = parseFloat({$value_js_var});
-                {$value_js_var} = number.toString().replace(/\./g, '{$widget->getDecimalSeparator()}');
-    			return {$value_js_var};
+                var {$value_js_var} = number.toLocaleString(
+                    {$locale}, // use a string like 'en-US' to override browser locale
+                    {
+                        minimumFractionDigits: {$precision_min}, 
+                        maximumFractionDigits: {$precision_max}
+                    }
+                );
+                return {$value_js_var};
             }
 
 JS;
-        }
+        
         return $js;
     }
 }
