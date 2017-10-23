@@ -111,24 +111,24 @@ JS;
     {
         $headers = array();
         // The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/vendor/jquery.ui.widget.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/vendor/jquery.ui.widget.js"></script>';
         // The Load Image plugin is included for the preview images and image resizing functionality -->
-        $headers[] = '<script src="exface/vendor/npm-asset/blueimp-load-image/js/load-image.all.min.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/blueimp-load-image/js/load-image.all.min.js"></script>';
         // The Iframe Transport is required for browsers without support for XHR file uploads -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/jquery.iframe-transport.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/jquery.iframe-transport.js"></script>';
         // The basic File Upload plugin -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/jquery.fileupload.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/jquery.fileupload.js"></script>';
         // The File Upload processing plugin -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/jquery.fileupload-process.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/jquery.fileupload-process.js"></script>';
         // The File Upload image preview & resize plugin -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/jquery.fileupload-image.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/jquery.fileupload-image.js"></script>';
         // The File Upload audio preview plugin -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/jquery.fileupload-audio.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/jquery.fileupload-audio.js"></script>';
         // The File Upload video preview plugin -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/jquery.fileupload-video.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/jquery.fileupload-video.js"></script>';
         // The File Upload validation plugin -->
-        $headers[] = '<script src="exface/vendor/bower-asset/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>';
-        $headers[] = '<script src="exface/vendor/bower-asset/paste.js/paste.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/blueimp-file-upload/js/jquery.fileupload-validate.js"></script>';
+        $headers[] = '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/paste.js/paste.js"></script>';
         return $headers;
     }
 

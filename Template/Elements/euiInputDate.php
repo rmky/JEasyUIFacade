@@ -101,7 +101,7 @@ JS;
     public function generateHeaders()
     {
         $headers = parent::generateHeaders();
-        $headers[] = '<script type="text/javascript" src="exface/vendor/npm-asset/datejs/build/production/' . $this->buildDateJsLocaleFilename() . '"></script>';
+        $headers[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/datejs/build/production/' . $this->buildDateJsLocaleFilename() . '"></script>';
         return $headers;
     }
 

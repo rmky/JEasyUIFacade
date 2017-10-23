@@ -247,9 +247,9 @@ JS;
     public function generateHeaders()
     {
         $includes = parent::generateHeaders();
-        // $includes[] = '<link rel="stylesheet" media="screen" href="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/style.css">';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/planogram.plugin.js"></script>';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/exface/jEasyUiTemplate/Template/js/planogram/interact.js"></script>';
+        // $includes[] = '<link rel="stylesheet" media="screen" href="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/jEasyUiTemplate/Template/js/planogram/style.css">';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/jEasyUiTemplate/Template/js/planogram/planogram.plugin.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/jEasyUiTemplate/Template/js/planogram/interact.js"></script>';
         return $includes;
     }
 

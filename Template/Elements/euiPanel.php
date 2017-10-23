@@ -163,7 +163,7 @@ HTML;
     public function generateHeaders()
     {
         $includes = parent::generateHeaders();
-        $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
         return $includes;
     }
 

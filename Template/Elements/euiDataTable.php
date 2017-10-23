@@ -217,13 +217,13 @@ HTML;
     {
         $includes = parent::generateHeaders();
         // Masonry is neede to align filters nicely
-        $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
         // Row details view
         if ($this->getWidget()->hasRowDetails()) {
-            $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-detailview.js"></script>';
+            $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-detailview.js"></script>';
         }
         if ($this->getWidget()->hasRowGroups()){
-            $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-groupview.js"></script>';
+            $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/datagridview/datagrid-groupview.js"></script>';
         }
         return $includes;
     }

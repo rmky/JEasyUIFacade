@@ -60,7 +60,7 @@ class euiPivotTable extends euiDataTable
     function generateHeaders()
     {
         $headers = parent::generateHeaders();
-        $headers[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/pivotgrid/jquery.pivotgrid.js"></script>';
+        $headers[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/jeasyui/extensions/pivotgrid/jquery.pivotgrid.js"></script>';
         return $headers;
     }
 

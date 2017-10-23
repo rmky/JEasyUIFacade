@@ -31,5 +31,19 @@ class JEasyUiTemplate extends AbstractAjaxTemplate
         }
         return $this->request_filters_array;
     }
+    
+    protected function generateTemplateHeaders()
+    {
+        return [
+            '<link rel="stylesheet" type="text/css" href="' . $this->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/jeasyui/themes/metro-blue/easyui.css">',
+            '<link rel="stylesheet" type="text/css" href="' . $this->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/template.css">',
+            '<script type="text/javascript" src="' . $this->getUrlOfVendorFolder() . '/bower-asset/jquery/dist/jquery.min.js"></script>',
+            '<script type="text/javascript" src="' . $this->getUrlOfVendorFolder() . '/bower-asset/jeasyui/jquery.easyui.min.js"></script>',
+            '<script type="text/javascript" src="' . $this->getUrlOfVendorFolder() . '/bower-asset/jeasyui/locale/easyui-lang-de.js"></script>',
+            '<script type="text/javascript" src="' . $this->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/jquery.easyui.patch.1.43.js"></script>',
+            '<script type="text/javascript" src="' . $this->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/template.js"></script>',
+            '<link href="' . $this->getUrlOfVendorFolder() . '/bower-asset/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />'
+        ];
+    }
 }
 ?>

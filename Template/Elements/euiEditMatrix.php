@@ -21,19 +21,19 @@ class euiEditMatrix extends euiDataMatrixOld
     {
         // handsontable
         $includes = array(
-            '<script src="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/bower_components/handsontable/dist/handsontable.full.min.js"></script>',
-            '<link rel="stylesheet" media="screen" href="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/bower_components/handsontable/dist/handsontable.full.min.css">'
+            '<script src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/bower_components/handsontable/dist/handsontable.full.min.js"></script>',
+            '<link rel="stylesheet" media="screen" href="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/bower_components/handsontable/dist/handsontable.full.min.css">'
         );
         // formula suppoert
         if ($this->getWidget()->getFormulasEnabled()) {
-            $includes[] = '<link rel="stylesheet" media="screen" href="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/src/handsontable.formula.css">';
-            $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/bower_components/ruleJS/dist/full/ruleJS.all.full.min.js"></script>';
-            $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/src/handsontable.formula.js"></script>';
+            $includes[] = '<link rel="stylesheet" media="screen" href="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/src/handsontable.formula.css">';
+            $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/bower_components/ruleJS/dist/full/ruleJS.all.full.min.js"></script>';
+            $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/handsontable-rulejs/src/handsontable.formula.js"></script>';
             
             $this->getWidget()->setShowRowNumbers(true);
         }
         // masonry for filter alignment
-        $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
         return $includes;
     }
 

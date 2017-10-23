@@ -456,24 +456,24 @@ JS;
     {
         $includes = parent::generateHeaders();
         // flot
-        $includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.js"></script>';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.resize.js"></script>';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.categories.js"></script>';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.time.js"></script>';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.crosshair.js"></script>';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/flot/plugins/axislabels/jquery.flot.axislabels.js"></script>';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/exface/JEasyUiTemplate/Template/js/flot/plugins/jquery.flot.orderBars.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/flot-charts/jquery.flot.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/flot-charts/jquery.flot.resize.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/flot-charts/jquery.flot.categories.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/flot-charts/jquery.flot.time.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/flot-charts/jquery.flot.crosshair.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/flot/plugins/axislabels/jquery.flot.axislabels.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/exface/JEasyUiTemplate/Template/js/flot/plugins/jquery.flot.orderBars.js"></script>';
         
         if ($this->getWidget()->getStackSeries()) {
-            $includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.stack.js"></script>';
+            $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/flot-charts/jquery.flot.stack.js"></script>';
         }
         
         if ($this->isPieChart()) {
-            $includes[] = '<script type="text/javascript" src="exface/vendor/npm-asset/flot-charts/jquery.flot.pie.js"></script>';
+            $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/npm-asset/flot-charts/jquery.flot.pie.js"></script>';
         }
         
         // masonry for proper filter alignment
-        $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/masonry/dist/masonry.pkgd.min.js"></script>';
         return $includes;
     }
 

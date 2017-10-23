@@ -45,8 +45,8 @@ JS;
     public function generateHeaders()
     {
         $includes = parent::generateHeaders();
-        $includes[] = '<link href="exface/vendor/bower-asset/jsoneditor/dist/jsoneditor.min.css" rel="stylesheet">';
-        $includes[] = '<script type="text/javascript" src="exface/vendor/bower-asset/jsoneditor/dist/jsoneditor.min.js"></script>';
+        $includes[] = '<link href="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/jsoneditor/dist/jsoneditor.min.css" rel="stylesheet">';
+        $includes[] = '<script type="text/javascript" src="' . $this->getTemplate()->getUrlOfVendorFolder() . '/bower-asset/jsoneditor/dist/jsoneditor.min.js"></script>';
         return $includes;
     }
 
