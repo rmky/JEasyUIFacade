@@ -299,7 +299,7 @@ class euiData extends euiAbstractElement
                         " . ($colspan ? ', colspan: ' . intval($colspan) : '') . ($rowspan ? ', rowspan: ' . intval($rowspan) : '') . "
                         " . ($col->isHidden() ? ', hidden: true' : '') . "
                         " . ($col->getWidth()->isTemplateSpecific() ? ', width: "' . $col->getWidth()->toString() . '"' : '') . "
-                        " . (($format_options = $this->buildJsOptionsColumnFormatter($col, 'value', 'row', 'index')) ? ', ' . $format_options . '' : '') . "
+                        " . (($format_options = $this->buildJsInitOptionsColumnFormatter($col, 'value', 'row', 'index')) ? ', ' . $format_options . '' : '') . "
                         " . ', align: "' . $this->buildCssTextAlignValue($col->getAlign()) . '"
                         ' . ', sortable: ' . ($col->getSortable() ? 'true' : 'false') . "
                         " . ($col->getSortable() ? ", order: '" . ($col->getDefaultSortingDirection() === SortingDirectionsDataType::ASC($this->getWorkbench()) ? 'asc' : 'desc') . "'" : '');
@@ -597,7 +597,7 @@ HTML;
      * @param string $js_var_index
      * @return string
      */
-    protected function buildJsOptionsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index) 
+    protected function buildJsInitOptionsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index) 
     {
         if ($col->getDisableFormatters()) {
             return '';
@@ -628,7 +628,7 @@ JS;
         
         // Formatter option
         if ($js) {
-            $options = "formatter: function({$js_var_value},{$js_var_row},{$js_var_index}){" . $js . "}";
+            $options = "formatter: function({$js_var_value},{$js_var_row},{$js_var_index}){try {" . $js . "} catch (e) {return {$js_var_value};} }";
         }
         
         // Styler option

@@ -44,6 +44,7 @@ class euiInputNumber extends euiInput
         $precision_max = is_null($precision_max) ? 'undefined' : $precision_max;
         $precision_min = is_null($precision_min) ? 'undefined' : $precision_min;
         $locale = is_null($locale) ? 'undefined' : "'" . str_replace('_', '-', $locale) . "'";
+        $use_grouping = $thousands_separator ? 'true' : 'false';
         
         $js = <<<JS
             
@@ -52,13 +53,14 @@ class euiInputNumber extends euiInput
                      // TODO check if the element is an instantiated numberbox somehow!
     			     {$value_js_var} = $.fn.numberbox.defaults.formatter.call(this,{$value_js_var});
                 }
-                {$value_js_var} = {$value_js_var}.replace(/{$separator_regex}/g, '.');
+                {$value_js_var} = {$value_js_var}.toString().replace(/{$separator_regex}/g, '.');
     			var number = parseFloat({$value_js_var});
                 var {$value_js_var} = number.toLocaleString(
                     {$locale}, // use a string like 'en-US' to override browser locale
                     {
                         minimumFractionDigits: {$precision_min}, 
-                        maximumFractionDigits: {$precision_max}
+                        maximumFractionDigits: {$precision_max},
+                        useGrouping: {$use_grouping}
                     }
                 );
                 return {$value_js_var};
