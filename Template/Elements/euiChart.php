@@ -259,7 +259,7 @@ JS;
         if (! $widget->getDataWidgetLink()) {
             
             $url_params = '
-                            resource: "' . $this->getPageAlias() . '"
+                            resource: "' . $widget->getPage()->getAliasWithNamespace() . '"
                             , element: "' . $widget->getData()->getId(). '"
                             , object: "' . $widget->getMetaObject()->getId(). '"
                             , action: "' . $widget->getLazyLoadingAction(). '"

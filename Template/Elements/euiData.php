@@ -96,7 +96,7 @@ class euiData extends euiAbstractElement
             // Lazy loading via AJAX
             $params = array();
             $queryParams = array(
-                'resource' => $this->getPageAlias(),
+                'resource' => $widget->getPage()->getAliasWithNamespace(),
                 'element' => $widget->getId(),
                 'object' => $this->getWidget()->getMetaObject()->getId(),
                 'action' => $widget->getLazyLoadingAction()

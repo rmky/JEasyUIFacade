@@ -94,7 +94,7 @@ HTML;
             // build JS for the search function
             $output .= '
 						function ' . $this->buildJsFunctionPrefix() . 'doSearch(){
-							$("#' . $this->getId() . '").' . $this->getElementType() . '("load",{' . implode(', ', $fltrs) . ', resource: "' . $this->getPageAlias() . '", element: "' . $this->getWidget()->getId() . '"});
+							$("#' . $this->getId() . '").' . $this->getElementType() . '("load",{' . implode(', ', $fltrs) . ', resource: "' . $widget->getPage()->getAliasWithNamespace() . '", element: "' . $this->getWidget()->getId() . '"});
 						}';
         }
         

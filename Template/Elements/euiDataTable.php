@@ -328,7 +328,7 @@ HTML;
     		            	method: 'post',
     						queryParams: {
     							action: '{$widget->getRowDetailsAction()}',
-    							resource: '{$this->getPageAlias()}',
+    							resource: '{$widget->getPage()->getAliasWithNamespace()}',
     							element: '{$details->getId()}',
     							prefill: {
     								oId: "{$widget->getMetaObject()->getId()}",
