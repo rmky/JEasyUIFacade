@@ -62,6 +62,12 @@ class euiChart extends euiData
         $header_html = '';
         if (! $widget->getDataWidgetLink()) {
             $header_html = $this->buildHtmlTableHeader();
+            // Set the height of the canvas-div to auto. Otherwise the chart will be to high in some cases
+            // (e.g. in vertical splits, where the chart has filters etc.)
+            $canvas_height = 'auto';
+        } else {
+            // If the chart has no customizir, set the height to 100%. Auto will not work for some reason...
+            $canvas_height = '100%';
         }
         
         $chart_panel_options = ", title: '{$this->getWidget()->getCaption()}'";
@@ -76,7 +82,7 @@ class euiChart extends euiData
 <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
     <div class="easyui-panel" style="height: auto;" id="{$this->getId()}_wrapper" data-options="fit: true {$chart_panel_options}, onResize: function(){ {$this->getOnResizeScript()} }">
     	{$header_html}
-    	<div id="{$this->getId()}" style="height:auto; min-height: 100px; overflow: hidden;"></div>
+    	<div id="{$this->getId()}" style="height:{$canvas_height}; min-height: 100px; overflow: hidden;"></div>
     </div>
 </div>
 HTML;
@@ -123,21 +129,24 @@ JS;
         // Transform the input data to a flot dataset
         foreach ($widget->getSeries() as $series) {
             $series_id = $this->sanitizeSeriesId($series->getId());
+            $series_column = $series->getDataColumn();
+            $x_column = $series->getAxisX()->getDataColumn();
+            $y_column = $series->getAxisY()->getDataColumn();
             $output .= '
 					var ' . $series_id . ' = [];';
             
             if ($series->getChartType() == ChartSeries::CHART_TYPE_PIE) {
-                $series_data = $series_id . '[i] = { label: ds.rows[i]["' . $series->getAxisX()->getDataColumn()->getDataColumnName() . '"], data: ds.rows[i]["' . $series->getDataColumn()->getDataColumnName() . '"] }';
+                $series_data = $series_id . '[i] = { label: ds.rows[i]["' . $x_column->getDataColumnName() . '"], data: ds.rows[i]["' . $series_column->getDataColumnName() . '"] }';
             } else {
                 // Prepare the code to transform the ajax data to flot data. It will later run in a for loop.
                 switch ($series->getChartType()) {
                     case ChartSeries::CHART_TYPE_BARS:
-                        $data_key = $series->getDataColumn()->getDataColumnName();
-                        $data_value = $series->getAxisY()->getDataColumn()->getDataColumnName();
+                        $data_key = $series_column->getDataColumnName();
+                        $data_value = $y_column->getDataColumnName();
                         break;
                     default:
-                        $data_key = $series->getAxisX()->getDataColumn()->getDataColumnName();
-                        $data_value = $series->getDataColumn()->getDataColumnName();
+                        $data_key = $x_column->getDataColumnName();
+                        $data_value = $series_column->getDataColumnName();
                 }
                 $series_data .= '
 							' . $series_id . '[i] = [ (ds.rows[i]["' . $data_key . '"]' . ($series->getAxisX()->getAxisType() == 'time' ? '*1000' : '') . '), ds.rows[i]["' . $data_value . '"] ];';
@@ -203,9 +212,22 @@ JS;
         if ($this->isPieChart()) {
             $output .= 'show: false';
         } else {
-            $output .= 'position: "nw"';
+            $output .= $this->buildJsLegendOptionsAlignment();
         }
         return $output;
+    }
+    
+    protected function buildJsLegendOptionsAlignment()
+    {
+        $options = '';
+        switch (strtoupper($this->getWidget())) {
+            case 'LEFT': $options = 'position: "nw"'; break;
+            case 'RIGHT': 
+            default: $options = 'position: "ne"';
+            
+        }
+        
+        return $options;
     }
 
     protected function isPieChart()
@@ -367,14 +389,16 @@ JS;
     public function buildJsSeriesOptions(ChartSeries $series)
     {
         $options = '';
+        $color = $series->getDataColumn()->getColor();
         switch ($series->getChartType()) {
             case ChartSeries::CHART_TYPE_LINE:
             case ChartSeries::CHART_TYPE_AREA:
                 $options = 'lines: 
 								{
-									show: true,
-									' . ($series->getChartType() == ChartSeries::CHART_TYPE_AREA ? 'fill: true' : '') . '
-								}';
+									show: true
+									' . ($series->getChartType() == ChartSeries::CHART_TYPE_AREA ? ', fill: true' : '') . '
+                                }
+                            ' . ($color ? ', color: "' . $color . '"' : '') . '';
                 break;
             case ChartSeries::CHART_TYPE_BARS:
             case ChartSeries::CHART_TYPE_COLUMNS:
@@ -382,7 +406,7 @@ JS;
 								{
 									show: true 
 									, align: "center"
-									' . (! $series->getChart()->getStackSeries() && count($series->getChart()->getSeriesByChartType($series->getChartType())) > 1 ? ', barWidth: 0.2, order: ' . $series->getSeriesNumber() : '') . '
+                                    ' . (! $series->getChart()->getStackSeries() && count($series->getChart()->getSeriesByChartType($series->getChartType())) > 1 ? ', barWidth: 0.2, order: ' . $series->getSeriesNumber() : '') . '
 									';
                 if ($series->getAxisX()->getAxisType() == ChartAxis::AXIS_TYPE_TIME || $series->getAxisY()->getAxisType() == ChartAxis::AXIS_TYPE_TIME) {
                     $options .= '
@@ -393,7 +417,8 @@ JS;
 									, horizontal: true';
                 }
                 $options .= '
-								}';
+								}
+                            ' . ($color ? ', color: "' . $color . '"' : '') . '';
                 break;
             case ChartSeries::CHART_TYPE_PIE:
                 $options = 'pie: {show: true}';
@@ -515,8 +540,10 @@ JS;
         // er nicht alleine im Container ist.
         $widget = $this->getWidget();
         
-        if ($widget->getHeight()->isUndefined() && ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
-            $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
+        if ($widget->getHeight()->isUndefined()) {
+            if (($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget->countWidgetsVisible() > 1)) {
+                $widget->setHeight($this->getTemplate()->getConfig()->getOption('WIDGET.CHART.HEIGHT_DEFAULT'));
+            }
         }
         return parent::getHeight();
     }
