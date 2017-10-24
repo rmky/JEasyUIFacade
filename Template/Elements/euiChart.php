@@ -405,17 +405,28 @@ JS;
                 $options = 'bars: 
 								{
 									show: true 
+                                    , lineWidth: 0
 									, align: "center"
-                                    ' . (! $series->getChart()->getStackSeries() && count($series->getChart()->getSeriesByChartType($series->getChartType())) > 1 ? ', barWidth: 0.2, order: ' . $series->getSeriesNumber() : '') . '
-									';
+                                    ';
+                if (! $series->getChart()->getStackSeries() && count($series->getChart()->getSeriesByChartType($series->getChartType())) > 1) {
+                    $options .= '
+                                    , barWidth: 0.2
+                                    , order: ' . $series->getSeriesNumber();
+                } else {
+                    $options .= '
+                                    , barWidth: 0.8';
+                }
+                
                 if ($series->getAxisX()->getAxisType() == ChartAxis::AXIS_TYPE_TIME || $series->getAxisY()->getAxisType() == ChartAxis::AXIS_TYPE_TIME) {
                     $options .= '
 									, barWidth: 24*60*60*1000';
                 }
+                
                 if ($series->getChartType() == ChartSeries::CHART_TYPE_BARS) {
                     $options .= '
 									, horizontal: true';
                 }
+                
                 $options .= '
 								}
                             ' . ($color ? ', color: "' . $color . '"' : '') . '';
