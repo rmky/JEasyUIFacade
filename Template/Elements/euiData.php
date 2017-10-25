@@ -17,14 +17,15 @@ use exface\Core\Factories\DataColumnFactory;
 use exface\Core\Widgets\DataColumn;
 use exface\Core\Interfaces\DataTypes\EnumDataTypeInterface;
 use exface\Core\DataTypes\NumberDataType;
+use exface\Core\DataTypes\TextStylesDataType;
 
 /**
  * Implementation of a basic grid.
  *
  * @method Data getWidget()
- *        
+ *
  * @author Andrej Kabachnik
- *        
+ *
  */
 class euiData extends euiAbstractElement
 {
@@ -33,23 +34,23 @@ class euiData extends euiAbstractElement
     use JqueryAlignmentTrait;
     
     private $toolbar_id = null;
-
+    
     private $show_footer = null;
-
+    
     private $on_before_load = '';
-
+    
     private $on_load_success = '';
-
+    
     private $on_load_error = '';
-
+    
     private $load_filter_script = '';
-
+    
     private $headers_colspan = array();
-
+    
     private $headers_rowspan = array();
     
     /**
-     * 
+     *
      * {@inheritDoc}
      * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::init()
      */
@@ -66,7 +67,7 @@ class euiData extends euiAbstractElement
     
     /**
      * The Data element by itself does not generate anything - it just offers common utility methods.
-     * 
+     *
      * {@inheritDoc}
      * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::generateHtml()
      */
@@ -85,7 +86,7 @@ class euiData extends euiAbstractElement
     {
         return '';
     }
-
+    
     /**
      * Generates config-elements for the js grid instatiator, that define the data source for the grid.
      * By default the data source is remote and will be fetched via AJAX. Override this method for local data sources.
@@ -128,7 +129,7 @@ class euiData extends euiAbstractElement
         
         return $result;
     }
-
+    
     public function buildJsInitOptionsHead()
     {
         $widget = $this->getWidget();
@@ -212,7 +213,7 @@ class euiData extends euiAbstractElement
 				, columns: [ ' . implode(',', $this->buildJsInitOptionsColumns()) . ' ]';
         return $output;
     }
-
+    
     public function buildJsInitOptionsColumns(array $column_groups = null)
     {
         if (! $column_groups) {
@@ -260,7 +261,7 @@ class euiData extends euiAbstractElement
         
         return $header_rows;
     }
-
+    
     protected function setColumnHeaderColspan(DataColumnGroup $column_group, $colspan)
     {
         foreach ($column_group->getColumns() as $col) {
@@ -268,12 +269,12 @@ class euiData extends euiAbstractElement
         }
         return $this;
     }
-
+    
     protected function getColumnHeaderColspan($column_id)
     {
         return $this->headers_colspan[$column_id];
     }
-
+    
     protected function setColumnHeaderRowspan(DataColumnGroup $column_group, $rowspan)
     {
         foreach ($column_group->getColumns() as $col) {
@@ -281,12 +282,12 @@ class euiData extends euiAbstractElement
         }
         return $this;
     }
-
+    
     protected function getColumnHeaderRowspan($column_id)
     {
         return $this->headers_rowspan[$column_id];
     }
-
+    
     protected function buildJsInitOptionsColumn(\exface\Core\Widgets\DataColumn $col)
     {
         // FIXME Make compatible with column groups
@@ -306,7 +307,7 @@ class euiData extends euiAbstractElement
         
         return $output;
     }
-
+    
     public function getToolbarId()
     {
         if (is_null($this->toolbar_id)) {
@@ -314,36 +315,36 @@ class euiData extends euiAbstractElement
         }
         return $this->toolbar_id;
     }
-
+    
     public function setToolbarId($value)
     {
         $this->toolbar_id = $value;
     }
-
+    
     /**
      * Add JS code to be executed on the OnBeforeLoad event of jEasyUI datagrid.
      * The script will have access to the "param" variable
      * representing all XHR parameters to be sent to the server.
      *
-     * @param string $script            
+     * @param string $script
      */
     public function addOnBeforeLoad($script)
     {
         $this->on_before_load .= $script;
     }
-
+    
     /**
      * Set JS code to be executed on the OnBeforeLoad event of jEasyUI datagrid.
      * The script will have access to the "param" variable
      * representing all XHR parameters to be sent to the server.
      *
-     * @param string $script            
+     * @param string $script
      */
     public function setOnBeforeLoad($script)
     {
         $this->on_before_load = $script;
     }
-
+    
     protected function getOnBeforeLoad()
     {
         $script = <<<JS
@@ -353,58 +354,58 @@ class euiData extends euiAbstractElement
 				}
 				{$this->on_before_load}
 JS;
-        return $script;
+				return $script;
     }
-
+    
     /**
      * Binds a script to the onLoadSuccess event.
      *
-     * @param string $script            
+     * @param string $script
      */
     public function addOnLoadSuccess($script)
     {
         $this->on_load_success .= $script;
     }
-
+    
     protected function getOnLoadSuccess()
     {
         return $this->on_load_success;
     }
-
+    
     /**
      * Binds a script to the onLoadError event.
      *
-     * @param string $script            
+     * @param string $script
      */
     public function addOnLoadError($script)
     {
         $this->on_load_error .= $script;
     }
-
+    
     protected function getOnLoadError()
     {
         return $this->on_load_error;
     }
-
+    
     public function addOnChangeScript($string)
     {
         return $this->addOnLoadSuccess($string);
     }
-
+    
     public function addLoadFilterScript($javascript)
     {
         $this->load_filter_script .= $javascript;
     }
-
+    
     public function getLoadFilterScript()
     {
         return $this->load_filter_script;
     }
-
+    
     public function buildJsDataLoaderWithoutAjax(DataSheetInterface $data)
     {
         $js = <<<JS
-		
+        
 		try {
 			var data = {$this->getTemplate()->encodeData($this->prepareData($data, false))};
 		} catch (err){
@@ -415,7 +416,7 @@ JS;
 		var filter, value, total = data.rows.length;
 		for(var p in param){
 			if (p.startsWith("fltr")){
-				column = p.substring(7);	
+				column = p.substring(7);
 				value = param[p];
 			}
 			
@@ -431,7 +432,7 @@ JS;
 			}
 		}
 		data.total = data.rows.length;
-        success(data);	
+        success(data);
 		return;
 JS;
         
@@ -443,7 +444,7 @@ JS;
         
         return $js;
     }
-
+    
     public function buildJsInitOptions()
     {
         return $this->buildJsDataSource() . $this->buildJsInitOptionsHead();
@@ -509,7 +510,7 @@ JS;
     
     /**
      * Returns the base HTML element to construct the widget from: e.g. div, table, etc.
-     * 
+     *
      * @return string
      */
     protected function getBaseHtmlElement()
@@ -583,21 +584,21 @@ JS;
                 {$context_menu_html}
                 
 HTML;
-    } 
+    }
     
     /**
      * Creates column options formatter:function(value,row,idx) and styler:function(value,row,idx) from the data
      * of a given column.
-     * 
+     *
      * The names of the JS variables "value", "row" and "index" must be passed along with with column widget.
-     * 
+     *
      * @param DataColumn $col
      * @param string $js_var_value
      * @param string $js_var_row
      * @param string $js_var_index
      * @return string
      */
-    protected function buildJsInitOptionsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index) 
+    protected function buildJsInitOptionsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index)
     {
         if ($col->getDisableFormatters()) {
             return '';
@@ -607,14 +608,15 @@ HTML;
         
         // Data type specific formatting
         $type = $col->getDataType();
+        $formatter = '';
         switch (true) {
             case $type instanceof EnumDataTypeInterface :
                 $js_value_labels = json_encode($type->getLabels());
-                $js = <<<JS
-
+                $formatter = <<<JS
+                
     var labels = {$js_value_labels};
     return labels[{$js_var_value}] ? labels[{$js_var_value}] : {$js_var_value};
-
+    
 JS;
                 break;
             case $type instanceof NumberDataType :
@@ -622,18 +624,36 @@ JS;
                 $decimal_separator = $translator->translate('LOCALIZATION.NUMBER.DECIMAL_SEPARATOR');
                 $thousands_separator = $translator->translate('LOCALIZATION.NUMBER.THOUSANDS_SEPARATOR');
                 $locale = $this->getWorkbench()->context()->getScopeSession()->getSessionLocale();
-                $js = euiInputNumber::buildJsNumberFormatter($js_var_value, $type->getPrecisionMin(), $type->getPrecisionMax(), $decimal_separator, $thousands_separator, $locale);
+                $formatter = euiInputNumber::buildJsNumberFormatter($js_var_value, $type->getPrecisionMin(), $type->getPrecisionMax(), $decimal_separator, $thousands_separator, $locale);
                 break;
         }
         
         // Formatter option
-        if ($js) {
-            $options = "formatter: function({$js_var_value},{$js_var_row},{$js_var_index}){try {" . $js . "} catch (e) {return {$js_var_value};} }";
+        if ($formatter) {
+            $options = "formatter: function({$js_var_value},{$js_var_row},{$js_var_index}){try {" . $formatter . "} catch (e) {return {$js_var_value};} }";
         }
         
         // Styler option
-        if ($styler = $col->getCellStylerScript()) {
-            $options = ($options ?  ', ' : '') . "styler: function({$js_var_value},{$js_var_row},{$js_var_index}){" . $styler . "}";
+        $styler = $col->getCellStylerScript();
+        if (! $styler){
+            switch ($col->getStyle()) {
+                case TextStylesDataType::BOLD:
+                    $styler = "return 'font-weight: bold;'";
+                    break;
+                case TextStylesDataType::ITALIC:
+                    $styler = "return 'font-style: italic;'";
+                    break;
+                case TextStylesDataType::UNDERLINE:
+                    $styler = "return 'text-decoration: underline;'";
+                    break;
+                case TextStylesDataType::UNDERLINE:
+                    $styler = "return 'text-decoration: line-through;'";
+                    break;
+            }
+        }
+        
+        if ($styler) {
+            $options = ($options ?  $options . ', ' : '') . "styler: function({$js_var_value},{$js_var_row},{$js_var_index}){" . $styler . "}";
         }
         
         return $options;
