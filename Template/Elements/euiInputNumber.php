@@ -55,14 +55,16 @@ class euiInputNumber extends euiInput
                 }
                 {$value_js_var} = {$value_js_var}.toString().replace(/{$separator_regex}/g, '.');
     			var number = parseFloat({$value_js_var});
-                var {$value_js_var} = number.toLocaleString(
-                    {$locale}, // use a string like 'en-US' to override browser locale
-                    {
-                        minimumFractionDigits: {$precision_min}, 
-                        maximumFractionDigits: {$precision_max},
-                        useGrouping: {$use_grouping}
-                    }
-                );
+                if (! isNaN(number)) {
+                    var {$value_js_var} = number.toLocaleString(
+                        {$locale}, // use a string like 'en-US' to override browser locale
+                        {
+                            minimumFractionDigits: {$precision_min}, 
+                            maximumFractionDigits: {$precision_max},
+                            useGrouping: {$use_grouping}
+                        }
+                    );
+                }
                 return {$value_js_var};
             }
 
