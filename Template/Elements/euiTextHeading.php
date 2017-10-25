@@ -6,9 +6,19 @@ class euiTextHeading extends euiText
 
     function generateHtml()
     {
-        $output = '';
-        $output .= '<h' . $this->getWidget()->getHeadingLevel() . ' id="' . $this->getId() . '">' . $this->getWidget()->getText() . '</h' . $this->getWidget()->getHeadingLevel() . '>';
-        return $output;
+        $widget = $this->getWidget();
+        $prefix = ! $widget->getHideCaption() && $widget->getCaption() ? $widget->getCaption() . ' "' : '';
+        $output = '<h' . $this->getWidget()->getHeadingLevel() . ' id="' . $this->getId() . '">' . $prefix . $this->getWidget()->getText() . ($prefix ? '"' : '') . '</h' . $this->getWidget()->getHeadingLevel() . '>';
+        return $this->buildHtmlWrapper($output);
+    }
+    
+    public function getHeight()
+    {
+        if ($this->getWidget()->getHeight()->isUndefined()){
+            return 'auto';
+        } else {
+            return parent::getHeight();
+        }
     }
 }
 ?>
