@@ -59,7 +59,7 @@ class euiComboTable extends euiInput
         if ($widget->getTable()->hasFilters()) {
             foreach ($widget->getTable()->getFilters() as $fltr) {
                 if ($link = $fltr->getValueWidgetLink()) {
-                    $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
+                    $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $widget->getPage());
                     
                     $widget_lazy_loading_group_id = $widget->getLazyLoadingGroupId();
                     $linked_element_lazy_loading_group_id = method_exists($linked_element->getWidget(), 'getLazyLoadingGroupId') ? $linked_element->getWidget()->getLazyLoadingGroupId() : '';
@@ -658,7 +658,7 @@ JS;
             foreach ($widget->getTable()->getFilters() as $fltr) {
                 if ($link = $fltr->getValueWidgetLink()) {
                     // filter is a live reference
-                    $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $this->getPageId());
+                    $linked_element = $this->getTemplate()->getElementByWidgetId($link->getWidgetId(), $widget->getPage());
                     $filters[] = 'currentFilterSet.fltr' . str_pad($fltrId ++, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . ' = "' . $fltr->getComparator() . '"+' . $linked_element->buildJsValueGetter($link->getColumnId()) . ';';
                 } else {
                     // filter has a static value

@@ -281,7 +281,7 @@ JS;
         if (! $widget->getDataWidgetLink()) {
             
             $url_params = '
-                            resource: "' . $this->getPageId() . '"
+                            resource: "' . $widget->getPage()->getAliasWithNamespace() . '"
                             , element: "' . $widget->getData()->getId(). '"
                             , object: "' . $widget->getMetaObject()->getId(). '"
                             , action: "' . $widget->getLazyLoadingAction(). '"

@@ -87,14 +87,14 @@ HTML;
         // doSearch function for the filters
         if ($widget->hasFilters()) {
             foreach ($widget->getFilters() as $fnr => $fltr) {
-                $fltr_impl = $this->getTemplate()->getElement($fltr, $this->getPageId());
+                $fltr_impl = $this->getTemplate()->getElement($fltr);
                 $output .= $fltr_impl->generateJs();
                 $fltrs[] = '"fltr' . str_pad($fnr, 2, 0, STR_PAD_LEFT) . '_' . urlencode($fltr->getAttributeAlias()) . '": ' . $fltr_impl->buildJsValueGetter();
             }
             // build JS for the search function
             $output .= '
 						function ' . $this->buildJsFunctionPrefix() . 'doSearch(){
-							$("#' . $this->getId() . '").' . $this->getElementType() . '("load",{' . implode(', ', $fltrs) . ', resource: "' . $this->getPageId() . '", element: "' . $this->getWidget()->getId() . '"});
+							$("#' . $this->getId() . '").' . $this->getElementType() . '("load",{' . implode(', ', $fltrs) . ', resource: "' . $widget->getPage()->getAliasWithNamespace() . '", element: "' . $this->getWidget()->getId() . '"});
 						}';
         }
         
