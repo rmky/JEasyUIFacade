@@ -624,7 +624,7 @@ JS;
             case $type instanceof NumberDataType :
                 $translator = $this->getWorkbench()->getCoreApp()->getTranslator();
                 $decimal_separator = $translator->translate('LOCALIZATION.NUMBER.DECIMAL_SEPARATOR');
-                $thousands_separator = $translator->translate('LOCALIZATION.NUMBER.THOUSANDS_SEPARATOR');
+                $thousands_separator = $type->getGroupDigits() ? $translator->translate('LOCALIZATION.NUMBER.THOUSANDS_SEPARATOR') : '';
                 $locale = $this->getWorkbench()->context()->getScopeSession()->getSessionLocale();
                 $formatter = euiInputNumber::buildJsNumberFormatter($js_var_value, $type->getPrecisionMin(), $type->getPrecisionMax(), $decimal_separator, $thousands_separator, $locale);
                 break;
