@@ -18,6 +18,8 @@ use exface\Core\Widgets\DataColumn;
 use exface\Core\Interfaces\DataTypes\EnumDataTypeInterface;
 use exface\Core\DataTypes\NumberDataType;
 use exface\Core\DataTypes\TextStylesDataType;
+use exface\Core\DataTypes\DateDataType;
+use exface\Core\DataTypes\TimestampDataType;
 
 /**
  * Implementation of a basic grid.
@@ -625,6 +627,17 @@ JS;
                 $thousands_separator = $translator->translate('LOCALIZATION.NUMBER.THOUSANDS_SEPARATOR');
                 $locale = $this->getWorkbench()->context()->getScopeSession()->getSessionLocale();
                 $formatter = euiInputNumber::buildJsNumberFormatter($js_var_value, $type->getPrecisionMin(), $type->getPrecisionMax(), $decimal_separator, $thousands_separator, $locale);
+                break;
+            case $type instanceof DateDataType :
+            case $type instanceof TimestampDataType :
+                $format = $type instanceof TimestampDataType ? $this->translate("DATETIME.FORMAT.SCREEN") : $this->translate("DATE.FORMAT.SCREEN");
+                $formatter = <<<JS
+    if (! {$js_var_value}) {
+        return {$js_var_value};
+    }
+    return Date.parse("{$js_var_value}").toString("{$format}");
+
+JS;
                 break;
         }
         
