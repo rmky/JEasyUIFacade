@@ -55,7 +55,7 @@ HTML;
             $last_parent = $b->getParent();
             
             // Create a menu entry
-            $icon = $b->getIconName() ? ' iconCls="' . $this->buildCssIconClass($b->getIconName()) . '"' : '';
+            $icon = $b->getIcon() ? ' iconCls="' . $this->buildCssIconClass($b->getIcon()) . '"' : '';
             $disabled = $b->isDisabled() ? ' disabled=true' : '';
             $buttons_html .= <<<HTML
                 <div {$icon} {$disabled} title="{$b->getHint()}" id="{$this->getTemplate()->getElement($b)->getId()}" onclick="{$this->getTemplate()->getElement($b)->buildJsClickFunctionName()}()">

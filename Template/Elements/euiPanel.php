@@ -142,7 +142,7 @@ HTML;
                 }');
         }
         $collapsibleScript = 'collapsible: ' . ($widget->isCollapsible() ? 'true' : 'false');
-        $iconClassScript = $widget->getIconName() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIconName()) . '\'' : '';
+        $iconClassScript = $widget->getIcon() ? ', iconCls:\'' . $this->buildCssIconClass($widget->getIcon()) . '\'' : '';
         $onLoadScript = $this->getOnLoadScript() ? ', onLoad: function(){' . $this->getOnLoadScript() . '}' : '';
         $onResizeScript = $this->getOnResizeScript() ? ', onResize: function(){' . $this->getOnResizeScript() . '}' : '';
                 

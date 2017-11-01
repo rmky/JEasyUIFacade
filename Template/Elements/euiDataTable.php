@@ -498,7 +498,7 @@ JS;
                         }
                         
                         $bottom_buttons[] = '{
-        					iconCls:  "' . $this->buildCssIconClass($button->getIconName()) . '",
+        					iconCls:  "' . $this->buildCssIconClass($button->getIcon()) . '",
         					title: "' . str_replace('"', '\"', $button->getCaption()) . '",
         					handler: ' . $this->getTemplate()->getElement($button)->buildJsClickFunctionName() . '
         				}';
