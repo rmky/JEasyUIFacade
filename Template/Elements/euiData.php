@@ -198,9 +198,7 @@ class euiData extends euiAbstractElement
 				, striped: ' . ($widget->getStriped() ? 'true' : 'false') . '
 				, nowrap: ' . ($widget->getNowrap() ? 'true' : 'false') . '
 				, toolbar: "#' . $this->getToolbarId() . '"
-				' . ($this->getOnBeforeLoad() ? ', onBeforeLoad: function(param) {
-					' . $this->getOnBeforeLoad() . '
-				}' : '') . '
+				' . ($this->buildJsOnBeforeLoadFunction() ? ', onBeforeLoad: ' . $this->buildJsOnBeforeLoadFunction() : '') . '
 				' . ($this->getOnLoadSuccess() ? ', onLoadSuccess: function(data) {
 					' . $this->getOnLoadSuccess() . '
 				}' : '') . '
@@ -345,18 +343,6 @@ class euiData extends euiAbstractElement
     public function setOnBeforeLoad($script)
     {
         $this->on_before_load = $script;
-    }
-    
-    protected function getOnBeforeLoad()
-    {
-        $script = <<<JS
-				if ($(this).{$this->getElementType()}('options')._skipNextLoad == true) {
-					$(this).{$this->getElementType()}('options')._skipNextLoad = false;
-					return false;
-				}
-				{$this->on_before_load}
-JS;
-				return $script;
     }
     
     /**
@@ -670,6 +656,32 @@ JS;
         }
         
         return $options;
+    }
+    
+    protected function buildJsOnBeforeLoadScript($js_var_param = 'param')
+    {
+        return <<<JS
+                    if ($(this).{$this->getElementType()}('options')._skipNextLoad == true) {
+    					$(this).{$this->getElementType()}('options')._skipNextLoad = false;
+    					return false;
+    				}
+				    {$this->on_before_load}
+JS;
+    }
+    
+    protected function buildJsOnBeforeLoadFunction()
+    {
+        if (! $this->buildJsOnBeforeLoadScript()) {
+            return '';
+        }
+        
+        return <<<JS
+
+                function(param) {
+    				{$this->buildJsOnBeforeLoadScript('param')}
+				}
+
+JS;
     }
 }
 ?>

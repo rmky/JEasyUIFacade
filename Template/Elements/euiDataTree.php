@@ -1,6 +1,14 @@
 <?php
 namespace exface\JEasyUiTemplate\Template\Elements;
 
+use exface\Core\Widgets\DataTree;
+
+/**
+ * @method DataTree getWidget()
+ * 
+ * @author Andrej Kabachnik
+ *
+ */
 class euiDataTree extends euiDataTable
 {
 
@@ -24,7 +32,11 @@ class euiDataTree extends euiDataTable
 					}
 					');
         }
-        $grid_head = parent::buildJsInitOptionsHead() . ', treeField: "' . $this->getWidget()->getTreeColumn()->getDataColumnName() . '"' . ($this->getOnExpand() ? ', onExpand: function(row){' . $this->getOnExpand() . '}' : '');
+        $grid_head = parent::buildJsInitOptionsHead() . '
+                        , treeField: "' . $this->getWidget()->getTreeColumn()->getDataColumnName() . '"
+                        , lines: false
+                        ' . ($this->buildJsOnExpandScript() ? ', onExpand: function(row){' . $this->buildJsOnExpandScript() . '}' : '');
+        
         return $grid_head;
     }
 
@@ -49,9 +61,11 @@ class euiDataTree extends euiDataTable
             
             unset($result['rows'][$nr][$this->getWidget()->getTreeFolderFlagAttributeAlias()]);
             if ($result['rows'][$nr][$widget->getTreeParentIdAttributeAlias()] != $widget->getTreeRootUid()) {
-                $result['rows'][$nr]['_parentId'] = $result['rows'][$nr][$widget->getTreeParentIdAttributeAlias()];
+                $result['rows'][$nr]['_parentId'] = $result['rows'][$nr][$widget->getTreeParentIdAttributeAlias()] ? $result['rows'][$nr][$widget->getTreeParentIdAttributeAlias()] : 0;
             }
         }
+        
+        $result['footer'][0][$this->getWidget()->getTreeColumn()->getDataColumnName()] = '';
         
         return $result;
     }
@@ -66,14 +80,47 @@ class euiDataTree extends euiDataTable
 				';
     }
 
-    public function addOnExpand($script)
+    protected function addOnExpand($script)
     {
         $this->on_expand .= $script;
     }
 
-    public function getOnExpand()
+    protected function buildJsOnExpandScript()
     {
         return $this->on_expand;
+    }
+    
+    protected function buildJsOnBeforeLoadScript($js_var_param = 'param', $js_var_row = 'row')
+    {
+        return parent::buildJsOnBeforeLoadScript($js_var_param) . <<<JS
+                    var nodeId = {$js_var_param}['id'];
+                    if (nodeId) {
+                        if ({$js_var_param}['data'] !== undefined && {$js_var_param}['data']['filters'] !== undefined && {$js_var_param}['data']['filters']['conditions'] !== undefined) {
+                            var conditions = {$js_var_param}['data']['filters']['conditions'];
+                            for (var c in conditions) {
+                                if (conditions[c]['expression'] == '{$this->getWidget()->getTreeParentIdAttributeAlias()}') {
+                                    {$js_var_param}['data']['filters']['conditions'][c]['value'] = nodeId;
+                                }
+                            }
+                        }
+                        delete {$js_var_param}['id'];
+                    }
+JS;
+    }
+    
+    protected function buildJsOnBeforeLoadFunction()
+    {
+        if (! $this->buildJsOnBeforeLoadScript()) {
+            return '';
+        }
+        
+        return <<<JS
+        
+                function(row, param) {
+    				{$this->buildJsOnBeforeLoadScript('param', 'row')}
+				}
+				
+JS;
     }
 }
 ?>

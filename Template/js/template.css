@@ -76,6 +76,10 @@ div.messager-body{overflow-y: auto;}
 /* flot charts */
 .tooltip-inner { max-width: 200px; padding: 3px 8px; color: #fff; text-align: center; background-color: #000; border-radius: 4px;}
 
+/* datagrid, treegrid */
+.datagrid .tree-icon {background: none; width: 2px;}
+.datagrid-footer .tree-icon {background: none; width: 2px;}
+
 /* Symfony Debugger */
 #sf-resetcontent {padding: 20px 10px 0 10px; width: auto !important; max-width: 970px;} 
 #sf-resetcontent h1 {display: none;} 

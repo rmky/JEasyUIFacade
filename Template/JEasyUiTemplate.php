@@ -21,7 +21,7 @@ class JEasyUiTemplate extends AbstractAjaxTemplate
         }
     }
 
-    public function getRequestFilters()
+    /*public function getRequestFilters()
     {
         parent::getRequestFilters();
         // id is a special filter for dynamic tree loading in jeasyui
@@ -30,6 +30,6 @@ class JEasyUiTemplate extends AbstractAjaxTemplate
             $this->getWorkbench()->removeRequestParam('id');
         }
         return $this->request_filters_array;
-    }
+    }*/
 }
 ?>

@@ -41,7 +41,7 @@ class euiPivotTable extends euiDataTable
         
         // get the standard params for grids
         $grid_head = $this->buildJsDataSource();
-        $grid_head .= $sortColumn . $sortOrder . ($this->getOnBeforeLoad() ? ', onBeforeLoad: function(param){' . $this->getOnBeforeLoad() . '}' : '') . '
+        $grid_head .= $sortColumn . $sortOrder . ($this->buildJsOnBeforeLoadFunction() ? ', onBeforeLoad: ' . $this->buildJsOnBeforeLoadFunction() : '') . '
 						, toolbar:[ {
 					        text:\'Layout\',
 					        handler:function(){
