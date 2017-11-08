@@ -90,7 +90,7 @@ HTML;
         // wenn sich die Groesse des Bildschirms/Containers aendert.
         $output = <<<HTML
 
-                <div class="exf-grid-item {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;{$style}">
+                <div class="exf-grid-item {$this->getMasonryItemClass()} {$this->buildCssElementClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;{$style}">
                     <div class="easyui-{$this->getElementType()}"
                             id="{$this->getId()}"
                             data-options="{$this->buildJsDataOptions()}{$fit}"
