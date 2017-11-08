@@ -621,7 +621,7 @@ JS;
     if (! {$js_var_value}) {
         return {$js_var_value};
     }
-    return Date.parse("{$js_var_value}").toString("{$format}");
+    return Date.parse({$js_var_value}).toString("{$format}");
 
 JS;
                 break;
