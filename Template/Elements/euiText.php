@@ -136,7 +136,8 @@ JS;
     
     protected function getCaption()
     {
-        return parent::getCaption() . ':';
+        $caption = parent::getCaption();
+        return  $caption ? $caption . ':' : '';
     }
     
     protected function buildHtmlLabelWrapper($html)
