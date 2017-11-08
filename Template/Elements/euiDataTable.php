@@ -249,6 +249,23 @@ HTML;
         return parent::getHeight();
     }
     
+    /* TODO replace getHeight() by this method. It did not work for some reason.
+    protected function buildCssHeightDefaultValue()
+    {
+        $widget = $this->getWidget();
+        if ($default_height = $this->getTemplate()->getConfig()->getOption('WIDGET.DATATABLE.HEIGHT_DEFAULT')) {
+            // Die Hoehe der DataTable passt sich nicht automatisch dem Inhalt an. Wenn sie also
+            // nicht den gesamten Container ausfuellt, kollabiert sie so dass die Datensaetze nicht
+            // mehr sichtbar sind (nur noch Header und Footer). Deshalb wird hier die Hoehe der
+            // DataTable gesetzt, wenn sie nicht definiert ist, und sie nicht alleine im Container
+            // ist.
+            if ($containerWidget = $widget->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets') && $containerWidget->countWidgetsVisible() > 1) {
+                return ($this->getHeightRelativeUnit() * $default_height) . 'px';
+            }
+        }
+        return 'auto';
+    }*/
+    
     /**
      * 
      * {@inheritDoc}
