@@ -53,7 +53,7 @@ HTML;
             $window_tools = '<a href="javascript:' . $this->getTemplate()->getElement($this->getWidget()->getHelpButton())->buildJsClickFunctionName() . '()" class="fa fa-question-circle-o"></a>';
         }
         
-        $dialog_title = str_replace('"', '\"', $this->getWidget()->getCaption());
+        $dialog_title = str_replace('"', '\"', $this->getCaption());
         
         $output = <<<HTML
 	<div class="easyui-dialog" id="{$this->getId()}" data-options="{$this->buildJsDataOptions()}" title="{$dialog_title}" style="width: {$this->getWidth()}; height: {$this->getHeight()};">
@@ -102,7 +102,7 @@ HTML;
      */
     public function buildJsDataOptions()
     {
-        $this->addOnLoadScript("$('#" . $this->getId() . " .exf_input input').first().next().find('input').focus();");
+        $this->addOnLoadScript("$('#" . $this->getId() . " .exf-input input').first().next().find('input').focus();");
         /* @var $widget \exface\Core\Widgets\Dialog */
         $widget = $this->getWidget();
         // TODO make the Dialog responsive as in http://www.jeasyui.com/demo/main/index.php?plugin=Dialog&theme=default&dir=ltr&pitem=
@@ -151,10 +151,10 @@ HTML;
 
     function {$this->buildJsFunctionPrefix()}layouter() {
         if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
-            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
+            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_exf-grid-item").length > 0) {
                 $("#{$this->getId()}_masonry_grid").masonry({
                     columnWidth: "#{$this->getId()}_sizer",
-                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                    itemSelector: ".{$this->getId()}_masonry_exf-grid-item"
                 });
             }
         } else {

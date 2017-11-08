@@ -19,7 +19,7 @@ class euiCheckBox extends euiInput
 								' . ($this->getWidget()->isDisabled() ? 'disabled="disabled"' : '') . ' />
 						<input type="hidden" name="' . $this->getWidget()->getAttributeAlias() . '" id="' . $this->getId() . '" value="' . $this->getValueWithDefaults() . '" />
 					</div>';
-        return $this->buildHtmlWrapperDiv($output);
+        return $this->buildHtmlLabelWrapper($output);
     }
 
     public function generateJs()

@@ -64,7 +64,7 @@ HTML;
         if (! $widget->getParent()->is('ButtonGroup')) {
             // Hier wird versucht zu unterscheiden wo sich der Knopf befindet. Der Wrapper wird nur benoetigt
             // wenn er sich in einem Dialog befindet, aber nicht als Knopf im Footer, sondern im Inhalt.
-            $output = $this->buildHtmlWrapperDiv($output);
+            $output = $this->buildHtmlGridItemWrapper($output);
         }
         
         return $output;
@@ -91,9 +91,9 @@ HTML;
      * @param string $html            
      * @return string
      */
-    protected function buildHtmlWrapperDiv($html)
+    protected function buildHtmlGridItemWrapper($html)
     {
-        $output = '<div class="fitem ' . $this->getMasonryItemClass() . ' exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; min-width: ' . $this->getMinWidth() . '; height: ' . $this->getHeight() . ';">
+        $output = '<div class="exf-grid-item ' . $this->getMasonryItemClass() . ' exf-input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; min-width: ' . $this->getMinWidth() . '; height: ' . $this->getHeight() . ';">
 				' . $html . '
 			</div>
 			';

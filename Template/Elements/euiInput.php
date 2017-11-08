@@ -13,7 +13,7 @@ use exface\Core\Factories\WidgetLinkFactory;
  * @author Andrej Kabachnik
  *        
  */
-class euiInput extends euiAbstractElement
+class euiInput extends euiText
 {
     
     use JqueryLiveReferenceTrait;
@@ -44,7 +44,7 @@ class euiInput extends euiAbstractElement
 						' . ($widget->isDisabled() ? 'disabled="disabled" ' : '') . '
 						/>
 					';
-        return $this->buildHtmlWrapperDiv($output);
+        return $this->buildHtmlLabelWrapper($output);
     }
 
     public function getValueWithDefaults()
@@ -58,22 +58,6 @@ class euiInput extends euiAbstractElement
             $value = $this->getWidget()->getDefaultValue();
         }
         return $this->escapeString($value);
-    }
-
-    protected function buildHtmlWrapperDiv($html)
-    {
-        if ($this->getWidget()->getCaption() && ! $this->getWidget()->getHideCaption()) {
-            $input = '
-						<label>' . $this->getWidget()->getCaption() . '</label>
-						<div class="exf_input_wrapper">' . $html . '</div>';
-        } else {
-            $input = $html;
-        }
-        
-        $output = '	<div class="fitem ' . $this->getMasonryItemClass() . ' exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . '; min-width: ' . $this->getMinWidth() . '; height: ' . $this->getHeight() . ';">
-						' . $input . '
-					</div>';
-        return $output;
     }
 
     function generateJs()
@@ -228,6 +212,16 @@ JS;
     function buildJsDisabler()
     {
         return '$("#' . $this->getId() . '").' . $this->getElementType() . '("disable")';
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiText::buildCssHeightDefaultValue()
+     */
+    protected function buildCssHeightDefaultValue()
+    {
+        return ($this->getHeightRelativeUnit() * 1) . 'px';
     }
 }
 ?>

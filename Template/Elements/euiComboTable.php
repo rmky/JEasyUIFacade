@@ -153,7 +153,7 @@ JS;
                     {$disabledScript} />
 HTML;
         
-        return $this->buildHtmlWrapperDiv($output);
+        return $this->buildHtmlLabelWrapper($output);
     }
 
     /**

@@ -126,7 +126,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
     {
         $output = '';
         if (($containerWidget = $this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iContainOtherWidgets')) && ($containerWidget instanceof iLayoutWidgets)) {
-            $output = $this->getTemplate()->getElement($containerWidget)->getId() . '_masonry_fitem';
+            $output = $this->getTemplate()->getElement($containerWidget)->getId() . '_masonry_exf-grid-item';
         }
         return $output;
     }
@@ -205,7 +205,7 @@ abstract class euiAbstractElement extends AbstractJqueryElement
             }
         } else {
             // Ein "kleines" Widget ohne angegebene Hoehe ist heightDefault Einheiten hoch.
-            $output = ($this->getHeightRelativeUnit() * $this->getHeightDefault()) . 'px';
+            $output = $this->buildCssHeightDefaultValue();
         }
         return $output;
     }
@@ -285,12 +285,12 @@ abstract class euiAbstractElement extends AbstractJqueryElement
      * @param string $html
      * @return string
      */
-    protected function buildHtmlWrapper($html)
+    protected function buildHtmlGridItemWrapper($html)
     {
         if ($this->getWidget()->getParentByType('exface\\Core\\Interfaces\\Widgets\\iLayoutWidgets')){
             return <<<HTML
             
-            <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+            <div class="exf-grid-item {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
                 {$html}
             </div>
 HTML;

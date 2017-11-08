@@ -6,10 +6,14 @@ use exface\Core\Widgets\FileUploader;
 class euiFileUploader extends euiAbstractElement
 {
 
-    protected function init()
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildCssHeightDefaultValue()
+     */
+    protected function buildCssHeightDefaultValue()
     {
-        parent::init();
-        $this->setHeightDefault(8);
+        return ($this->getHeightRelativeUnit()*8) . 'px';
     }
 
     function generateHtml()
@@ -17,7 +21,7 @@ class euiFileUploader extends euiAbstractElement
         /* @var $widget \exface\Core\Widgets\FileUploader */
         $widget = $this->getWidget();
         $output = <<<HTML
-<div id="{$this->getId()}_pastearea" class="fitem {$this->getMasonryItemClass()} exf_input" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};">
+<div id="{$this->getId()}_pastearea" class="exf-grid-item {$this->getMasonryItemClass()} exf-input" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};">
 	<div class="easyui-panel" title="{$widget->getCaption()}" data-options="fit:true" style="padding:10px;">	
 		<!-- The file input field used as target for the file upload widget -->
 		<div style="float: left; width:100px;">

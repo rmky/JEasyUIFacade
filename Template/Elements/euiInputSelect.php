@@ -44,7 +44,7 @@ class euiInputSelect extends euiInput
 						' . $options . '
 					</select>
 					';
-        return $this->buildHtmlWrapperDiv($output);
+        return $this->buildHtmlLabelWrapper($output);
     }
 
     public function generateJs()

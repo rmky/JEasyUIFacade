@@ -20,7 +20,7 @@ class euiMenu extends euiAbstractElement
     public function generateHtml()
     {        
         return <<<HTML
-<div class="easyui-panel" data-options="fit:true, title:'{$this->getWidget()->getCaption()}'">
+<div class="easyui-panel" data-options="fit:true, title:'{$this->getCaption()}'">
     <div class="easyui-menu" data-options="inline:true, fit:true, lines:true" style="position:relative; border:none">
         {$this->buildHtmlButtons()}
     </div>

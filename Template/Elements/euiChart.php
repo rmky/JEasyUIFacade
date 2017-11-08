@@ -70,7 +70,7 @@ class euiChart extends euiData
             $canvas_height = '100%';
         }
         
-        $chart_panel_options = ", title: '{$this->getWidget()->getCaption()}'";
+        $chart_panel_options = ", title: '{$this->getCaption()}'";
         
         // Create the panel for the chart
         // overflow: hidden loest ein Problem im JavaFX WebView-Browser, bei dem immer wieder
@@ -79,7 +79,7 @@ class euiChart extends euiData
         // das Layout umgebrochen hat. Da sich die Groesse des Charts sowieso an den Container
         // anpasst sollte overflow: hidden keine weiteren Auswirkungen haben.
         $output = <<<HTML
-<div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
+<div class="exf-grid-item {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;">
     <div class="easyui-panel" style="height: auto;" id="{$this->getId()}_wrapper" data-options="fit: true {$chart_panel_options}, onResize: function(){ {$this->getOnResizeScript()} }">
     	{$header_html}
     	<div id="{$this->getId()}" style="height:{$canvas_height}; min-height: 100px; overflow: hidden;"></div>

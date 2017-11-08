@@ -90,7 +90,7 @@ HTML;
         // wenn sich die Groesse des Bildschirms/Containers aendert.
         $output = <<<HTML
 
-                <div class="fitem {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;{$style}">
+                <div class="exf-grid-item {$this->getMasonryItemClass()}" style="width:{$this->getWidth()};min-width:{$this->getMinWidth()};height:{$this->getHeight()};padding:{$this->getPadding()};box-sizing:border-box;{$style}">
                     <div class="easyui-{$this->getElementType()}"
                             id="{$this->getId()}"
                             data-options="{$this->buildJsDataOptions()}{$fit}"
@@ -215,10 +215,10 @@ JS;
 
     function {$this->buildJsFunctionPrefix()}layouter() {
         if (!$("#{$this->getId()}_masonry_grid").data("masonry")) {
-            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_fitem").length > 0) {
+            if ($("#{$this->getId()}_masonry_grid").find(".{$this->getId()}_masonry_exf-grid-item").length > 0) {
                 $("#{$this->getId()}_masonry_grid").masonry({
                     columnWidth: "#{$this->getId()}_sizer",
-                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                    itemSelector: ".{$this->getId()}_masonry_exf-grid-item"
                 });
             }
         } else {
@@ -233,10 +233,10 @@ JS;
 
     function {$this->buildJsFunctionPrefix()}layouter() {
         if (!$("#{$this->getId()}").data("masonry")) {
-            if ($("#{$this->getId()}").find(".{$this->getId()}_masonry_fitem").length > 0) {
+            if ($("#{$this->getId()}").find(".{$this->getId()}_masonry_exf-grid-item").length > 0) {
                 $("#{$this->getId()}").masonry({
                     columnWidth: "#{$this->getId()}_sizer",
-                    itemSelector: ".{$this->getId()}_masonry_fitem"
+                    itemSelector: ".{$this->getId()}_masonry_exf-grid-item"
                 });
             }
         } else {

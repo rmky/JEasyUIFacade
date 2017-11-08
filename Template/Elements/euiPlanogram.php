@@ -24,7 +24,7 @@ class euiPlanogram extends euiDiagram
         }
         $output = <<<HTML
 
-<div id="{$this->getId()}_panel" class="easyui-panel" title="{$this->getWidget()->getCaption()}" style="" data-options="fit:true,tools:'#{$this->getId()}_tools',onResize:function(){ if ($('#{$this->getId()} svg').length > 0) { $('#{$this->getId()}').planogram({width: $(this).width(), height: $(this).height()})}}">
+<div id="{$this->getId()}_panel" class="easyui-panel" title="{$this->getCaption()}" style="" data-options="fit:true,tools:'#{$this->getId()}_tools',onResize:function(){ if ($('#{$this->getId()} svg').length > 0) { $('#{$this->getId()}').planogram({width: $(this).width(), height: $(this).height()})}}">
 	{$this->getTemplate()->getElement($this->getWidget()->getDiagramObjectSelectorWidget())->generateHtml()}
     <div id="{$this->getId()}" style="margin: 10px 3px 0 3px; text-align: center;">
 

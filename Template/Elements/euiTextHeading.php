@@ -9,7 +9,7 @@ class euiTextHeading extends euiText
         $widget = $this->getWidget();
         $prefix = ! $widget->getHideCaption() && $widget->getCaption() ? $widget->getCaption() . ' "' : '';
         $output = '<h' . $this->getWidget()->getHeadingLevel() . ' id="' . $this->getId() . '">' . $prefix . $this->getWidget()->getText() . ($prefix ? '"' : '') . '</h' . $this->getWidget()->getHeadingLevel() . '>';
-        return $this->buildHtmlWrapper($output);
+        return $this->buildHtmlGridItemWrapper($output);
     }
     
     public function getHeight()

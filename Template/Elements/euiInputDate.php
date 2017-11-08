@@ -47,7 +47,7 @@ class euiInputDate extends euiInput
                     {$disabledScript} />
 HTML;
         
-        return $this->buildHtmlWrapperDiv($output);
+        return $this->buildHtmlLabelWrapper($output);
     }
 
     function generateJs()

@@ -69,7 +69,7 @@ class euiDataTable extends euiData
             </div>
 HTML;
         
-        return $this->buildHtmlWrapper($output);
+        return $this->buildHtmlGridItemWrapper($output);
     }
 
     /**

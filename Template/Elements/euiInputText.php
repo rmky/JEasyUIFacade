@@ -4,11 +4,25 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 class euiInputText extends euiInput
 {
 
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiInput::init()
+     */
     protected function init()
     {
         parent::init();
         $this->setElementType('textbox');
-        $this->setHeightDefault(2);
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildCssHeightDefaultValue()
+     */
+    protected function buildCssHeightDefaultValue()
+    {
+        return ($this->getHeightRelativeUnit() * 2) . 'px';
     }
 
     function generateHtml()
@@ -20,7 +34,7 @@ class euiInputText extends euiInput
 							' . ($this->getWidget()->isRequired() ? 'required="true" ' : '') . '
 							' . ($this->getWidget()->isDisabled() ? 'disabled="disabled" ' : '') . '>' . $this->getWidget()->getValue() . '</textarea>
 					';
-        return $this->buildHtmlWrapperDiv($output);
+        return $this->buildHtmlLabelWrapper($output);
         ;
     }
 

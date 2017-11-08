@@ -16,7 +16,7 @@ class euiMessage extends euiText
 					<div class="messager-icon ' . $this->getCssMessageType() . '"></div>
 					<div>' . $this->getWidget()->getText() . '</div>
 				</div>';
-        return $this->buildHtmlWrapper($output);
+        return $this->buildHtmlGridItemWrapper($output);
     }
 
     function getCssMessageType()

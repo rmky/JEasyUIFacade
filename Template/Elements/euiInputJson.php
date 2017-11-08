@@ -4,20 +4,34 @@ namespace exface\JEasyUiTemplate\Template\Elements;
 class euiInputJson extends euiInputText
 {
 
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\JEasyUiTemplate\Template\Elements\euiInputText::init()
+     */
     protected function init()
     {
         parent::init();
         $this->setElementType('div');
-        $this->setHeightDefault(5);
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildCssHeightDefaultValue()
+     */
+    protected function buildCssHeightDefaultValue()
+    {
+        return ($this->getHeightRelativeUnit() * 5) . 'px';
     }
 
-    function generateHtml()
+    public function generateHtml()
     {
         $output = '<div id="' . $this->getId() . '" style="height: 100%; width: 100%;"></div>';
-        return $this->buildHtmlWrapperDiv($output);
+        return $this->buildHtmlLabelWrapper($output);
     }
 
-    function generateJs()
+    public function generateJs()
     {
         $init_value = $this->getValueWithDefaults() ? $this->getId() . '_JSONeditor.set(' . $this->getWidget()->getValue() . ');' : '';
         $script = <<<JS
@@ -27,7 +41,7 @@ class euiInputJson extends euiInputText
                         					});
             {$init_value}
             {$this->getId()}_JSONeditor.expandAll();
-            $('#{$this->getId()}').parents('.exf_input').children('label').css('vertical-align', 'top');
+            $('#{$this->getId()}').parents('.exf-input').children('label').css('vertical-align', 'top');
 JS;
         return $script;
     }

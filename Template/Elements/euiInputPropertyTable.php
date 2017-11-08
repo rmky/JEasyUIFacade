@@ -19,7 +19,7 @@ class euiInputPropertyTable extends euiInput
             // TODO Look for default value here
             $value = '{}';
         }
-        $output = '	<div class="fitem ' . $this->getMasonryItemClass() . ' exf_input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . ';min-width:' . $this->getMinWidth() . ';">
+        $output = '	<div class="exf-grid-item ' . $this->getMasonryItemClass() . ' exf-input" title="' . trim($this->buildHintText()) . '" style="width: ' . $this->getWidth() . ';min-width:' . $this->getMinWidth() . ';">
 						<textarea name="' . $widget->getAttributeAlias() . '" id="' . $this->getId() . '" style="display:none;" >' . $value . '</textarea>
 						<table id="' . $this->buildJsGridId() . '" width="100%"></table>
 					' . $this->buildHtmlToolbar() . '</div>';
