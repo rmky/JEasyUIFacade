@@ -8,6 +8,7 @@ use exface\Core\DataTypes\NumberDataType;
 use exface\Core\DataTypes\DateDataType;
 use exface\Core\DataTypes\TimestampDataType;
 use exface\Core\DataTypes\TextStylesDataType;
+use exface\Core\Interfaces\Widgets\iTakeInput;
 
 /**
  * @method Text getWidget()
@@ -137,7 +138,7 @@ JS;
     protected function getCaption()
     {
         $caption = parent::getCaption();
-        return  $caption ? $caption . ':' : '';
+        return  $caption . ($caption && ! $this->getWidget() instanceof iTakeInput ?  ':' : '');
     }
     
     protected function buildHtmlLabelWrapper($html)
