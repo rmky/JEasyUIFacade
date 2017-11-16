@@ -419,7 +419,7 @@ JS;
                 
                 if ($series->getAxisX()->getAxisType() == ChartAxis::AXIS_TYPE_TIME || $series->getAxisY()->getAxisType() == ChartAxis::AXIS_TYPE_TIME) {
                     $options .= '
-									, barWidth: 24*60*60*1000';
+									, barWidth: 24*60*60*1000*0.8';
                 }
                 
                 if ($series->getChartType() == ChartSeries::CHART_TYPE_BARS) {
