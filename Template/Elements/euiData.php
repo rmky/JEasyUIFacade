@@ -20,6 +20,9 @@ use exface\Core\DataTypes\NumberDataType;
 use exface\Core\DataTypes\TextStylesDataType;
 use exface\Core\DataTypes\DateDataType;
 use exface\Core\DataTypes\TimestampDataType;
+use exface\Core\Templates\AbstractAjaxTemplate\Interfaces\JsValueDecoratingInterface;
+use exface\Core\Interfaces\Widgets\iShowText;
+use exface\Core\Interfaces\Widgets\iDisplayValue;
 
 /**
  * Implementation of a basic grid.
@@ -601,57 +604,42 @@ HTML;
      */
     protected function buildJsInitOptionsColumnFormatter(DataColumn $col, $js_var_value, $js_var_row, $js_var_index)
     {
-        if ($col->getDisableFormatters()) {
+        $cellWidget = $col->getCellWidget();
+        
+        if (($cellWidget instanceof iDisplayValue) && $cellWidget->getDisableFormatting()) {
             return '';
         }
         
         $options = '';
         
         // Data type specific formatting
-        $type = $col->getDataType();
-        $attr = $col->getAttribute();
-        $formatter = '';
-        if (! $col->isHidden() && (! $attr || ! $attr->getFormatter())) {
-            switch (true) {
-                case $type instanceof EnumDataTypeInterface :
-                    $js_value_labels = json_encode($type->getLabels());
-                    $formatter = <<<JS
-                    
-    var labels = {$js_value_labels};
-    return labels[{$js_var_value}] ? labels[{$js_var_value}] : {$js_var_value};
-    
-JS;
-                    break;
-                case $type instanceof NumberDataType :
-                    $translator = $this->getWorkbench()->getCoreApp()->getTranslator();
-                    $decimal_separator = $translator->translate('LOCALIZATION.NUMBER.DECIMAL_SEPARATOR');
-                    $thousands_separator = $type->getGroupDigits() ? $translator->translate('LOCALIZATION.NUMBER.THOUSANDS_SEPARATOR') : '';
-                    $locale = $this->getWorkbench()->context()->getScopeSession()->getSessionLocale();
-                    $formatter = euiInputNumber::buildJsNumberFormatter($js_var_value, $type->getPrecisionMin(), $type->getPrecisionMax(), $decimal_separator, $thousands_separator, $locale);
-                    break;
-                case $type instanceof DateDataType :
-                case $type instanceof TimestampDataType :
-                    $format = $type instanceof TimestampDataType ? $this->translate("DATETIME.FORMAT.SCREEN") : $this->translate("DATE.FORMAT.SCREEN");
-                    $formatter = <<<JS
-    if (! {$js_var_value}) {
-        return {$js_var_value};
-    }
-    return Date.parse({$js_var_value}).toString("{$format}");
-
-JS;
-                    break;
-            }
+        $formatter_js = '';
+        $cellTpl = $this->getTemplate()->getElement($cellWidget);
+        if (($cellTpl instanceof JsValueDecoratingInterface) && $cellTpl->hasDecorator()) {
+            $formatter_js = $cellTpl->buildJsValueDecorator($js_var_value);
         }
         
         // Formatter option
-        if ($formatter) {
-            $options = "formatter: function({$js_var_value},{$js_var_row},{$js_var_index}){try {" . $formatter . "} catch (e) {return {$js_var_value};} }";
+        if ($formatter_js) {
+            $options = <<<JS
+
+                        formatter: function({$js_var_value},{$js_var_row},{$js_var_index}){
+
+                            try {
+                                return {$formatter_js};
+                            } catch (e) {
+                                console.warn('Cannot apply decorator to column {$col->getDataColumnName()}');
+                                return {$js_var_value}; 
+                            } 
+
+                        }
+JS;
         }
         
         // Styler option
         $styler = $col->getCellStylerScript();
-        if (! $styler){
-            switch ($col->getStyle()) {
+        if (! $styler && $cellWidget instanceof iShowText){
+            switch ($cellTpl->getStyle()) {
                 case TextStylesDataType::BOLD:
                     $styler = "return 'font-weight: bold;'";
                     break;
@@ -677,8 +665,9 @@ JS;
     protected function buildJsOnBeforeLoadScript($js_var_param = 'param')
     {
         return <<<JS
-                    if ($(this).{$this->getElementType()}('options')._skipNextLoad == true) {
-    					$(this).{$this->getElementType()}('options')._skipNextLoad = false;
+                    {$this->getId()}_jquery = $("#{$this->getId()}");
+                    if ({$this->getId()}_jquery.data("_skipNextLoad") == true) {
+    					{$this->getId()}_jquery.data("_skipNextLoad", false);
     					return false;
     				}
 				    {$this->on_before_load}

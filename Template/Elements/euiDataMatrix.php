@@ -48,7 +48,7 @@ class euiDataMatrix extends euiDataTable
         
         $transpose_js = <<<JS
 
-$(this).datagrid('options')._skipNextLoad = true;
+$("#{$this->getId()}").data("_skipNextLoad", true);
 
 var dataCols = [ {$data_cols} ];
 var dataColsTotals = {$data_cols_totlas};
@@ -271,7 +271,7 @@ JS;
     {
         $editable_transposed_cols = array();
         foreach ($this->getWidget()->getColumnsTransposed() as $pos => $col) {
-            if ($col->getEditor()) {
+            if ($col->isEditable()) {
                 $editable_transposed_cols[] = $pos;
             }
         }
