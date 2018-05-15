@@ -58,12 +58,7 @@ JS;
      */
     public function buildJsValueGetter()
     {
-        if ($this->getWidget()->isFormattedJsonExport()) {
-            $getWidgetText = 'JSON.stringify(' . $this->getId() . '_JSONeditor.get(), null, "\t")';
-        } else {
-            $getWidgetText = $this->getId() . '_JSONeditor.getText()';
-        }
-        return 'function(){var text = ' . $getWidgetText . '; if (text === "{}" || text === "[]") { return ""; } else { return text;}}';
+        return 'function(){var text = ' . $this->getId() . '_JSONeditor.getText(); if (text === "{}" || text === "[]") { return ""; } else { return text;}}';
     }
 
     public function buildHtmlHeadTags()
