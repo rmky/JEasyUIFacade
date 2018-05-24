@@ -33,7 +33,7 @@ class euiDataTable extends euiData
         
         // Take care of refresh links
         if ($refresh_link = $widget->getRefreshWithWidget()) {
-            if ($refresh_link_element = $this->getTemplate()->getElement($refresh_link->getWidget())) {
+            if ($refresh_link_element = $this->getTemplate()->getElement($refresh_link->getTargetWidget())) {
                 $refresh_link_element->addOnChangeScript($this->buildJsRefresh());
             }
         }
@@ -268,13 +268,13 @@ JS;
         $template = $this->getTemplate();
         $includes = parent::buildHtmlHeadTags();
         // Masonry is neede to align filters nicely
-        $includes[] = '<script type="text/javascript" src="' . $template->buildUrlToSource('SOURCES.MASONRY') . '"></script>';
+        $includes[] = '<script type="text/javascript" src="' . $template->buildUrlToSource('LIBS.MASONRY') . '"></script>';
         // Row details view
         if ($this->getWidget()->hasRowDetails()) {
-            $includes[] = '<script type="text/javascript" src="' . $template->buildUrlToSource('SOURCES.JEASYUI.EXTENSIONS.DATAGRID_DETAILVIEW') . '"></script>';
+            $includes[] = '<script type="text/javascript" src="' . $template->buildUrlToSource('LIBS.JEASYUI.EXTENSIONS.DATAGRID_DETAILVIEW') . '"></script>';
         }
         if ($this->getWidget()->hasRowGroups()){
-            $includes[] = '<script type="text/javascript" src="' . $template->buildUrlToSource('SOURCES.JEASYUI.EXTENSIONS.DATAGRID_GROUPVIEW') . '"></script>';
+            $includes[] = '<script type="text/javascript" src="' . $template->buildUrlToSource('LIBS.JEASYUI.EXTENSIONS.DATAGRID_GROUPVIEW') . '"></script>';
         }
         return $includes;
     }
@@ -549,6 +549,17 @@ JS;
         
         // Add buttons to the pager at the bottom of the datagrid
         $bottom_buttons = array();
+        $bottom_buttons[] = <<<JS
+                    
+                    {
+						iconCls:  "fa fa-eraser",
+						title: "{$this->translate('WIDGET.DATATABLE.CLEAR_SELECTIONS')}",
+						handler: function() { 
+                            $('#{$this->getId()}').{$this->getElementType()}('unselectAll');
+                            {$this->getOnChangeScript()}
+                        }
+					}
+JS;
         
         // If the top toolbar is hidden, add actions to the bottom toolbar
         if ($widget->getHideHeader() && ! $widget->getHideFooter() && $widget->hasButtons()) {

@@ -307,5 +307,36 @@ abstract class euiAbstractElement extends AbstractJqueryElement
             </div>
 HTML;
     }
+         
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildJs()
+     */
+    public function buildJs()
+    {
+        return '';
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \exface\Core\Templates\AbstractAjaxTemplate\Elements\AbstractJqueryElement::buildHtml()
+     */
+    public function buildHtml()
+    {
+        return '';
+    }
+    
+    /**
+     * Returns an inline JS-snippet, that resolves to TRUE if the jEasyUI control for this element is
+     * already initialized in FALSE otherwise.
+     * 
+     * @return string
+     */
+    public function buildJsCheckInitialized() : string
+    {
+        return "($('{$this->getId()}').data('{$this->getElementType()}') !== undefined)";
+    }
 }
 ?>
