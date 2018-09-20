@@ -48,8 +48,7 @@ class AcceptanceTester extends \Codeception\Actor
         $I = $this;
         
         $I->amOnPage('login.html');
-        $I->click('Log out to switch to another user');
+        $I->click('Log out');
         $I->waitForElement('#username', 30);
-        
     }
 }
