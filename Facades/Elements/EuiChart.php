@@ -72,7 +72,7 @@ class EuiChart extends EuiData
         $onResizeScript = <<<JS
 
 setTimeout(function(){
-    var chartDiv = $('#{$this->buildJsEChartsDivVar()}');
+    var chartDiv = $('#{$this->getId()}');
     chartDiv.height(chartDiv.parent().height() - chartDiv.prev().height());
     {$this->buildJsEChartsResize()};
 }, 0);
