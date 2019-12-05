@@ -70,8 +70,7 @@ JS;
         $output = parent::buildJsDataOptions();
         $output = ($output ? ',' : '') . $output;
              
-        $output .= "showSeconds: " . ($widget->getShowSeconds() ? 'true' : 'false')
-                . ", increment: " . ($widget->getStepMinutes() < 60 ? $widget->getStepMinutes() : $widget->getStepMinutes() / 60)
+        $output .= ", increment: " . ($widget->getStepMinutes() < 60 ? $widget->getStepMinutes() : $widget->getStepMinutes() / 60)
                 . ", highlight: " . ($widget->getStepMinutes() < 60 ? 1 : 0)
                 ;
         $output .= <<<JS
@@ -87,6 +86,10 @@ JS;
                 $('#{$this->getId()}').data("_internalValue", "").data("_isValid", false);
                 return null;
             }
+        }
+        , formatter: function (date) {
+            if (!date) {return '';}
+            return {$this->getDateFormatter()->buildJsFormatDateObjectToString('date')}
         }
         , validType: "time['#{$this->getId()}']"
 JS;
